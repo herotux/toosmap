@@ -1,0 +1,226 @@
+.categories-container {
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.header h1 {
+    font-size: 24px;
+    color: #333;
+}
+
+.search-box input {
+    padding: 10px;
+    width: 200px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.categories-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    table-layout: fixed; /* اضافه شده */
+}
+
+.categories-table th,
+.categories-table td {
+    padding: 15px;
+    text-align: right;
+    border-bottom: 1px solid #ddd;
+}
+
+.categories-table th {
+    background-color: #f4f4f4;
+    color: #555;
+    font-weight: bold;
+}
+
+.categories-table tr:hover {
+    background-color: #f9f9f9;
+}
+
+.status {
+    padding: 5px 10px;
+    border-radius: 4px;
+    color: #fff;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.status.فعال {
+    background-color: #28a745;
+}
+
+.status.غیرفعال {
+    background-color: #dc3545;
+}
+
+.btn-action {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #fff;
+    text-decoration: none;
+    cursor: pointer;
+    display: inline-block;
+}
+
+.btn-edit {
+    background-color: #36aace;
+}
+
+.btn-edit:hover {
+    background-color: #439ab4;
+}
+
+.btn-seller {
+    background-color: #46bd22;
+}
+
+.btn-seller:hover {
+    background-color: #c82333;
+}
+
+
+
+.categories-table td,
+.categories-table th{
+    width: 12.5%; /* عرض یکسان برای سایر ستون‌ها */
+}
+
+/* تنظیم عرض ستون آخر (عملیات) */
+.categories-table td:last-child,
+.categories-table th:last-child {
+    width: 15%; /* افزایش عرض ستون آخر */
+    min-width: 120px; /* حداقل عرض برای ستون آخر */
+}
+
+.categories-table a {
+    text-decoration: none;
+    color: #007bff;
+    font-weight: bold;
+}
+
+.categories-table a:hover {
+    color: #0056b3;
+}
+
+.icon-toggle {
+    margin-left: 8px;
+    cursor: pointer;
+    color: #007bff;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.icon-toggle:hover {
+    color: #0056b3;
+}
+
+.submenu {
+    display: none;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    font-size: 13px;
+    color: #555;
+}
+
+.submenu li {
+    padding: 5px 0;
+}
+
+#records_per_page {
+    width: 80px;
+    font-size: 13px;
+    padding: 3px;
+    text-align: center;
+}
+
+.filters input[name="search"] {
+    font-size: 14px;
+    padding: 6px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.categories-table thead th {
+    background-color: #fff;
+    font-weight: normal;
+    color: #333;
+    text-align: right;
+    padding: 4px 8px;
+    border-bottom: 1px solid #ddd;
+}
+
+.table-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    margin: 0;
+}
+
+.header .btn-success {
+    font-size: 14px;
+    padding: 5px 10px;
+}
+
+.filters input[name="search"] {
+    width: 200px;
+    height: 30px;
+    font-size: 14px;
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+#records_per_page {
+    width: 80px;
+    font-size: 14px;
+    height: 30px;
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.filters form {
+    margin: 0;
+}
+
+.filters form:first-child {
+    margin-right: 10px;
+}
+
+.filters .ml-2 {
+    margin-left: 10px;
+}
+
+.submenu {
+    display: none;
+    background-color: #f9f9f9;
+    font-size: 13px;
+}
+
+.submenu ul {
+    list-style: none;
+    margin: 0;
+    padding: 0 20px;
+}
+
+.submenu li {
+    padding: 5px 0;
+}

@@ -1,0 +1,213 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}مدیریت کاربران{% endblock %}
+{% load static %}
+{% load jalali_tags %}
+{% load custom_filters %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/users.css' %}">
+<style>
+    .container_header {
+        display: block;
+    }
+
+    .form-header {
+        background-color: #bfdefd;
+        color: #333;
+        padding: 15px 25px;
+        border-radius: 8px 8px 0 0;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .form-header h2 {
+        margin: 0;
+        font-size: 18px;
+    }
+
+    .form-header a {
+        text-decoration: none;
+        color: #333;
+    }
+
+    .form-header a:hover {
+        color: #000;
+    }
+
+    .search-fields input {
+        width: 100%;
+        padding: 5px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 14px;
+        direction: rtl;
+    }
+
+    .search-fields th {
+        padding: 5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container_header">
+    <div class="form-header">
+        <h2>لیست کاربران</h2>
+        <a href="{% url 'add_user' %}" class="btn btn-success btn-sm">افزودن کاربر</a>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <section class="content categories-container">
+        <div class="filters d-flex justify-content-between align-items-center my-3">
+            <form method="GET" class="d-flex align-items-center">
+                <label for="records_per_page" class="ml-2 small">تعداد رکورد:</label>
+                <select name="records_per_page" id="records_per_page" class="form-control form-control-sm mr-2" onchange="this.form.submit()">
+                    <option value="10" {% if request.GET.records_per_page == "10" %}selected{% endif %}>10</option>
+                    <option value="25" {% if request.GET.records_per_page == "25" or not request.GET.records_per_page %}selected{% endif %}>25</option>
+                    <option value="50" {% if request.GET.records_per_page == "50" %}selected{% endif %}>50</option>
+                    <option value="100" {% if request.GET.records_per_page == "100" %}selected{% endif %}>100</option>
+                    <option value="250" {% if request.GET.records_per_page == "250" %}selected{% endif %}>250</option>
+                    <option value="500" {% if request.GET.records_per_page == "500" %}selected{% endif %}>500</option>
+                </select>
+            </form>
+        </div>
+
+        <table class="categories-table">
+            <thead>
+                <tr class="search-fields">
+                    <th><input type="text" class="form-control search-input" data-column="0" placeholder="جستجو نام..."></th>
+                    <th><input type="text" class="form-control search-input" data-column="1" placeholder="جستجو ایمیل..."></th>
+                    <th><input type="text" class="form-control search-input" data-column="2" placeholder="جستجو موبایل..."></th>
+                    <th>
+                        <select class="form-control search-select" data-column="5">
+                            <option value="">همه نقش‌ها</option>
+                            <option value="کاربر">کاربر</option>
+                            <option value="فروشنده">فروشنده</option>
+                            <option value="مدیر">مدیر</option>
+                        </select>
+                    </th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+                <tr>
+                    <th>نام</th>
+                    <th>ایمیل</th>
+                    <th>موبایل</th>
+                    <th>وضعیت موبایل</th>
+                    <th>وضعیت کاربری</th>
+                    <th>گروه کاربری</th>
+                    <th>تاریخ ثبت نام</th>
+                    <th>عملیات</th>
+                </tr>
+                
+            </thead>
+            <tbody>
+                {% for user in page_obj %}
+                <tr>
+                    <td>{{ user.first_name }} {{ user.last_name }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.mobile }}</td>
+                    <td>
+                        {% if user.mobile_status %}
+                            <span class="status فعال">تایید شده</span>
+                        {% else %}
+                            <span class="status غیرفعال">تایید نشده</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if user.active %}
+                            <span class="status فعال">فعال</span>
+                        {% else %}
+                            <span class="status غیرفعال">غیرفعال</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ user_roles|get_item:user.id }}</td>
+                    <td>{{ user.created_at|to_jalali:'%y/%m/%d' }}</td>
+                    <td>
+                        <a href="{% url 'edit_user_view' user.id %}" class="btn-action btn-edit text-white">ویرایش</a>
+                        <form action="" method="POST" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-action btn-seller"><i class="fas fa-store"></i>فروشنده</button>
+                        </form>
+                    </td>
+                </tr>t
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="pagination">
+            <span class="step-links">
+                {% if page_obj.has_previous %}
+                    <a href="{% url 'list_users' %}?page=1&records_per_page={{ request.GET.records_per_page }}">&laquo; اول</a>
+                    <a href="{% url 'list_users' %}?page={{ page_obj.previous_page_number }}&records_per_page={{ request.GET.records_per_page }}">قبلی</a>
+                {% endif %}
+
+                <span class="current">
+                    صفحه {{ page_obj.number }} از {{ page_obj.paginator.num_pages }}.
+                </span>
+
+                {% if page_obj.has_next %}
+                    <a href="{% url 'list_users' %}?page={{ page_obj.next_page_number }}&records_per_page={{ request.GET.records_per_page }}">بعدی</a>
+                    <a href="{% url 'list_users' %}?page={{ page_obj.paginator.num_pages }}&records_per_page={{ request.GET.records_per_page }}">آخر &raquo;</a>
+                {% endif %}
+            </span>
+        </div>
+    </section>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const searchInputs = document.querySelectorAll('.search-input');
+        const searchSelects = document.querySelectorAll('.search-select');
+
+        // تابع فیلتر کردن رکوردها
+        function filterRows() {
+            const rows = document.querySelectorAll('.categories-table tbody tr');
+
+            rows.forEach(row => {
+                let shouldDisplay = true;
+
+                // بررسی فیلدهای جستجوی input
+                searchInputs.forEach(input => {
+                    const columnIndex = input.getAttribute('data-column');
+                    const searchText = input.value.toLowerCase();
+                    const cell = row.querySelector(`td:nth-child(${parseInt(columnIndex) + 1})`);
+
+                    if (cell && !cell.textContent.toLowerCase().includes(searchText)) {
+                        shouldDisplay = false;
+                    }
+                });
+
+                // بررسی فیلدهای جستجوی select
+                searchSelects.forEach(select => {
+                    const columnIndex = select.getAttribute('data-column');
+                    const selectedValue = select.value;
+                    const cell = row.querySelector(`td:nth-child(${parseInt(columnIndex) + 1})`);
+
+                    if (cell && selectedValue && cell.textContent.trim() !== selectedValue) {
+                        shouldDisplay = false;
+                    }
+                });
+
+                // نمایش یا مخفی کردن ردیف
+                row.style.display = shouldDisplay ? '' : 'none';
+            });
+        }
+
+        // افزودن رویداد input برای فیلدهای جستجوی input
+        searchInputs.forEach(input => {
+            input.addEventListener('input', filterRows);
+        });
+
+        // افزودن رویداد change برای فیلدهای جستجوی select
+        searchSelects.forEach(select => {
+            select.addEventListener('change', filterRows);
+        });
+    });
+</script>
+{% endblock %}

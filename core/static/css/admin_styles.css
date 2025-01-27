@@ -1,0 +1,274 @@
+/* تنظیمات عمومی */
+body {
+    font-family: 'Vazir', sans-serif;
+    margin: 0;
+    background-color: #f9f9f9;
+    color: #333;
+    direction: rtl; /* راست‌چین بودن */
+    text-align: right;
+}
+
+/* هدر */
+.header {
+    background-color: #ffffff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #eaeaea;
+}
+
+.header .logo h1 {
+    margin: 0;
+    font-size: 18px;
+    color: #333;
+    font-family: 'Vazir', sans-serif; /* Updated font */
+}
+
+.header .header-menu ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: row-reverse;
+}
+
+.header .header-menu ul li {
+    margin-right: 15px;
+}
+
+.header .header-menu ul li a {
+    text-decoration: none;
+    color: #333;
+    font-size: 14px;
+    transition: color 0.3s;
+    font-family: 'Vazir', sans-serif; /* Updated font */
+}
+
+.header .header-menu ul li a:hover {
+    color: #007bff;
+}
+
+/* کانتینر کلی */
+.container {
+    display: flex;
+    margin-top: 20px;
+}
+
+/* اطلاعات کاربر */
+.user-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.user-info .user-image {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-left: 5px;
+}
+
+.user-info .user-details {
+    margin-right: 10px;
+}
+
+.user-info .user-name {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    margin: 0;
+    font-family: 'Vazir', sans-serif; /* Updated font */
+}
+
+.user-info .user-title {
+    font-size: 14px;
+    color: #777;
+    margin: 0;
+}
+
+/* متن پنل مدیریت غیرفعال */
+.disabled-panel {
+    font-size: 14px;
+    color: #aaa;
+    margin: 20px 0;
+}
+
+/* منوهای سایدبار */
+.sidebar nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar nav ul li {
+    margin: 15px 0;
+    position: relative;
+    width: 100%;
+}
+
+.sidebar nav ul li a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* فاصله بین آیکون و علامت + */
+    color: #333;
+    text-decoration: none;
+    font-size: 14px;
+    padding: 10px;
+    border-radius: 10px;
+    transition: background-color 0.3s;
+    width: 100%;
+    font-family: 'Vazir', sans-serif; /* Updated font */
+}
+
+.sidebar nav ul li a:hover {
+    background-color: #f1f1f1;
+}
+
+/* آیکون‌ها و نام آیتم‌ها کنار هم */
+.sidebar nav ul li a i {
+    margin-right: 10px; /* فاصله بین آیکون و نام آیتم */
+    font-size: 16px; /* اندازه آیکون */
+}
+
+/* زیرمنوها */
+.sidebar nav ul li .submenu {
+    list-style: none;
+    padding: 10px 20px;
+    margin: 0;
+    display: none; /* مخفی کردن زیرمنوها */
+    background-color: #f9f9f9;
+    border-radius: 10px;
+}
+
+.sidebar nav ul li .submenu li {
+    margin: 5px 0;
+}
+
+.sidebar nav ul li .submenu li a {
+    color: #555;
+    font-size: 13px;
+    padding: 5px 0;
+    text-decoration: none;
+    font-family: 'Vazir', sans-serif; /* Updated font */
+}
+
+.sidebar nav ul li .submenu li a:hover {
+    color: #000;
+}
+
+/* آیکون‌های باز/بسته */
+.toggle-icon {
+    font-size: 12px;
+    font-weight: bold;
+    color: #666;
+    margin-left: 10px; /* فاصله بین علامت + و آیکون */
+}
+
+/* وقتی منو باز است */
+.sidebar nav ul li a .toggle-icon {
+    margin-left: 10px; /* فاصله در سمت راست برای باز بودن */
+}
+
+/* محتوای اصلی */
+.main-content {
+    flex: 1;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 15px;
+    margin: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.content h2 {
+    margin: 0;
+    font-size: 20px;
+    font-family: 'Vazir', sans-serif; /* Updated font */
+}
+
+.stats-boxes {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.stats-box {
+    background-color: #e9ecef; /* Updated background color */
+    padding: 20px; /* Increased padding */
+    border-radius: 5px;
+    text-align: center;
+    margin-top: 15px; /* Adjusted margin */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Reduced shadow */
+}
+
+.stats-box h3 {
+    margin: 0;
+    font-size: 1.2em;
+    font-family: 'Vazir', sans-serif; /* Updated font */
+}
+
+.stats-box p {
+    font-size: 2em;
+    font-weight: bold;
+}
+
+/* حالت پیش‌فرض برای سایدبار */
+.sidebar {
+    flex: 0 0 25%; /* عرض 25% */
+    max-width: 25%;
+    transition: all 0.3s ease; /* انیمیشن برای حالت کشویی */
+    max-width: 250px;
+}
+
+/* سایدبار */
+.sidebar {
+    background-color: #ffffff;
+    border-radius: 15px;
+    margin: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    height: auto; /* ارتفاع خودکار */
+    display: inline-block; /* جلوگیری از کشیده شدن */
+}
+
+/* سایدبار در صفحات کوچک */
+@media (max-width: 768px) {
+    .sidebar {
+        flex: 0 0 100%; /* عرض کامل برای سایدبار */
+        max-width: 100%;
+        margin: 0;
+        position: absolute; /* قرار گرفتن روی محتوای اصلی */
+        top: 0;
+        right: -120%; /* مخفی شدن در سمت راست */
+        height: 100vh; /* ارتفاع کامل صفحه */
+        background-color: #ffffff; /* رنگ پس‌زمینه */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* سایه برای حالت کشویی */
+        z-index: 999; /* جلوتر از سایر بخش‌ها */
+        overflow-y: auto; /* اسکرول برای محتوای طولانی */
+    }
+
+    /* وقتی سایدبار باز است */
+    .sidebar.open {
+        right: 0; /* نمایش کامل سایدبار */
+    }
+
+    /* مخفی کردن اسکرول اصلی وقتی سایدبار باز است */
+    body.sidebar-open {
+        overflow: hidden;
+    }
+
+    /* دکمه برای باز و بسته کردن سایدبار */
+    .sidebar-toggle {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        z-index: 1000;
+        background-color: #007bff;
+        color: #ffffff;
+        border: none;
+        border-radius: 5px;
+        padding: 10px;
+        cursor: pointer;
+    }
+}

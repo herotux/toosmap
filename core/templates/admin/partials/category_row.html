@@ -1,0 +1,31 @@
+<tr>
+    <td>
+        {% if category.children.all %}
+            <span class="icon-toggle" onclick="toggleSubmenu(this)">+</span>
+        {% endif %}
+        {{ category.name }}
+    </td>
+    <td>{{ category.label|default:"-" }}</td>
+    <td>{{ category.sort_order }}</td>
+    <td>
+        <span class="status {% if category.status %}فعال{% else %}غیرفعال{% endif %}">
+            {% if category.status %}فعال{% else %}غیرفعال{% endif %}
+        </span>
+    </td>
+    <td>
+        <a href="{% url 'edit_category' category.id %}" class="btn-action btn-edit">ویرایش</a>
+        <a href="{% url 'delete_category' category.id %}" class="btn-action btn-delete">حذف</a>
+    </td>
+</tr>
+
+{% if category.children.all %}
+    <tr class="submenu" style="display: none;">
+        <td colspan="5">
+            <ul>
+                {% for child in category.children.all %}
+                    {% include "admin/partials/category_row.html" with category=child %}
+                {% endfor %}
+            </ul>
+        </td>
+    </tr>
+{% endif %}

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نقشه با سایدبار و جستجو</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+    <style>
+        body {
+            display: flex;
+            margin: 0;
+        }
+        #map { 
+            height: 100vh; 
+            width: calc(100% - 300px); /* عرض نقشه */
+        }
+        #sidebar {
+            width: 300px;
+            height: 100vh;
+            background: #f4f4f4;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        #sidebar-header {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        #sidebar-footer {
+            margin-top: auto;
+            font-size: 14px;
+            text-align: center;
+            padding: 10px 0;
+            border-top: 1px solid #ddd;
+        }
+        .search-box {
+            margin-bottom: 20px;
+        }
+        .province-list, .city-list {
+            list-style: none;
+            padding: 0;
+        }
+        .province-item, .city-item {
+            cursor: pointer;
+            padding: 10px;
+            border: 1px solid #ddd;
+            margin: 5px 0;
+            border-radius: 4px;
+        }
+        .province-item:hover, .city-item:hover {
+            background-color: #ddd;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- سایدبار -->
+    <div id="sidebar">
+        <div id="sidebar-header">نقشه و جستجو</div>
+        <input type="text" id="searchBox" class="search-box" placeholder="جستجو..." />
+        <ul id="provinceList" class="province-list"></ul>
+        <ul id="cityList" class="city-list" style="display:none;"></ul>
+        <div id="sidebar-footer">تمام حقوق محفوظ است.</div>
+    </div>
+
+    <!-- نقشه -->
+    <div id="map"></div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // ساخت نقشه
+            const map = L.map('map').setView([35.6892, 51.3890], 12);
+
+            // افزودن Tile Layer
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            // دریافت داده‌ها از API
+            fetch('/api/provinces-cities/')
+                .then(response => response.json())
+                .then(data => {
+                    const provinceListElement = document.getElementById('provinceList');
+                    data.forEach(province => {
+                        const provinceItem = document.createElement('li');
+                        provinceItem.textContent = province.name;
+                        provinceItem.classList.add('province-item');
+                        provinceItem.onclick = () => showCities(province);
+                        provinceListElement.appendChild(provinceItem);
+                    });
+                });
+
+            // نمایش شهرستان‌ها برای یک استان
+            function showCities(province) {
+                const cityListElement = document.getElementById('cityList');
+                cityListElement.style.display = 'block';
+                cityListElement.innerHTML = ''; // Clear existing cities
+
+                province.cities.forEach(city => {
+                    const cityItem = document.createElement('li');
+                    cityItem.textContent = city.name;
+                    cityItem.classList.add('city-item');
+                    cityItem.onclick = () => goToCity(city);
+                    cityListElement.appendChild(cityItem);
+                });
+            }
+
+            // رفتن به موقعیت شهرستان
+            function goToCity(city) {
+                map.setView([city.lat, city.lng], 12);
+            }
+
+            // جستجو در استان‌ها و شهرستان‌ها
+            const searchBox = document.getElementById('searchBox');
+            searchBox.addEventListener('input', function() {
+                const searchTerm = searchBox.value.toLowerCase();
+                const filteredProvinces = provinces.filter(province => province.name.toLowerCase().includes(searchTerm));
+                provinceListElement.innerHTML = '';
+                filteredProvinces.forEach(province => {
+                    const provinceItem = document.createElement('li');
+                    provinceItem.textContent = province.name;
+                    provinceItem.classList.add('province-item');
+                    provinceItem.onclick = () => showCities(province);
+                    provinceListElement.appendChild(provinceItem);
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>

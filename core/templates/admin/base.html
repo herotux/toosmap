@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}پنل مدیریت{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css" integrity="sha384-dpuaG1suU0eT09tx5plTaGMLBsfDLzUCCUXOY2j/LSvXYuG6Bqs43ALlhIqAJVRb" crossorigin="anonymous">
+    <link rel="preconnect" href="//fdn.fontcdn.ir">
+    <link rel="preconnect" href="//v1.fontapi.ir">
+    <link href="https://v1.fontapi.ir/css/Vazir" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/admin_styles.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+    <!-- هدر -->
+    <header class="header d-flex justify-content-between align-items-center p-3 bg-light">
+        <div class="logo">
+            <h1>
+                <button id="toggle-sidebar" class="btn btn-primary m-3 d-md-none" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                پنل مدیریت
+            </h1>
+        </div>
+        <div class="header-menu">
+            <ul class="nav">
+                <li class="nav-item"><a class="nav-link" href="#">خروج</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">تنظیمات</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">پروفایل</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- نوار کناری -->
+            <aside class="col-md-3 sidebar bg-white p-3">
+                <div class="user-info">
+                    <button id="close-sidebar" class="btn btn-primary m-3 d-md-none" onclick="toggleSidebar()">
+                        <i class="fas fa-x"></i>
+                    </button>
+                    <i class="fas fa-user fa-2x"></i>  <!-- FontAwesome user icon -->
+                    <div class="user-details">
+                        <p class="user-name">{{ user.first_name }} {{ user.last_name }}</p>
+                        <p class="user-title">{{ user_info.role }}</p>
+                    </div>
+                </div>
+                <p class="disabled-panel">پنل مدیریت</p>
+                <nav>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="#"><i class="fas fa-home"><span style="margin-right: 0.2rem;">داشبورد</span></i></a>
+                        </li>
+                        <li class="nav-item toggle">
+                            <a class="nav-link" href="#"><i class="fas fa-store"><span style="margin-right: 0.2rem;">فروشگاه‌ها</span></i> <span class="toggle-icon">></span></a>
+                            <ul class="submenu" style="display: none;">
+                                <li><a class="nav-link" href="#">دسته‌بندی</a></li>
+                                <li><a class="nav-link" href="#">لیست فروشگاه‌ها</a></li>
+                                <li><a class="nav-link" href="#">افزودن فروشگاه</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item toggle">
+                            <a class="nav-link" href="#"><i class="fas fa-box"><span style="margin-right: 0.2rem;">محصولات</span></i> <span class="toggle-icon">></span></a>
+                            <ul class="submenu" style="display: none;">
+                                <li><a class="nav-link" href="#">لیست محصولات</a></li>
+                                <li><a class="nav-link" href="#">افزودن محصول</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#"><i class="fas fa-cog"><span style="margin-right: 0.2rem;">تنظیمات</span></i></a>
+                        </li>
+                    </ul>
+                </nav>
+            </aside>
+
+            <!-- محتوای اصلی -->
+            <main class="col-12 col-md-9 main-content">
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            sidebar.classList.toggle('open');
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="{% static 'js/admin_script.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>

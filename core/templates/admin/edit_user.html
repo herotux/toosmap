@@ -1,0 +1,439 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/add-user.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+    /* استایل‌های کلی */
+    .container {
+        width: 100%;
+        margin: 20px auto;
+        background: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: center; /* فرم را در وسط قرار می‌دهد */
+    }
+
+    /* فرم اصلی */
+    #user-form {
+        max-width: 600px; /* عرض فرم محدود می‌شود */
+        width: 100%; /* در صفحه‌های کوچک عرض فرم 100% می‌شود */
+    }
+
+    /* هدر فرم بدون flexbox */
+    .form-header {
+        background-color: #bfdefd;
+        color: #333;
+        padding: 15px 25px;
+        border-radius: 8px 8px 0 0;
+        margin: -20px -20px 20px -20px;
+        display: block; /* تغییر از flex به block */
+    }
+
+    .form-header h2 {
+        margin: 0;
+        font-size: 18px;
+        color: #333;
+    }
+
+    .form-header a {
+        text-decoration: none;
+        color: #333;
+        float: right; /* چینش لینک به سمت راست */
+    }
+
+    /* پیام خطا بدون flexbox */
+    .error-message {
+        background-color: #ffebee;
+        color: #c62828;
+        padding: 15px;
+        border-radius: 4px;
+        margin-bottom: 15px;
+        display: block; /* تغییر از flex به block */
+    }
+
+    /* استایل‌های فرم با flexbox */
+    .form-group {
+        margin-bottom: 15px;
+        display: flex; /* استفاده از flexbox */
+        align-items: center;
+        gap: 10px; /* فاصله یکنواخت بین لیبل و فیلد ورودی */
+    }
+
+    .form-group label {
+        flex: 1;
+        font-weight: bold;
+    }
+
+    .form-group input,
+    .form-group select {
+        flex: 2;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        direction: rtl;
+        background-color: #fff;
+        color: gray; /* تغییر رنگ متن به خاکستری */
+    }
+
+    .form-group input[type="checkbox"] {
+        flex: none;
+        margin-left: 10px;
+    }
+
+    /* استایل‌های بخش تاریخ تولد با flexbox */
+    .form-row {
+        display: flex; /* استفاده از flexbox */
+        gap: 10px; /* فاصله یکنواخت بین فیلدها */
+        margin-bottom: 15px;
+        flex: 2; /* عرض form-row برابر با عرض سایر فیلدها */
+    }
+
+    .form-row .form-group {
+        flex: 1; /* تقسیم فضای مساوی بین فیلدها */
+        margin-bottom: 0;
+    }
+
+    .form-row select {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        direction: rtl;
+        color: gray; /* تغییر رنگ متن به خاکستری */
+    }
+
+    .form-row label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+
+    /* استایل‌های دکمه ارسال */
+    .btn-submit {
+        width: 100%;
+        padding: 10px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-top: 10px;
+        font-size: 16px;
+    }
+
+    .btn-submit:hover {
+        background-color: #45a049;
+    }
+
+    /* استایل‌های آیکون */
+    .stop-icon {
+        font-size: 24px;
+        color: #ff0000;
+        background: white;
+        border-radius: 50%;
+        padding: 8px;
+        box-shadow: 0 0 8px rgba(255, 0, 0, 0.3);
+        cursor: pointer;
+    }
+
+    .stop-icon:hover {
+        transform: scale(1.1);
+        transition: 0.3s;
+    }
+
+    .container_header {
+        display: block;
+    }
+
+    /* هدر آبی */
+    .form-header {
+        background-color: #bfdefd;
+        color: white;
+        padding: 15px 25px;
+        border-radius: 8px 8px 0 0;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between; /* عناصر را در دو طرف قرار میدهد */
+        align-items: center;
+    }
+
+    .form-header h2 {
+        margin: 0;
+        font-size: 18px;
+    }
+
+    .form-group input,
+    .form-group select {
+        color: gray;
+    }
+
+    /* ریسپانسیو بودن */
+    @media (max-width: 768px) {
+        .form-group {
+            flex-direction: column; /* در صفحه‌های کوچک فیلدها به‌صورت عمودی چیده می‌شوند */
+            align-items: flex-start; /* لیبل‌ها به سمت چپ چیده می‌شوند */
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%; /* فیلدها عرض کامل می‌گیرند */
+        }
+
+        .form-row {
+            flex-direction: column; /* در صفحه‌های کوچک فیلدهای تاریخ تولد به‌صورت عمودی چیده می‌شوند */
+        }
+
+        .form-row .form-group {
+            width: 100%; /* فیلدها عرض کامل می‌گیرند */
+        }
+    }
+</style>
+<style>
+    .select2-container .select2-selection--single {
+        height: 38px;
+        padding: 6px 12px;
+        direction: rtl;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        left: 12px;
+        right: auto;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        text-align: right;
+    }
+    .success-message {
+        background-color: #4CAF50; /* سبز */
+        color: white; /* متن سفید */
+        padding: 15px;
+        border-radius: 4px;
+        margin-bottom: 15px;
+        display: none; /* به طور پیش‌فرض مخفی است */
+        text-align: center; /* متن در وسط */
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container_header">
+    <div id="success-message" class="success-message" style="display: none;"></div>
+    <div id="error-message" class="error-message" style="display: none;"></div>
+    <div class="form-header">
+        <h2>ویرایش کاربر</h2>
+        <a href="/admin/users/"><h2>لیست کاربران</h2></a>
+    </div>
+</div>
+
+<div class="container">
+    <form id="user-edit-form" novalidate>
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="first_name">نام</label>
+            <input type="text" id="first_name" name="first_name" placeholder="نام را وارد کنید" value="{{ user.first_name }}">
+        </div>
+        <div class="form-group">
+            <label for="last_name">نام خانوادگی</label>
+            <input type="text" id="last_name" name="last_name" placeholder="نام خانوادگی را وارد کنید" required value="{{ user.last_name }}">
+        </div>
+        <div class="form-group">
+            <label for="role">گروه کاربری <span class="required-star">*</span></label>
+            <select id="role" name="role" required>
+                <option value="">گروه کاربری را انتخاب کنید</option>
+                {% for role in roles %}
+                    <option value="{{ role.name }}" {% if current_role == role.display_name %}selected{% endif %}>{{ role.display_name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="mobile">موبایل <span class="required-star">*</span></label>
+            <input type="text" id="mobile" name="mobile" placeholder="09121234567" required value="{{ user.mobile }}">
+        </div>
+        <div class="form-group">
+            <label for="password">گذرواژه</label>
+            <input type="password" id="password" name="password" placeholder="گذرواژه را وارد کنید">
+        </div>
+        <div class="form-group">
+            <label for="confirm_password">تأیید گذرواژه</label>
+            <input type="password" id="confirm_password" name="confirm_password" placeholder="تأیید گذرواژه را وارد کنید">
+        </div>
+        <div class="form-group">
+            <label for="national_code">کد ملی</label>
+            <input type="text" id="national_code" name="national_code" placeholder="کد ملی را وارد کنید" value="{{ user.national_code }}">
+        </div>
+        <div class="form-group">
+            <label for="citizenship">تبعه هستم</label>
+            <input type="checkbox" id="citizenship" name="citizenship" {% if user.citizenship %}checked{% endif %}>
+        </div>
+        <div class="form-group">
+            <label for="province">استان</label>
+            <select id="province" name="province">
+                <option value="">استان را انتخاب کنید</option>
+                {% for province in provinces %}
+                    {{ province.name }}
+                    <option value="{{ province.id }}" {% if user_province.name == province.name %}selected{% endif %}>{{ province.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="city">شهر</label>
+            <select id="city" name="city">
+                <option value="">شهر را انتخاب کنید</option>
+                {% for city in cities %}
+                    <option value="{{ city.id }}" {% if usercity.name == city.name %}selected{% endif %}>{{ city.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="neighborhood">محله یا روستا</label>
+            <input type="text" id="neighborhood" name="neighborhood" placeholder="محله یا روستا را وارد کنید" value="{{ user.neighborhood }}">
+        </div>
+        <div class="form-group">
+            <label>تاریخ تولد</label>
+            <div class="form-row">
+                <select id="dob_year" name="dob_year">
+                    <option value="">سال</option>
+                    <!-- Add year options dynamically -->
+                </select>
+                <select id="dob_month" name="dob_month">
+                    <option value="">ماه</option>
+                    <!-- Add month options dynamically -->
+                </select>
+                <select id="dob_day" name="dob_day">
+                    <option value="">روز</option>
+                    <!-- Add day options dynamically -->
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="mobile_status">وضعیت موبایل</label>
+            <input type="text" id="mobile_status" name="mobile_status" placeholder="وضعیت موبایل را وارد کنید" value="{{ user.mobile_status }}">
+        </div>
+        <div class="form-group">
+            <label for="location">موقعیت جغرافیایی</label>
+            <div id="map" style="height: 300px; width: 100%;"></div> <!-- نقشه -->
+            <input type="hidden" id="lat" name="lat" value="{{ user.lat }}"> <!-- فیلد مخفی برای عرض جغرافیایی -->
+            <input type="hidden" id="lng" name="lng" value="{{ user.lng }}"> <!-- فیلد مخفی برای طول جغرافیایی -->
+        </div>
+        <button type="button" class="btn-submit" id="edit-user-button">ویرایش کاربر</button>
+    </form>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    document.getElementById('edit-user-button').addEventListener('click', function () {
+        const data = {
+            first_name: document.getElementById('first_name').value,
+            last_name: document.getElementById('last_name').value,
+            role: document.getElementById('role').value,
+            mobile: document.getElementById('mobile').value,
+            password: document.getElementById('password').value,
+            national_code: document.getElementById('national_code').value,
+            citizenship: document.getElementById('citizenship').checked,
+            province: document.getElementById('province').value,
+            city: document.getElementById('city').value,
+            neighborhood: document.getElementById('neighborhood').value,
+            dob_year: document.getElementById('dob_year').value,
+            dob_month: document.getElementById('dob_month').value,
+            dob_day: document.getElementById('dob_day').value,
+            mobile_status: document.getElementById('mobile_status').value,
+            geo_location: document.getElementById('geo_location').value,
+        };
+
+        fetch('/api/edit-user/{{ user.id }}/', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}',
+            },
+            body: JSON.stringify(data),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const successMessage = document.getElementById('success-message');
+                successMessage.innerHTML = 'کاربر با موفقیت ویرایش شد!';
+                successMessage.style.display = 'block';
+                setTimeout(() => {
+                    successMessage.style.display = 'none';
+                }, 5000);
+            } else {
+                const errorMessage = document.getElementById('error-message');
+                errorMessage.innerHTML = `
+                    <strong>خطا!</strong>
+                    <ul>
+                        ${Object.entries(data.errors).map(([field, errors]) => `
+                            <li>${field}: ${errors.join(', ')}</li>
+                        `).join('')}
+                    </ul>
+                `;
+                errorMessage.style.display = 'block';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Default coordinates (Tehran)
+        const defaultLat = {{ user.lat|default:35.6892 }};
+        const defaultLng = {{ user.lng|default:51.3890 }};
+
+        // Create map
+        const map = L.map('map').setView([defaultLat, defaultLng], 13);
+
+        // Add map layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Create marker
+        let marker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(map);
+
+        // Event for marker position change
+        marker.on('dragend', function (event) {
+            const position = marker.getLatLng();
+            document.getElementById('lat').value = position.lat; // Save latitude
+            document.getElementById('lng').value = position.lng; // Save longitude
+        });
+
+        // رویداد برای کلیک روی نقشه و تغییر موقعیت مارکر
+        map.on('click', function (event) {
+            const latlng = event.latlng;
+            marker.setLatLng(latlng); // تغییر موقعیت مارکر
+            document.getElementById('lat').value = latlng.lat; // ذخیره عرض جغرافیایی
+            document.getElementById('lng').value = latlng.lng; // ذخیره طول جغرافیایی
+        });
+
+        // رویداد تغییر شهر
+        document.getElementById('city').addEventListener('change', function () {
+            const selectedCity = this.value; // نام شهر انتخاب‌شده
+            if (selectedCity) {
+                // یافتن شهر انتخاب‌شده در داده‌ها
+                const selectedProvince = document.getElementById('province').value;
+                const selectedProvinceData = window.provincesData.find(province => province.name === selectedProvince);
+                if (selectedProvinceData) {
+                    const cityData = selectedProvinceData.cities.find(city => city.name === selectedCity);
+                    if (cityData && cityData.lat && cityData.lng) {
+                        // تغییر مرکز نقشه به مختصات شهر انتخاب‌شده
+                        const lat = parseFloat(cityData.lat);
+                        const lng = parseFloat(cityData.lng);
+                        map.setView([lat, lng], 13); // تغییر مرکز نقشه
+                        marker.setLatLng([lat, lng]); // تغییر موقعیت مارکر
+                        document.getElementById('lat').value = lat; // ذخیره عرض جغرافیایی
+                        document.getElementById('lng').value = lng; // ذخیره طول جغرافیایی
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,292 @@
+.categories-container {
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.header h1 {
+    font-size: 24px;
+    color: #333;
+}
+
+.search-box input {
+    padding: 10px;
+    width: 200px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.categories-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.categories-table th,
+.categories-table td {
+    padding: 15px;
+    text-align: right;
+    border-bottom: 1px solid #ddd;
+}
+
+.categories-table th {
+    background-color: #f4f4f4;
+    color: #555;
+    font-weight: bold;
+}
+
+.categories-table tr:hover {
+    background-color: #f9f9f9;
+}
+
+.status {
+    padding: 5px 10px;
+    border-radius: 4px;
+    color: #fff;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.status.فعال {
+    background-color: #28a745;
+}
+
+.status.غیرفعال {
+    background-color: #dc3545;
+}
+
+
+
+
+/* استایل پایه برای همه دکمه‌های عملیات */
+.btn-action {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #fff;
+    text-decoration: none;
+    cursor: pointer;
+    display: inline-block;
+}
+
+/* استایل دکمه ویرایش */
+.btn-edit {
+    background-color: #36aace; /* رنگ زرد */
+}
+
+.btn-edit:hover {
+    background-color: #439ab4; /* رنگ زرد تیره */
+}
+
+/* استایل دکمه حذف */
+.btn-delete {
+    background-color: #dc3545; /* رنگ قرمز */
+}
+
+.btn-delete:hover {
+    background-color: #c82333; /* رنگ قرمز تیره‌تر */
+}
+
+
+/* استایل کلی جدول */
+.categories-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    color: #333;
+    background-color: #fff; /* پس‌زمینه سفید */
+    border: 1px solid #ccc; /* حاشیه تیز برای جدا کردن جدول */
+    border-radius: 4px; /* گوشه‌های تیز */
+    margin-top: 20px; /* فاصله از سایر عناصر */
+}
+
+/* خطوط افقی بسیار کمرنگ‌تر */
+.categories-table th,
+.categories-table td {
+    border-bottom: 1px solid #eee; /* خطوط کمرنگ‌تر */
+    padding: 4px 8px; /* کاهش ارتفاع ردیف */
+    text-align: right;
+    vertical-align: middle;
+}
+
+/* حذف خطوط عمودی */
+.categories-table td,
+.categories-table th {
+    border-right: none;
+}
+
+/* استایل هدر جدول */
+.categories-table thead th {
+    background-color: #f5f5f5; /* رنگ هدر جدول */
+    font-weight: bold;
+    color: #555;
+    border-bottom: 2px solid #ddd; /* حاشیه پایین پررنگ‌تر */
+}
+
+/* ارتفاع کم‌تر برای سطرها */
+.categories-table tr {
+    height: 24px; /* کاهش ارتفاع */
+}
+
+/* حذف رنگ متفاوت برای ردیف‌ها */
+.categories-table tr {
+    background-color: #fff; /* تمام ردیف‌ها یک‌رنگ */
+}
+
+/* تغییر رنگ هنگام هاور روی ردیف‌ها */
+.categories-table tr:hover {
+    background-color: #f9f9f9; /* رنگ هاور */
+}
+
+/* فیلد "نام" فضای بیشتری می‌گیرد */
+.categories-table td:first-child {
+    width: 50%;
+}
+
+/* سایر فیلدها، ازجمله عملیات، فضای برابر دارند */
+.categories-table td:not(:first-child),
+.categories-table th:not(:first-child) {
+    width: 12.5%;
+}
+
+/* لینک‌های دسته‌ها بدون خط زیر و رنگ سفارشی */
+.categories-table a {
+    text-decoration: none;
+    color: #007bff;
+    font-weight: bold;
+}
+
+.categories-table a:hover {
+    color: #0056b3;
+}
+
+/* استایل آیکون + */
+.icon-toggle {
+    margin-left: 8px;
+    cursor: pointer;
+    color: #007bff;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.icon-toggle:hover {
+    color: #0056b3;
+}
+
+/* زیرمنوها */
+.submenu {
+    display: none;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    font-size: 13px;
+    color: #555;
+}
+
+.submenu li {
+    padding: 5px 0;
+}
+
+/* استایل فیلد "تعداد رکورد" */
+#records_per_page {
+    width: 80px; /* عرض کوچک‌تر */
+    font-size: 13px;
+    padding: 3px;
+    text-align: center;
+}
+
+
+/* استایل فیلد جستجو */
+.filters input[name="search"] {
+    font-size: 14px;
+    padding: 6px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+/* استایل سطر عناوین جدول */
+.categories-table thead th {
+    background-color: #fff; /* همان رنگ رکوردها */
+    font-weight: normal; /* حذف حالت Bold */
+    color: #333;
+    text-align: right;
+    padding: 4px 8px;
+    border-bottom: 1px solid #ddd;
+}
+
+
+/* استایل عنوان و دکمه */
+.table-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    margin: 0;
+}
+
+.header .btn-success {
+    font-size: 14px;
+    padding: 5px 10px;
+}
+
+/* استایل فیلد جستجو */
+.filters input[name="search"] {
+    width: 200px;
+    height: 30px;
+    font-size: 14px;
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+/* استایل فیلد تعداد رکورد */
+#records_per_page {
+    width: 80px;
+    font-size: 14px;
+    height: 30px;
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    text-align: center;
+}
+
+/* فاصله و چینش فرم‌ها */
+.filters form {
+    margin: 0;
+}
+
+.filters form:first-child {
+    margin-right: 10px;
+}
+
+/* فاصله میان عناصر */
+.filters .ml-2 {
+    margin-left: 10px;
+}
+
+.submenu {
+    display: none;
+    background-color: #f9f9f9;
+    font-size: 13px;
+}
+
+.submenu ul {
+    list-style: none;
+    margin: 0;
+    padding: 0 20px;
+}
+
+.submenu li {
+    padding: 5px 0;
+}
