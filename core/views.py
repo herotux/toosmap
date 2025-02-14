@@ -1,6 +1,7 @@
+import datetime
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator
-from .models import user, role_user, category_jobs, Province, City, job, role
+from .models import setting, Village, user, role_user, category_job, Province, City, job, role, County, JobHours, TimeSlot
 from django.core.mail import send_mail  # For sending OTP
 from django.contrib.auth import authenticate, login
 import random
@@ -11,26 +12,65 @@ from rest_framework.response import Response
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import user_passes_test
-from .forms import UserForm
-from rest_framework.views import APIView
-from rest_framework.response import Response
+from .forms import UserForm, JobForm, JobHoursForm, TimeSlotForm
 from rest_framework import status
 from .serializers import UserSerializer, CategoryJobsSerializer
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.db.models import Q
+from django.contrib.gis.geos import GEOSGeometry
+from django.contrib import messages
+from django.contrib.auth import logout
+import json
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+from .serializers import JobHoursSerializer, TimeSlotSerializer, JobSerializer, JobLinksSerializer
+from rest_framework.decorators import api_view
+from django.db import IntegrityError
+from rest_framework import permissions
+from .decorators import role_required
+
+
+class IsAdminUser(permissions.BasePermission):
+    def has_permission(self, request, view):
+        # بررسی کنید که کاربر احراز هویت شده است
+        if not request.user.is_authenticated:
+            return False
+
+        # بررسی کنید که کاربر دارای نقش admin است
+        return role_user.objects.filter(user=request.user, role__name='admin').exists()
+    
+
+
+def get_categories_hierarchically(categories, parent=None, prefix=''):
+    """
+    تابع بازگشتی برای تولید لیست سلسله‌مراتبی دسته‌ها
+    """
+    result = []
+    for category in categories.filter(parent=parent):
+        full_name = f"{prefix}/{category.name}" if prefix else category.name
+        result.append((category.id, full_name))
+        result.extend(get_categories_hierarchically(categories, parent=category, prefix=full_name))
+    return result
 
 
 
 
-def role_required(role):
-    def decorator(view_func):
-        def _wrapped_view(request, *args, **kwargs):
-            if request.user.is_authenticated:
-                if request.user.is_superuser or role_user.objects.filter(user=request.user, role__name=role).exists():
-                    return view_func(request, *args, **kwargs)
-            return HttpResponseForbidden("You do not have permission to access this page.")
-        return _wrapped_view
-    return decorator
+@role_required('admin')
+def admin_dashboard(request):
+    jobcount = job.objects.count()
+    usercount = user.objects.count()
+    catcount = category_job.objects.count()
+
+    user_info = {
+        'name': request.user.username,
+        'role': role_user.objects.filter(user=request.user).first().role.name
+    }
+    return render(request, 'admin/dashboard.html', {'user_info': user_info,'jobcount':jobcount,'usercount':usercount,'catcount':catcount})
+
+
+
+
+
 
 def register(request):
     if request.method == 'POST':
@@ -60,9 +100,11 @@ def register(request):
 
     return render(request, 'registration/register_with_otp.html')
 
+
+
 def login_view(request):
     if request.method == 'POST':
-        mobile_number = request.POST['mobile_number']
+        mobile_number = request.POST.get('mobile_number')
         user_instance = user.objects.filter(username=mobile_number).first()
         
         if user_instance:
@@ -75,7 +117,10 @@ def login_view(request):
             print(otp)  # Print OTP for debugging
             return redirect('register')
 
-    return render(request, 'registration/login.html')
+    next_url = request.GET.get('next')
+    return render(request, 'registration/login.html', {'next': next_url})
+
+
 
 def verify_password(request):
     if request.method == 'POST':
@@ -85,11 +130,23 @@ def verify_password(request):
 
         if user_instance and user_instance.check_password(password):
             login(request, user_instance)
-            return redirect('user_dashboard')  # Redirect to home page
+            next_url = request.POST.get('next')
+            if next_url:
+                return redirect(next_url)
+            else:
+                role = role_user.objects.filter(user=request.user).first().role.name
+                if role == 'admin':
+                    return redirect('admin_dashboard')
+                elif role == 'seller':
+                    return redirect('seller_dashboard')
+                else:
+                    return redirect('user_dashboard')
         else:
             return render(request, 'registration/login_password.html', {'mobile_number': mobile_number, 'error': 'Invalid password.'})
 
-    return render(request, 'registration/login_password.html')
+    next_url = request.GET.get('next')
+    return render(request, 'registration/login_password.html', {'next': next_url})
+
 
 def otp_login(request):
     if request.method == 'POST':
@@ -98,11 +155,23 @@ def otp_login(request):
         if otp and request.POST['otp'] == str(otp):
             user_instance = user.objects.get(username=mobile_number)
             login(request, user_instance)
-            return redirect('home')  # Redirect to home page
+            next_url = request.POST.get('next')
+            if next_url:
+                return redirect(next_url)
+            else:
+                role = role_user.objects.filter(user=request.user).first().role.display_name
+                if role == 'admin':
+                    return redirect('admin_dashboard')
+                elif role == 'seller':
+                    return redirect('seller_dashboard')
+                else:
+                    return redirect('user_dashboard')
         else:
             return render(request, 'registration/login_otp.html', {'error': 'Invalid OTP.'})
 
     return render(request, 'registration/login_otp.html')
+
+
 
 def verify_otp(request):
     if request.method == 'POST':
@@ -113,20 +182,18 @@ def verify_otp(request):
             password = request.POST['password']
             user_instance = user.objects.create_user(username=mobile_number, password=password, mobile=mobile_number)
             login(request, user_instance)
-            return redirect('home')  # Redirect to home page
+            next_url = request.POST.get('next')
+            if next_url:
+                return redirect(next_url)
+            else:
+                return redirect('user_dashboard')  # Redirect to user dashboard
         else:
             return render(request, 'registration/verify_otp.html', {'error': 'Invalid OTP.'})
     return render(request, 'registration/verify_otp.html')
 
+
 # Dashboard views
-@role_required('admin')
-@login_required
-def admin_dashboard(request):
-    user_info = {
-        'name': request.user.username,
-        'role': role_user.objects.filter(user=request.user).first().role.display_name
-    }
-    return render(request, 'admin/dashboard.html', {'user_info': user_info})
+
 
 @role_required('seller')
 @login_required
@@ -143,8 +210,14 @@ def user_dashboard(request):
         'name': request.user.username,
         'role': role_user.objects.filter(user=request.user).first().role.display_name
     }
-    return render(request, 'home.html', {'user_info': user_info})
+    return render(request, 'user_dashboard.html', {'user_info': user_info})
 
+
+def home(request):
+    return render(request, 'main/home.html')
+
+
+@role_required('admin')
 def list_users(request):
     records_per_page = request.GET.get('records_per_page', 10)
     
@@ -164,34 +237,37 @@ def list_users(request):
 
 
 
-
+@role_required('admin')
 def list_categories(request):
-    # دریافت مقدار records_per_page از پارامتر GET
-    records_per_page = request.GET.get('records_per_page', '')
-
-    # اگر مقدار خالی یا نامعتبر بود، از مقدار پیش‌فرض استفاده کنید
+    search_query = request.GET.get('search', '')
+    records_per_page = request.GET.get('records_per_page', '10')
+    
     try:
         records_per_page = int(records_per_page)
     except ValueError:
-        records_per_page = 10  # مقدار پیش‌فرض
+        records_per_page = 10
 
-    # دریافت دسته‌های والد و مرتب‌سازی بر اساس sort_order
-    categories = category_jobs.objects.filter(parent=None).order_by('sort_order')
+    # فیلتر اصلی با شرایط جستجو
+    categories = category_job.objects.filter(parent=None)
+    
+    if search_query:
+        categories = categories.filter(name__icontains=search_query)
+    
+    categories = categories.order_by('sort_order')
 
-    # ایجاد Paginator
     paginator = Paginator(categories, records_per_page)
-
-    # دریافت شماره صفحه از پارامتر GET
     page_number = request.GET.get('page')
-
-    # دریافت صفحه مورد نظر
     page_obj = paginator.get_page(page_number)
 
-    # افزودن زیرمجموعه‌ها به هر دسته‌بندی والد
+    # افزودن زیرمجموعه‌ها
     for category in page_obj:
-        category.subcategories = category_jobs.objects.filter(parent=category).order_by('sort_order')
+        category.subcategories = category_job.objects.filter(parent=category).order_by('sort_order')
 
-    return render(request, 'admin/categories.html', {'page_obj': page_obj})
+    return render(request, 'admin/categories.html', {
+        'page_obj': page_obj,
+        'search_query': search_query,
+        'records_per_page': records_per_page
+    })
 
 
 
@@ -211,21 +287,20 @@ class ProvinceCityAPIView(APIView):
 def map_view(request):
     return render(request, 'map/map.html')
     
+
+@role_required('admin')
 def add_category(request):
-    categories = category_jobs.objects.filter(parent=None).order_by('sort_order')
-    return render(request, 'admin/add_category.html',{'categories': categories})
+    categories = category_job.objects.all().order_by('sort_order')
+    hierarchical_categories = get_categories_hierarchically(categories)
+    print("Hierarchical Categories:", hierarchical_categories)
+    return render(request, 'admin/add_category.html',{'categories': hierarchical_categories})
 
-def edit_category(request, category_id):
-    category = get_object_or_404(category_jobs, id=category_id)
-    if request.method == 'POST':
-        category.name = request.POST['name']
-        category.slug = request.POST['slug']
-        category.save()
-        return redirect('list_categories')
-    return render(request, 'admin/edit_category.html', {'category': category})
 
+
+
+@role_required('admin')
 def delete_category(request, category_id):
-    category = get_object_or_404(category_jobs, id=category_id)
+    category = get_object_or_404(category_job, id=category_id)
     category.delete()
     return redirect('list_categories')
 
@@ -257,100 +332,188 @@ def delete_category(request, category_id):
 
 
 
+def provinces_cities_api(request):
+    provinces = Province.objects.all().prefetch_related('counties__cities')
 
-class ProvinceCityAPIView(APIView):
-    def get(self, request, *args, **kwargs):
-        # اصلاح نام مدل به صورت صحیح
-        provinces = Province.objects.all()
-        
-        # ساخت داده برای ارسال به فرانت‌اند
-        provinces_data = []
-        for province in provinces:
-            cities = City.objects.filter(province=province)
-            cities_data = [{"name": city.name, "lat": city.lat, "lng": city.lng} for city in cities]
-            provinces_data.append({
-                "name": province.name,
-                "cities": cities_data
-            })
-        
-        return Response(provinces_data)
+    data = []
+    for province in provinces:
+        province_data = {
+            "id": province.id,
+            "name": province.name,
+            "lat": province.coordinates.y if province.coordinates else None,
+            "lng": province.coordinates.x if province.coordinates else None,
+            "counties": []
+        }
+        for county in province.counties.all():
+            county_data = {
+                "id": county.id,
+                "name": county.name,
+                "lat": county.coordinates.y if county.coordinates else None,
+                "lng": county.coordinates.x if county.coordinates else None,
+                "cities": []
+            }
+            for city in City.objects.filter(county__province=province):
+                city_data = {
+                    "id": city.id,
+                    "name": city.name,
+                    "lat": city.coordinates.y if city.coordinates else None,
+                    "lng": city.coordinates.x if city.coordinates else None,
+                }
+                county_data["cities"].append(city_data)
+            province_data["counties"].append(county_data)
+        data.append(province_data)
+
+    return JsonResponse(data, safe=False)
 
 
 
-
+@login_required()
 def map_view(request):
     return render(request, 'map/map.html')
 
 
 
 
-@csrf_exempt  # غیرفعال کردن CSRF برای سادگی (در محیط تولید از روش‌های امن‌تر استفاده کنید)
-@user_passes_test(lambda u: u.is_superuser)  # فقط ادمین‌ها می‌توانند نقش کاربر را تغییر دهند
-def make_seller_api(request, user_id):
-    if request.method == 'POST':
-        user = get_object_or_404(user, id=user_id)
-        seller_role = role.objects.get(name='seller')  # فرض کنید نقش فروشنده با نام 'فروشنده' وجود دارد
-        
-        # اگر کاربر نقش فروشنده ندارد، آن را اضافه کنید
-        if seller_role not in user.roles.all():
-            user.roles.add(seller_role)
-            return JsonResponse({'status': 'success', 'message': 'نقش کاربر به فروشنده تغییر یافت.'})
-        else:
-            return JsonResponse({'status': 'warning', 'message': 'این کاربر قبلاً فروشنده است.'})
-    else:
-        return JsonResponse({'status': 'error', 'message': 'درخواست نامعتبر است.'}, status=400)
+
+
+
+@role_required('admin')
+def make_seller(request, user_id):
+    user_instance = get_object_or_404(user, id=user_id)
+    job_form = JobForm()
+    job_hours_form = JobHoursForm()
+    time_slot_form = TimeSlotForm()
+    days = JobHours.DAYS_OF_WEEK
+    
+    context = {
+        'shifts': [1, 2, 3],
+        'days':days,
+        'job_form': job_form,
+        'job_hours_form': job_hours_form,
+        'time_slot_form': time_slot_form,
+        'user': user_instance,  # Pass the user instance to the template
+    }
+    return render(request, 'admin/make_user_seller.html', context)
 
 
 
 
-
+@role_required('admin')
 def add_user(request):
     if request.method == 'POST':
         form = UserForm(request.POST)
         if form.is_valid():
-            # ذخیره کاربر با فیلدهای استان و شهر
             user = form.save(commit=False)
-            user.province_id = form.cleaned_data['province'].id
-            user.city_id = form.cleaned_data['city'].id
+            user.province_id = form.cleaned_data['province'].id if form.cleaned_data.get('province') else None
+            user.city_id = form.cleaned_data['city'].id if form.cleaned_data.get('city') else None
+            user.county_id = form.cleaned_data['city'].county_id if form.cleaned_data.get('city') else None  # فرض بر این که شهر دارای شهرستان است
+            user.district_id = form.cleaned_data['district'].id if form.cleaned_data.get('district') else None  # ذخیره منطقه
             user.save()
             return redirect('user_list')  # تغییر به مسیر مناسب
     else:
         form = UserForm()
-    return render(request, 'admin/add_user.html', {'form': form})
+        roles = role.objects.all()
+        provinces = Province.objects.all()
+    return render(request, 'admin/add_user.html', {'form': form, 'provinces':provinces,'roles':roles})
 
 
 
 
 
 
-def load_cities(request):
+from django.http import JsonResponse
+from django.core.serializers import serialize
+from .models import Province, County, City, Village, District
+
+def load_counties(request):
     provinces = Province.objects.all()
     provinces_data = []
+
     for province in provinces:
-        cities = City.objects.filter(province=province)
-        cities_data = [{"name": city.name, "lat": city.lat, "lng": city.lng} for city in cities]
+        counties = County.objects.filter(province=province)
+        counties_data = []
+
+        for county in counties:
+            cities = City.objects.filter(county=county)
+            villages = Village.objects.filter(county=county)
+            districts = District.objects.filter(county=county).order_by('id')  # اضافه کردن مناطق
+            
+            county_data = {
+                "id": county.id,
+                "name": county.name,
+                "lat": county.coordinates.y if county.coordinates else None,
+                "lng": county.coordinates.x if county.coordinates else None,
+                "cities": [
+                    {
+                        "id": city.id,
+                        "name": city.name,
+                        "lat": city.coordinates.y if city.coordinates else None,
+                        "lng": city.coordinates.x if city.coordinates else None,
+                    }
+                    for city in cities
+                ],
+                "villages": [
+                    {
+                        "id": village.id,
+                        "name": village.name,
+                        "lat": village.coordinates.y if village.coordinates else None,
+                        "lng": village.coordinates.x if village.coordinates else None,
+                    }
+                    for village in villages
+                ],
+                "districts": [
+                    {
+                        "id": district.id,
+                        "name": district.name,
+                        "geometry": district.geometry.geojson if district.geometry else None,  # هندسه به فرمت GeoJSON
+                    }
+                    for district in districts
+                ],
+            }
+
+            counties_data.append(county_data)
+
         provinces_data.append({
+            "id": province.id,
             "name": province.name,
-            "cities": cities_data
+            "counties": counties_data,
         })
+
     return JsonResponse(provinces_data, safe=False)
 
 
 
 
-
 class AddUserAPIView(APIView):
+    
     def post(self, request):
         print('Received data:', request.data)  # بررسی داده‌های دریافتی
         data = request.data.copy()
         data['created_by_admin'] = True  # تنظیم فیلد created_by_admin
+        
+        # بررسی و افزودن district_id
+        if 'district_id' in data:
+            data['district_id'] = data['district_id']
+
+        # تنظیم مختصات در صورت وجود
+        if 'lat' in data and 'lng' in data:
+            data['coordinates'] = {
+                "type": "Point",
+                "coordinates": [
+                    float(data['lng']),
+                    float(data['lat'])
+                ]
+            }
+
         serializer = UserSerializer(data=data)
+        
         if serializer.is_valid():
-            serializer.save()
+            new_user = serializer.save()
             return Response({
                 'success': True,
                 'message': 'کاربر با موفقیت ثبت شد!',
-                'data': serializer.data
+                'data': serializer.data,
+                'user_id':new_user.id
             }, status=status.HTTP_201_CREATED)
         else:
             print('Serializer errors:', serializer.errors)  # بررسی خطاهای Serializer
@@ -364,6 +527,7 @@ class AddUserAPIView(APIView):
 
 
 class AddCategoryAPIView(APIView):
+    
     parser_classes = [MultiPartParser, FormParser]  # افزودن پشتیبانی از آپلود فایل
 
     def post(self, request):
@@ -379,9 +543,69 @@ class AddCategoryAPIView(APIView):
             'error': 'خطا در اعتبارسنجی داده‌ها',
             'details': serializer.errors
         }, status=status.HTTP_400_BAD_REQUEST)
+    
+
+
+@role_required('admin')
+def edit_category(request, category_id):
+    category = get_object_or_404(category_job, id=category_id)
+    all_categories = category_job.objects.exclude(id=category_id)
+    hierarchical_categories = get_categories_hierarchically(all_categories)
+    if request.method == 'POST':
+        # دریافت داده‌ها از فرم
+        category.name = request.POST.get('name')
+        category.slug = request.POST.get('slug')
+        category.label = request.POST.get('label')
+        category.meta_keywords = request.POST.get('meta_keywords')
+        category.meta_description = request.POST.get('meta_description')
+        category.parent_id = request.POST.get('parent') or None
+        category.has_slider = 'has_slider' in request.POST
+        category.sort_order = request.POST.get('sort_order')
+        category.status = request.POST.get('status') == 'true'
+
+        # مدیریت تصاویر
+        if request.POST.get('delete_icon') == 'true':
+            if category.icon:
+                category.icon.delete(save=False)
+            category.icon = None
+
+        if request.POST.get('delete_image') == 'true':
+            if category.image:
+                category.image.delete(save=False)
+            category.image = None
+
+        if request.POST.get('delete_banner') == 'true':
+            if category.banner:
+                category.banner.delete(save=False)
+            category.banner = None
+
+        # مدیریت فایل‌های جدید
+        if 'icon' in request.FILES:
+            category.icon = request.FILES['icon']
+        if 'image' in request.FILES:
+            category.image = request.FILES['image']
+        if 'banner' in request.FILES:
+            category.banner = request.FILES['banner']
+
+        # ذخیره تغییرات
+        category.save()
+        return redirect('list_categories')
+    
+    
+    return render(request, 'admin/edit_category.html', {
+        'category': category,
+        'categories': hierarchical_categories
+    })
+
+
+
+
+
+    
 
 
 class AddJobAPIView(APIView):
+    
     def post(self, request):
         serializer = JobSerializer(data=request.data)
         if serializer.is_valid():
@@ -397,32 +621,64 @@ class AddJobAPIView(APIView):
         }, status=status.HTTP_400_BAD_REQUEST)
     
 
-def add_job(request):
 
-    return render(request, 'admin/add_seller.html')
+def add_job(request):
+    if request.method == 'POST':
+        form = UserForm(request.POST)
+        if form.is_valid():
+            # ذخیره کاربر با فیلدهای استان و شهر
+            user = form.save(commit=False)
+            user.province_id = form.cleaned_data['province'].id
+            user.city_id = form.cleaned_data['city'].id
+            user.county_id = form.cleaned_data['county'].id
+
+            user.save()
+            user_id = user.id
+            return redirect(f'create-job/{user_id}/')  # تغییر به مسیر مناسب
+    else:
+        title = "ایجاد شغل - مرحله اول"
+        form = UserForm()
+        roles = role.objects.all()
+        provinces = Province.objects.all()
+    return render(request, 'admin/add_seller.html', {'form': form, 'provinces':provinces,'roles':roles, 'title':title})
 
 
 @login_required
 def edit_user_view(request, user_id):
-    user_instance = get_object_or_404(user, id=user_id)
-    roles = role.objects.all()  # Fetch all roles
+    user_instance = get_object_or_404(user, id=user_id)  # This is your target user
+    roles = role.objects.all()
     provinces = Province.objects.all()
     city = get_object_or_404(City, id=user_instance.city_id)
     cities = City.objects.all()
     user_province = get_object_or_404(Province, id=user_instance.province_id)
+
+    # Fix: Use user_instance instead of user
+    if user_instance.coordinates:  # ← This is the critical change
+        user_lat = user_instance.coordinates.y  # Latitude
+        user_lng = user_instance.coordinates.x  # Longitude
+    else:
+        user_lat = None
+        user_lng = None
+
+    print(f"user lat is {user_lat}")
+    print(f"user lng is {user_lng}")
+
     return render(request, 'admin/edit_user.html', {
         'provinces': provinces,
-        'cities':cities,
-        'usercity':city,
-        'user_province':user_province,
+        'cities': cities,
+        'usercity': city,
+        'user_lat': user_lat,
+        'user_lng': user_lng,
+        'user_province': user_province,
         'user': user_instance,
-        'roles': roles, # Pass roles to the template
+        'roles': roles,
         'current_role': role_user.objects.filter(user=user_id).first().role.display_name
     })
 
 
 
 class EditUserAPIView(APIView):
+    
     def put(self, request, user_id):
         user_instance = get_object_or_404(user, id=user_id)
         serializer = UserSerializer(user_instance, data=request.data, partial=True)  # Allow partial updates
@@ -441,7 +697,210 @@ class EditUserAPIView(APIView):
 
     def get(self, request, user_id):
         user_instance = get_object_or_404(user, id=user_id)
-       
+        
+
         return Response({
             'user': UserSerializer(user_instance).data,
         })
+    
+
+
+
+
+
+
+
+def provinces_cities_api(request):
+    provinces = Province.objects.prefetch_related('counties__cities', 'counties__districts')
+
+    data = []
+    for province in provinces:
+        province_data = {
+            "id": province.id,
+            "name": province.name,
+            "lat": province.coordinates.y if province.coordinates else None,
+            "lng": province.coordinates.x if province.coordinates else None,
+            "counties": []
+        }
+
+        for county in province.counties.all():
+            county_data = {
+                "id": county.id,
+                "name": county.name,
+                "lat": county.coordinates.y if county.coordinates else None,
+                "lng": county.coordinates.x if county.coordinates else None,
+                "cities": [],
+                "districts": []  # افزودن مناطق شهری
+            }
+
+            # افزودن مناطق شهری شهرستان
+            for district in county.districts.all():
+                district_data = {
+                    "id": district.id,
+                    "name": district.name,
+                    "polygon": district.geometry.geojson  # هندسه به فرمت GeoJSON
+                }
+                county_data["districts"].append(district_data)
+
+            for city in county.cities.all():
+                city_data = {
+                    "id": city.id,
+                    "name": city.name,
+                    "lat": city.coordinates.y if city.coordinates else None,
+                    "lng": city.coordinates.x if city.coordinates else None,
+                }
+                county_data["cities"].append(city_data)
+
+            province_data["counties"].append(county_data)
+
+        data.append(province_data)
+
+    return JsonResponse(data, safe=False)
+
+
+
+
+
+
+def main_view(request):
+    return render(request, 'main/main.html')
+
+
+
+def logout_view(request):
+    logout(request)
+    return redirect('login')
+
+
+
+
+
+
+
+@api_view(['POST'])
+@csrf_exempt 
+def create_job(request):
+    if request.method == 'POST':
+        print("Request data:", request.data)  # Log incoming data
+        # ساخت شغل جدید
+        job_serializer = JobSerializer(data=request.data)
+        if job_serializer.is_valid():
+            new_job = job_serializer.save()
+
+            # تغییر نقش کاربر به seller
+            job_user = new_job.user  # کاربر جاری
+            seller_role = get_object_or_404(role, name='seller')  # یافتن نقش seller
+
+            # بررسی آیا کاربر قبلاً نقش seller داشته است یا نه
+            role_user_instance, created = role_user.objects.get_or_create(
+                user=job_user,
+                defaults={'role': seller_role}
+            )
+
+            # اگر نقش کاربر قبلاً seller نبوده، آن را به seller تغییر دهید
+            if not created and role_user_instance.role != seller_role:
+                role_user_instance.role = seller_role
+                role_user_instance.save()
+
+            return Response({'id': new_job.id}, status=status.HTTP_201_CREATED)
+        return Response(job_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+@api_view(['POST'])
+@csrf_exempt
+def create_job_hours(request, job_id):
+    try:
+        thejob = job.objects.get(id=job_id)
+    except thejob.DoesNotExist:
+        return Response({'error': 'Job not found'}, status=404)
+
+    day = request.data.get('day')
+    shifts = request.data.get('shifts', [])
+    
+    # ایجاد یا دریافت JobHour موجود
+    job_hour, _ = JobHours.objects.get_or_create(job=thejob, day=day)
+    
+    # پردازش شیفت‌ها
+    for shift in shifts:
+        start = shift.get('start')
+        end = shift.get('end')
+        if not start or not end:
+            continue  # نادیده گرفتن شیفت‌های ناقص
+        
+        try:
+            # ایجاد شیفت فقط اگر وجود نداشته باشد
+            TimeSlot.objects.create(
+                job_hour=job_hour,
+                start_time=start,
+                end_time=end
+            )
+        except IntegrityError:
+            # اگر شیفت تکراری بود، ادامه دهید
+            continue
+    
+    return Response({'status': 'success'}, status=200)
+
+
+
+
+@api_view(['POST'])
+@csrf_exempt
+def create_job_links(request, job_id):
+    try:
+        thejob = job.objects.get(id=job_id)
+    except thejob.DoesNotExist:
+        return Response({'error': 'Job not found'}, status=404)
+
+    serializer = JobLinksSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save(job=thejob)
+        return Response(serializer.data, status=201)
+    return Response(serializer.errors, status=400)
+
+
+
+
+@role_required('admin')
+def settings_view(request):
+    # شرط‌های فیلتر کردن
+    settings = setting.objects.all().order_by('id')
+
+    return render(request, 'admin/setting.html', {'settings': settings})
+
+
+
+
+@role_required('admin')
+def update_category_status(request, pk):
+    if request.method == 'PATCH':
+        try:
+            category = category_job.objects.get(pk=pk)
+        except category_job.DoesNotExist:
+            return JsonResponse({"error": "دسته‌بندی یافت نشد"}, status=404)
+
+        # تغییر وضعیت
+        category.status = not category.status
+        category.save()
+
+        return JsonResponse({"message": "وضعیت دسته‌بندی با موفقیت به‌روزرسانی شد", "status": category.status}, status=200)
+    else:
+        return JsonResponse({"error": "متد درخواست معتبر نیست"}, status=405)
+    
+
+
+@role_required('admin')
+@csrf_exempt
+def edit_setting_ajax(request):
+    if request.method == 'POST':
+        setting_id = request.POST.get('setting_id')
+        new_value = request.POST.get('value')
+        try:
+            setting_instance = setting.objects.get(id=setting_id)
+            setting_instance.value = new_value
+            setting_instance.save()
+            return JsonResponse({'success': True})
+        except setting.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'رکورد پیدا نشد'})
+    return JsonResponse({'success': False, 'error': 'درخواست نامعتبر'})

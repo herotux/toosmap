@@ -55,6 +55,9 @@
     color: #fff;
     font-size: 12px;
     font-weight: bold;
+    min-width: 60px;
+    display: inline-block;
+    text-align: center;
 }
 
 .status.فعال {
@@ -62,7 +65,7 @@
 }
 
 .status.غیرفعال {
-    background-color: #dc3545;
+    background-color: #ffcc41;
 }
 
 

@@ -1,0 +1,837 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/add-user.css' %}">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<style>
+    .container {
+        width: 100%;
+        margin: 20px auto;
+        background: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: right;
+    }
+
+    .form-header {
+        background-color: #bfdefd;
+        color: #333;
+        padding: 15px 25px;
+        border-radius: 8px 8px 0 0;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .form-group label {
+        flex: 0 0 150px;
+        font-weight: bold;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        flex: 1;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        direction: rtl;
+        background-color: #fff;
+        color: gray;
+    }
+
+    #map {
+        height: 300px;
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    .btn-submit {
+        width: 100%;
+        padding: 10px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-top: 20px;
+        font-size: 16px;
+    }
+
+    .nested-form {
+        border: 1px solid #ddd;
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 5px;
+    }
+
+    .leaflet-control a {
+        font-size: 20px;
+        color: #333;
+    }
+
+    .leaflet-control a:hover {
+        color: #007bff;
+    }
+
+    /* استایل‌های تب‌ها */
+    .tabs {
+        margin-bottom: 20px;
+        border-bottom: 2px solid #ddd;
+        display: block;
+    }
+
+    .tab-btn {
+        padding: 10px 20px;
+        background: #f4f4f4;
+        border: none;
+        border-radius: 5px 5px 0 0;
+        cursor: pointer;
+        margin-right: 5px;
+        font-size: 16px;
+    }
+
+    .tab-btn.active {
+        background: #007bff;
+        color: white;
+        border-bottom: 2px solid #007bff;
+    }
+
+    .tab-content {
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    #links input {
+        width: auto;
+    }
+
+    .days-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        direction: rtl;
+    }
+
+    .day-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .day-label {
+        width: 100px;
+        text-align: right;
+        order: -1;
+        /* متن قبل از چک‌باکس */
+    }
+
+    .day-item input[type="checkbox"] {
+        margin: 0;
+        width: 20px;
+        height: 20px;
+    }
+
+    /* تنظیمات اصلی فرم */
+    .main-form-container {
+        max-width: 800px;
+        /* حداکثر عرض */
+        width: 100%;
+        /* پر کردن عرض در صفحه‌های کوچک */
+        margin: 20px auto;
+        padding: 20px;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    /* تب‌ها */
+    .tabs {
+        display: flex;
+        gap: 5px;
+        margin-bottom: 20px;
+        overflow-x: auto;
+        /* اسکرول در موبایل */
+    }
+
+    .tab-btn {
+        min-width: 120px;
+        /* عرض ثابت دکمه‌ها */
+        padding: 10px;
+        background: #f8f9fa;
+        border: none;
+        border-radius: 5px 5px 0 0;
+        cursor: pointer;
+        white-space: nowrap;
+        /* جلوگیری از شکستن متن */
+    }
+
+    .tab-btn.active {
+        background: #007bff;
+        color: white;
+    }
+
+    /* محتوای فرم */
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    /* ریسپانسیو برای موبایل */
+    @media (max-width: 768px) {
+        .main-form-container {
+            margin: 10px;
+            padding: 15px;
+        }
+
+        .tabs {
+            flex-wrap: wrap;
+            /* شکستن تب‌ها در خطوط جدید */
+        }
+
+        .tab-btn {
+            width: 100%;
+            /* عرض کامل در موبایل */
+        }
+    }
+</style>
+
+{% endblock %}
+
+{% block content %}
+<div class="container_header">
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    <div class="form-header">
+        <h2>ایجاد شغل جدید</h2>
+    </div>
+</div>
+
+<!-- تب‌ها -->
+<div class="tabs">
+    <button class="tab-btn active" data-tab="main-info" onclick="openTab(event, 'main-info')">اطلاعات اصلی</button>
+    <button class="tab-btn" data-tab="work-hours" onclick="openTab(event, 'work-hours')">ساعت کاری</button>
+    <button class="tab-btn" data-tab="links" onclick="openTab(event, 'links')">لینک ها </button>
+</div>
+
+<div class="container">
+
+
+
+    <!-- تب اطلاعات اصلی -->
+    <!-- فرم -->
+    <form method="POST" enctype="multipart/form-data" id="jobForm">
+        {% csrf_token %}
+
+        <div id="main-info" class="tab-content active">
+            <div class="form-section">
+
+                <div class="form-group">
+                    <label for="id_store_name">نام فروشگاه</label>
+                    {{ job_form.store_name }}
+                </div>
+                <div class="form-group">
+                    <label for="id_store_slug">نامک</label>
+                    {{ job_form.slug }}
+                </div>
+                <div class="form-group">
+                    <label for="id_store_mobile">موبایل</label>
+                    {{ job_form.mobile }}
+                </div>
+                <div class="form-group">
+                    <label for="id_store_phone"> تلفن ثابت</label>
+                    {{ job_form.phone }}
+                </div>
+                <!-- فیلدهای جغرافیایی -->
+                <div class="form-group">
+                    <label for="province">استان</label>
+                    <select id="province" name="province" required>
+                        <option value="">انتخاب استان</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="county">شهرستان</label>
+                    <select id="county" name="county" required>
+                        <option value="">انتخاب شهرستان</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="city">شهر</label>
+                    <select id="city" name="city" required>
+                        <option value="">انتخاب شهر</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="village">روستا</label>
+                    <select id="village" name="village">
+                        <option value="">انتخاب روستا</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>آدرس</label>
+                    {{ job_form.address }}
+                </div>
+
+                <div class="form-group">
+                    <label>کد پستی</label>
+                    {{ job_form.post_code }}
+                </div>
+
+                <div class="form-group">
+                    <label>فروش حضوری</label>
+                    {{ job_form.in_person }}
+                </div>
+
+                <div class="form-group">
+                    <label>فروش اینترنتی</label>
+                    {{ job_form.internet_sales }}
+                </div>
+
+                <div class="form-group">
+                    <label>تکفروشی </label>
+                    {{ job_form.single_sale }}
+                </div>
+
+                <div class="form-group">
+                    <label>فروش عمده </label>
+                    {{ job_form.wholesale_sales }}
+                </div>
+
+                <div class="form-group">
+                    <label> تولیدکننده هستم </label>
+                    {{ job_form.is_producer }}
+                </div>
+
+                <div class="form-group">
+                    <label>کالای نو </label>
+                    {{ job_form.unused_product }}
+                </div>
+
+                <div class="form-group">
+                    <label>خریدار هستم </label>
+                    {{ job_form.buyer }}
+                </div>
+
+                <div class="form-group">
+                    <label>خرید در فروشگاه</label>
+                    {{ job_form.purchase_in_store }}
+                </div>
+
+
+                <div class="form-group">
+                    <label>خرید درمحل مشتری</label>
+                    {{ job_form.purchase_in_home }}
+                </div>
+
+
+                <div class="form-group">
+                    <label>شعار فروشگاه</label>
+                    {{ job_form.slang }}
+                </div>
+
+                <div class="form-group">
+                    <label>پیام فروشگاه</label>
+                    {{ job_form.message }}
+                </div>
+
+                <div class="form-group">
+                    <label>درباره فروشگاه </label>
+                    {{ job_form.about }}
+                </div>
+
+                <div class="form-group">
+                    <label>تصویر پروفایل </label>
+                    {{ job_form.profile }}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_coordinates">موقعیت جغرافیایی</label>
+                    <div id="map"></div>
+                    {{ job_form.coordinates }}
+                </div>
+            </div>
+        </div>
+
+
+        <!-- تب ساعت کاری -->
+        <div id="work-hours" class="tab-content">
+            <div class="days-list">
+                {% for day in days %}
+                <div class="day-item">
+                    <input type="checkbox" id="{{ day.0 }}" name="work_days" value="{{ day.0 }}" data-day="{{ day.0 }}"
+                        onchange="toggleTimeInputs('{{ day.0 }}')">
+                    <label for="{{ day.0 }}">{{ day.1 }}</label>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- بخش زمان‌بندی روزها -->
+            {% for day in days %}
+            <div id="time_{{ day.0 }}" class="day-time" style="display:none;">
+                <h3>{{ day.1 }}</h3>
+                {% for shift in shifts %} <!-- استفاده از لیست شیفت‌ها -->
+                <div class="shift-container">
+                    <label>شیفت {{ shift }}</label>
+                    <input type="text" class="timepicker" name="job_hours[{{ day.0 }}][{{ forloop.counter0 }}][start]"
+                        placeholder="شروع">
+
+                    <input type="text" class="timepicker" name="job_hours[{{ day.0 }}][{{ forloop.counter0 }}][end]"
+                        placeholder="پایان">
+                </div>
+                {% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+
+
+
+        <!-- تب لینک‌ها -->
+        <div id="links" class="tab-content">
+
+            <div class="form-group">
+                <label>وب‌سایت</label>
+                <input type="url" name="website" value="{{ link.website }}" placeholder="آدرس وب‌سایت">
+            </div>
+            <div class="form-group">
+                <label>تلگرام</label>
+                <input type="url" name="telegram" value="{{ link.telegram }}" placeholder="آدرس تلگرام">
+            </div>
+            <div class="form-group">
+                <label>اینستاگرام</label>
+                <input type="url" name="instagram" value="{{ link.instagram }}" placeholder="آدرس اینستاگرام">
+            </div>
+            <div class="form-group">
+                <label>روبیکا</label>
+                <input type="url" name="robika" value="{{ link.robika }}" placeholder="آدرس روبیکا">
+            </div>
+            <div class="form-group">
+                <label>ایتا</label>
+                <input type="url" name="eita" value="{{ link.eita }}" placeholder="آدرس ایتا">
+            </div>
+            <div class="form-group">
+                <label>بله</label>
+                <input type="url" name="bale" value="{{ link.bale }}" placeholder="آدرس بله">
+            </div>
+
+        </div>
+
+        <button type="button" class="btn-submit" onclick="submitJobForm()">ایجاد شغل</button>
+
+    </form>
+</div>
+</div>
+
+<script src="{% static 'leaflet/leaflet.js' %}"></script>
+<script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+<script src="{% static 'leaflet/leaflet.js' %}"></script>
+<script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+<script>
+    let map, marker;
+
+    // --- متغیرهای عمومی ---
+    let provincesData = [];
+    // --- مقداردهی اولیه ---
+    document.addEventListener('DOMContentLoaded', () => {
+        initializeMap();
+        loadProvinces();
+        setupEventListeners();
+    });
+
+    // --- توابع اصلی ---
+    async function loadProvinces() {
+        const cached = localStorage.getItem('provincesData');
+        if (cached) {
+            provincesData = JSON.parse(cached);
+            console.log(provincesData)
+            populateSelect('province', provincesData);
+            return;
+        }
+
+        try {
+            const res = await fetch('/load-counties/');
+            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+            provincesData = await res.json();
+            localStorage.setItem('provincesData', JSON.stringify(provincesData));
+            populateSelect('province', provincesData);
+        } catch (err) {
+            console.error('خطا در دریافت استان‌ها:', err);
+        }
+    }
+
+    function populateSelect(selectId, data, placeholder = 'انتخاب کنید') {
+        const select = document.getElementById(selectId);
+        select.innerHTML = `<option value="">${placeholder}</option>`;
+
+        data.forEach(item => {
+            const opt = document.createElement('option');
+            opt.value = item.id;
+            opt.textContent = item.name;
+            opt.dataset.lat = item.lat;
+            opt.dataset.lng = item.lng;
+            select.appendChild(opt);
+        });
+    }
+
+    function setupEventListeners() {
+        document.getElementById('province').addEventListener('change', function () {
+            const provinceId = this.value;
+            const province = provincesData.find(p => p.id == provinceId);
+            console.log(this);
+            if (province) {
+                populateSelect('county', province.counties, 'انتخاب شهرستان');
+                resetSelects(['city', 'village']);
+            }
+        });
+
+        document.getElementById('county').addEventListener('change', function () {
+            const countyId = this.value;
+            const provinceId = document.getElementById('province').value;
+            const province = provincesData.find(p => p.id == provinceId);
+            if (province) {
+                const county = province.counties.find(c => c.id == countyId);
+                populateSelect('city', county.cities, 'انتخاب شهر');
+                resetSelects(['village']);
+            }
+        });
+
+        document.getElementById('city').addEventListener('change', function () {
+            const cityId = this.value;
+            const countyId = document.getElementById('county').value;
+            const provinceId = document.getElementById('province').value;
+            const province = provincesData.find(p => p.id == provinceId);
+            if (province) {
+                const county = province.counties.find(c => c.id == countyId);
+                const city = county.cities.find(ci => ci.id == cityId);
+                populateSelect('village', city.villages, 'انتخاب روستا');
+            }
+        });
+    }
+
+    function resetSelects(selectIds) {
+        selectIds.forEach(id => {
+            const select = document.getElementById(id);
+            select.innerHTML = `<option value="">${select.placeholder || 'انتخاب کنید'}</option>`;
+        });
+    }
+
+
+    function initializeMap() {
+        // ایجاد نقشه و تنظیم نمای اولیه
+        map = L.map('map').setView([32.4279, 53.6880], 5);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+        // ایجاد مارکر اولیه در مرکز نقشه
+        marker = L.marker(map.getCenter(), { draggable: true }).addTo(map);
+
+        // به‌روزرسانی مختصات هنگام جابجایی مارکر به صورت دستی
+        marker.on('dragend', function (e) {
+            const position = marker.getLatLng();
+            updateCoordinates(position);
+        });
+
+        // افزودن قابلیت جستجو در نقشه
+        L.Control.geocoder({
+            defaultMarkGeocode: false
+        })
+            .on('markgeocode', function (e) {
+                const position = e.geocode.center;
+                map.setView(position, 16);  // زوم به مکان پیدا شده
+                marker.setLatLng(position);  // جابجایی مارکر به مکان پیدا شده
+                updateCoordinates(position);
+            })
+            .addTo(map);
+    }
+
+
+
+
+
+
+    // تابع برای به‌روزرسانی فیلد مختصات
+    function updateCoordinates(position) {
+        document.getElementById('id_coordinates').value =
+            `{"type": "Point", "coordinates": [${position.lng.toFixed(6)}, ${position.lat.toFixed(6)}]}`;
+    }
+
+
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+        // اگر مختصات قبلاً ثبت شده بود، مارکر رو به اون نقطه منتقل کن
+        const coordInput = document.getElementById('id_coordinates');
+        if (coordInput.value) {
+            const coords = JSON.parse(coordInput.value).coordinates;
+            const savedPosition = L.latLng(coords[1], coords[0]);
+            map.setView(savedPosition, 14);
+            marker.setLatLng(savedPosition);
+        }
+
+        // اضافه کردن آیکون لوکیشن به نقشه
+        const locationControl = L.control({ position: 'topleft' });
+        locationControl.onAdd = function (map) {
+            const div = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
+            div.innerHTML = '<a href="#" title="موقعیت من" id="locate-icon"><i class="fa fa-location-dot"></i></a>';
+            L.DomEvent.disableClickPropagation(div);  // جلوگیری از تداخل با کنترل‌های نقشه
+            return div;
+        };
+        locationControl.addTo(map);
+
+        // عملکرد آیکون لوکیشن برای نمایش موقعیت فعلی
+        document.getElementById('locate-icon').addEventListener('click', function (e) {
+            e.preventDefault();
+            map.locate({ setView: true, maxZoom: 16 });
+        });
+
+        // پیدا کردن موقعیت کاربر و جابه‌جایی مارکر به اون نقطه
+        map.on('locationfound', function (e) {
+            marker.setLatLng(e.latlng);  // جابجایی مارکر به موقعیت فعلی
+            updateCoordinates(e.latlng);
+            marker.bindPopup("موقعیت فعلی شما!").openPopup();
+        });
+
+        // مدیریت خطای موقعیت‌یابی
+        map.on('locationerror', function () {
+            alert("امکان دسترسی به موقعیت شما وجود ندارد.");
+        });
+
+        // جابجایی مارکر با کلیک روی نقشه
+        map.on('click', function (e) {
+            marker.setLatLng(e.latlng);
+            updateCoordinates(e.latlng);
+        });
+    });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+        // مدیریت تب‌ها
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                document.querySelectorAll('.tab-btn').forEach(b => {
+                    b.classList.remove('active');
+                });
+                btn.classList.add('active');
+                document.getElementById(btn.dataset.tab).classList.add('active');
+            });
+        });
+    });
+
+    function toggleTimeInputs(day) {
+        const timeContainer = document.getElementById(`time_${day}`);
+        if (timeContainer.style.display === "none" || timeContainer.style.display === "") {
+            timeContainer.style.display = "block"; // Show the time inputs
+        } else {
+            timeContainer.style.display = "none"; // Hide the time inputs
+        }
+    }
+
+    function openTab(event, tabName) {
+        const contents = document.querySelectorAll('.tab-content');
+        contents.forEach(content => {
+            content.classList.remove('active');
+        });
+
+        const buttons = document.querySelectorAll('.tab-btn');
+        buttons.forEach(b => {
+            b.classList.remove('active');
+        });
+
+        const tabContent = document.getElementById(tabName);
+        if (tabContent) {
+            tabContent.classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+    }
+
+
+
+    // تابع ارسال فرم
+    async function submitJobForm() {
+        const form = document.getElementById('jobForm');
+        const formData = new FormData(form);
+        formData.append('user', {{ user.id }}); // Make sure this is the correct user ID
+
+    // Make the first request to create the job
+    try {
+        const response = await fetch('/api/jobs/create/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+            },
+            body: formData
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+            // Job created successfully
+            const jobId = result.id; // Assuming the response has the job ID
+
+            // Now handle the rest of the form data
+            await submitJobHoursAndLinks(jobId);
+            alert('شغل با موفقیت ایجاد شد!');
+            window.location.reload();
+        } else {
+            throw new Error(result.error || 'خطا در ایجاد شغل');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert(error.message);
+    }
+    }
+
+    function filterUniqueShifts(shifts) {
+        const unique = [];
+        const seen = new Set();
+
+        for (const shift of shifts) {
+            const key = `${shift.start}-${shift.end}`;
+            if (!seen.has(key)) {
+                seen.add(key);
+                unique.push(shift);
+            }
+        }
+
+        return unique;
+    }
+
+
+    async function submitJobHoursAndLinks(jobId) {
+        const form = document.getElementById('jobForm');
+        const processedDays = new Set();
+
+        const jobHoursData = Array.from(form.querySelectorAll('[name="work_days"]:checked'))
+            .map(day => {
+                const dayValue = day.value;
+                if (processedDays.has(dayValue)) return null;
+                processedDays.add(dayValue);
+
+                // استخراج شیفت‌ها
+                const shifts = Array.from(form.querySelectorAll(`#time_${dayValue} .shift-container`))
+                    .map(shift => {
+                        const inputs = shift.querySelectorAll('input');
+                        const start = inputs[0]?.value.trim();
+                        const end = inputs[1]?.value.trim();
+                        return (start && end) ? { start, end } : null;
+                    })
+                    .filter(shift => shift !== null);
+
+
+                const uniqueShifts = filterUniqueShifts(shifts);
+
+
+                return uniqueShifts.length > 0 ? { day: dayValue, shifts: uniqueShifts } : null;
+            })
+            .filter(day => day !== null);
+
+        // ارسال هر روز به صورت جداگانه
+        for (const hourData of jobHoursData) {
+            try {
+                const response = await fetch(`/api/jobs/${jobId}/hours/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(hourData)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+            } catch (error) {
+                console.error('Error submitting hours:', error);
+            }
+        }
+
+        // پردازش لینک‌ها
+        const linksData = {
+            website: form.querySelector('[name="website"]').value,
+            telegram: form.querySelector('[name="telegram"]').value,
+            instagram: form.querySelector('[name="instagram"]').value,
+            bale: form.querySelector('[name="bale"]').value
+        };
+
+        // ارسال لینک‌ها
+        await fetch(`/api/jobs/${jobId}/links/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(linksData)
+        });
+    }
+
+
+    // تابع دریافت کوکی CSRF
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.startsWith(name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // فعال‌سازی زمان‌سنج
+    document.addEventListener('DOMContentLoaded', function () {
+        flatpickr(".timepicker", {
+            enableTime: true,
+            noCalendar: true,
+            dateFormat: "H:i",
+            time_24hr: true,
+            locale: "fa"
+        });
+    });
+</script>
+{% endblock %}

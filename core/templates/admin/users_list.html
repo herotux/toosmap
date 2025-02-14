@@ -16,7 +16,6 @@
         color: #333;
         padding: 15px 25px;
         border-radius: 8px 8px 0 0;
-        margin-bottom: 20px;
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -48,18 +47,27 @@
     .search-fields th {
         padding: 5px;
     }
+    .categories-table td a{
+        color: antiquewhite;
+    }
+
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container_header">
-    <div class="form-header">
-        <h2>لیست کاربران</h2>
-        <a href="{% url 'add_user' %}" class="btn btn-success btn-sm">افزودن کاربر</a>
-    </div>
-</div>
+
 
 <div class="container-fluid">
+    <div class="container_header">
+        <div class="form-header">
+            <h2>لیست کاربران</h2>
+            <div>
+                <a href="{% url 'add_user' %}" class="btn btn-success btn-sm text-white" >افزودن کاربر</a>
+                <a href="{% url 'add_seller' %}" class="btn btn-sm text-white" style="background-color: rgb(131, 127, 127);">افزودن شغل</a>
+            </div>
+            
+        </div>
+    </div>
     <section class="content categories-container">
         <div class="filters d-flex justify-content-between align-items-center my-3">
             <form method="GET" class="d-flex align-items-center">
@@ -85,6 +93,7 @@
                         <select class="form-control search-select" data-column="5">
                             <option value="">همه نقش‌ها</option>
                             <option value="کاربر">کاربر</option>
+
                             <option value="فروشنده">فروشنده</option>
                             <option value="مدیر">مدیر</option>
                         </select>
@@ -113,7 +122,7 @@
                     <td>{{ user.email }}</td>
                     <td>{{ user.mobile }}</td>
                     <td>
-                        {% if user.mobile_status %}
+                        {% if user.is_mobile_confirmed %}
                             <span class="status فعال">تایید شده</span>
                         {% else %}
                             <span class="status غیرفعال">تایید نشده</span>
@@ -130,12 +139,11 @@
                     <td>{{ user.created_at|to_jalali:'%y/%m/%d' }}</td>
                     <td>
                         <a href="{% url 'edit_user_view' user.id %}" class="btn-action btn-edit text-white">ویرایش</a>
-                        <form action="" method="POST" style="display:inline;">
-                            {% csrf_token %}
-                            <button type="submit" class="btn-action btn-seller"><i class="fas fa-store"></i>فروشنده</button>
-                        </form>
+                        {% if user_roles|get_item:user.id != "فروشنده" %}
+                        <a href="{% url 'make_seller' user.id %}" class="btn-action btn-seller"><i class="fas fa-store"></i> فروشنده</a>
+                        {% endif %}
                     </td>
-                </tr>t
+                </tr>
                 {% endfor %}
             </tbody>
         </table>

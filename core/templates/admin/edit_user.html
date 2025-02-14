@@ -5,8 +5,8 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="{% static 'leaflet/leaflet.css' %}"></script>
 <style>
-    /* استایل‌های کلی */
     .container {
         width: 100%;
         margin: 20px auto;
@@ -15,23 +15,21 @@
         border-radius: 8px;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         display: flex;
-        justify-content: center; /* فرم را در وسط قرار می‌دهد */
+        justify-content: center;
     }
 
-    /* فرم اصلی */
-    #user-form {
-        max-width: 600px; /* عرض فرم محدود می‌شود */
-        width: 100%; /* در صفحه‌های کوچک عرض فرم 100% می‌شود */
+    #user-edit-form {
+        max-width: 600px;
+        width: 100%;
     }
 
-    /* هدر فرم بدون flexbox */
     .form-header {
         background-color: #bfdefd;
         color: #333;
         padding: 15px 25px;
         border-radius: 8px 8px 0 0;
         margin: -20px -20px 20px -20px;
-        display: block; /* تغییر از flex به block */
+        display: block;
     }
 
     .form-header h2 {
@@ -43,25 +41,23 @@
     .form-header a {
         text-decoration: none;
         color: #333;
-        float: right; /* چینش لینک به سمت راست */
+        float: right;
     }
 
-    /* پیام خطا بدون flexbox */
     .error-message {
         background-color: #ffebee;
         color: #c62828;
         padding: 15px;
         border-radius: 4px;
         margin-bottom: 15px;
-        display: block; /* تغییر از flex به block */
+        display: block;
     }
 
-    /* استایل‌های فرم با flexbox */
     .form-group {
         margin-bottom: 15px;
-        display: flex; /* استفاده از flexbox */
+        display: flex;
         align-items: center;
-        gap: 10px; /* فاصله یکنواخت بین لیبل و فیلد ورودی */
+        gap: 10px;
     }
 
     .form-group label {
@@ -77,7 +73,7 @@
         border-radius: 4px;
         direction: rtl;
         background-color: #fff;
-        color: gray; /* تغییر رنگ متن به خاکستری */
+        color: gray;
     }
 
     .form-group input[type="checkbox"] {
@@ -85,16 +81,15 @@
         margin-left: 10px;
     }
 
-    /* استایل‌های بخش تاریخ تولد با flexbox */
     .form-row {
-        display: flex; /* استفاده از flexbox */
-        gap: 10px; /* فاصله یکنواخت بین فیلدها */
+        display: flex;
+        gap: 10px;
         margin-bottom: 15px;
-        flex: 2; /* عرض form-row برابر با عرض سایر فیلدها */
+        flex: 2;
     }
 
     .form-row .form-group {
-        flex: 1; /* تقسیم فضای مساوی بین فیلدها */
+        flex: 1;
         margin-bottom: 0;
     }
 
@@ -105,7 +100,7 @@
         border: 1px solid #ccc;
         border-radius: 4px;
         direction: rtl;
-        color: gray; /* تغییر رنگ متن به خاکستری */
+        color: gray;
     }
 
     .form-row label {
@@ -114,7 +109,6 @@
         font-weight: bold;
     }
 
-    /* استایل‌های دکمه ارسال */
     .btn-submit {
         width: 100%;
         padding: 10px;
@@ -131,7 +125,6 @@
         background-color: #45a049;
     }
 
-    /* استایل‌های آیکون */
     .stop-icon {
         font-size: 24px;
         color: #ff0000;
@@ -151,7 +144,6 @@
         display: block;
     }
 
-    /* هدر آبی */
     .form-header {
         background-color: #bfdefd;
         color: white;
@@ -159,7 +151,7 @@
         border-radius: 8px 8px 0 0;
         margin-bottom: 20px;
         display: flex;
-        justify-content: space-between; /* عناصر را در دو طرف قرار میدهد */
+        justify-content: space-between;
         align-items: center;
     }
 
@@ -173,24 +165,23 @@
         color: gray;
     }
 
-    /* ریسپانسیو بودن */
     @media (max-width: 768px) {
         .form-group {
-            flex-direction: column; /* در صفحه‌های کوچک فیلدها به‌صورت عمودی چیده می‌شوند */
-            align-items: flex-start; /* لیبل‌ها به سمت چپ چیده می‌شوند */
+            flex-direction: column;
+            align-items: flex-start;
         }
 
         .form-group input,
         .form-group select {
-            width: 100%; /* فیلدها عرض کامل می‌گیرند */
+            width: 100%;
         }
 
         .form-row {
-            flex-direction: column; /* در صفحه‌های کوچک فیلدهای تاریخ تولد به‌صورت عمودی چیده می‌شوند */
+            flex-direction: column;
         }
 
         .form-row .form-group {
-            width: 100%; /* فیلدها عرض کامل می‌گیرند */
+            width: 100%;
         }
     }
 </style>
@@ -210,14 +201,58 @@
         text-align: right;
     }
     .success-message {
-        background-color: #4CAF50; /* سبز */
-        color: white; /* متن سفید */
+        background-color: #4CAF50;
+        color: white;
         padding: 15px;
         border-radius: 4px;
         margin-bottom: 15px;
-        display: none; /* به طور پیش‌فرض مخفی است */
-        text-align: center; /* متن در وسط */
+        display: none;
+        text-align: center;
     }
+
+    /* استایل سلکت باکس‌های تاریخ */
+.form-row select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    direction: rtl;
+    background-color: #fff;
+    color: gray;
+}
+
+/* استایل وضعیت موبایل */
+#mobile_status {
+    flex: 2;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    direction: rtl;
+    background-color: #fff;
+    color: gray;
+}
+
+.input-error {
+    border: 2px solid #ff4444 !important;
+    background-color: #ffebee !important;
+    animation: shake 0.5s;
+}
+
+@keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(5px); }
+    50% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+    100% { transform: translateX(0); }
+}
+
+.error-message ul {
+    margin: 5px 0 0 20px;
+    padding: 0;
+    list-style-type: disc;
+}
+
+
 </style>
 {% endblock %}
 
@@ -253,8 +288,9 @@
         </div>
         <div class="form-group">
             <label for="mobile">موبایل <span class="required-star">*</span></label>
-            <input type="text" id="mobile" name="mobile" placeholder="09121234567" required value="{{ user.mobile }}">
+            <input type="text" id="mobile" name="mobile" placeholder="09121234567" value="{{ user.username }}" required data-required>
         </div>
+        
         <div class="form-group">
             <label for="password">گذرواژه</label>
             <input type="password" id="password" name="password" placeholder="گذرواژه را وارد کنید">
@@ -272,11 +308,11 @@
             <input type="checkbox" id="citizenship" name="citizenship" {% if user.citizenship %}checked{% endif %}>
         </div>
         <div class="form-group">
+            
             <label for="province">استان</label>
             <select id="province" name="province">
                 <option value="">استان را انتخاب کنید</option>
                 {% for province in provinces %}
-                    {{ province.name }}
                     <option value="{{ province.id }}" {% if user_province.name == province.name %}selected{% endif %}>{{ province.name }}</option>
                 {% endfor %}
             </select>
@@ -297,37 +333,79 @@
         <div class="form-group">
             <label>تاریخ تولد</label>
             <div class="form-row">
-                <select id="dob_year" name="dob_year">
+                <select id="dob_year" name="dob_year" class="form-control">
                     <option value="">سال</option>
-                    <!-- Add year options dynamically -->
+                    <!-- سال‌ها با جاوااسکریپت پر می‌شوند -->
                 </select>
-                <select id="dob_month" name="dob_month">
+                <select id="dob_month" name="dob_month" class="form-control">
                     <option value="">ماه</option>
-                    <!-- Add month options dynamically -->
+                    <!-- ماه‌ها با جاوااسکریپت پر می‌شوند -->
                 </select>
-                <select id="dob_day" name="dob_day">
+                <select id="dob_day" name="dob_day" class="form-control">
                     <option value="">روز</option>
-                    <!-- Add day options dynamically -->
+                    <!-- روزها با جاوااسکریپت پر می‌شوند -->
                 </select>
             </div>
         </div>
         <div class="form-group">
             <label for="mobile_status">وضعیت موبایل</label>
-            <input type="text" id="mobile_status" name="mobile_status" placeholder="وضعیت موبایل را وارد کنید" value="{{ user.mobile_status }}">
+            <select id="mobile_status" name="mobile_status">
+                <option value="active" {% if user.mobile_status == 'active' %}selected{% endif %}>فعال</option>
+                <option value="inactive" {% if user.mobile_status == 'inactive' %}selected{% endif %}>غیرفعال</option>
+            </select>
         </div>
         <div class="form-group">
             <label for="location">موقعیت جغرافیایی</label>
-            <div id="map" style="height: 300px; width: 100%;"></div> <!-- نقشه -->
-            <input type="hidden" id="lat" name="lat" value="{{ user.lat }}"> <!-- فیلد مخفی برای عرض جغرافیایی -->
-            <input type="hidden" id="lng" name="lng" value="{{ user.lng }}"> <!-- فیلد مخفی برای طول جغرافیایی -->
+            <div id="map" style="height: 300px; width: 100%;"></div>
+            <input type="hidden" id="lat" name="lat" value="{{ user_lat }}">
+            <input type="hidden" id="lng" name="lng" value="{{ user_lng }}">
         </div>
         <button type="button" class="btn-submit" id="edit-user-button">ویرایش کاربر</button>
     </form>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- افزودن Jalali Moment برای تبدیل تاریخ -->
+<script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment-jalaali@0.9.2/build/moment-jalaali.js"></script>
 <script>
     document.getElementById('edit-user-button').addEventListener('click', function () {
+        const errorMessages = [];
+        const errorContainer = document.getElementById('error-message');
+        errorContainer.innerHTML = '';
+        errorContainer.style.display = 'none';
+
+        // اعتبارسنجی فیلدهای اجباری
+        document.querySelectorAll('[data-required]').forEach(field => {
+            field.classList.remove('input-error');
+            if (!field.value.trim()) {
+                field.classList.add('input-error');
+                errorMessages.push(`فیلد ${field.labels[0].innerText} الزامی است`);
+            }
+        });
+
+        // اعتبارسنجی پسوردها
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirm_password').value;
+        if (password || confirmPassword) {
+            if (password !== confirmPassword) {
+                document.getElementById('password').classList.add('input-error');
+                document.getElementById('confirm_password').classList.add('input-error');
+                errorMessages.push('پسورد و تأیید پسورد مطابقت ندارند');
+            }
+        }
+
+        // نمایش خطاها
+        if (errorMessages.length > 0) {
+            errorContainer.innerHTML = `
+                <strong>خطا!</strong>
+                <ul>
+                    ${errorMessages.map(msg => `<li>${msg}</li>`).join('')}
+                </ul>
+            `;
+            errorContainer.style.display = 'block';
+            return;
+        }
         const data = {
             first_name: document.getElementById('first_name').value,
             last_name: document.getElementById('last_name').value,
@@ -343,7 +421,8 @@
             dob_month: document.getElementById('dob_month').value,
             dob_day: document.getElementById('dob_day').value,
             mobile_status: document.getElementById('mobile_status').value,
-            geo_location: document.getElementById('geo_location').value,
+            lat: document.getElementById('lat').value,
+            lng: document.getElementById('lng').value,
         };
 
         fetch('/api/edit-user/{{ user.id }}/', {
@@ -376,64 +455,127 @@
                 errorMessage.style.display = 'block';
             }
         })
-        .catch(error => {
+        .catch(error => {user_lat
             console.error('Error:', error);
         });
     });
 </script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // Default coordinates (Tehran)
-        const defaultLat = {{ user.lat|default:35.6892 }};
-        const defaultLng = {{ user.lng|default:51.3890 }};
+        const userLat = {{ user_lat|default:35.6892 }};
+        const userLng = {{ user_lng|default:51.3890 }};
+        
+        const map = L.map('map').setView([userLat, userLng], 13);
 
-        // Create map
-        const map = L.map('map').setView([defaultLat, defaultLng], 13);
-
-        // Add map layer
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
-        // Create marker
-        let marker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(map);
+        let marker = L.marker([userLat, userLng], { draggable: true }).addTo(map);
 
-        // Event for marker position change
         marker.on('dragend', function (event) {
             const position = marker.getLatLng();
-            document.getElementById('lat').value = position.lat; // Save latitude
-            document.getElementById('lng').value = position.lng; // Save longitude
+            document.getElementById('lat').value = position.lat; 
+            document.getElementById('lng').value = position.lng;
         });
 
-        // رویداد برای کلیک روی نقشه و تغییر موقعیت مارکر
         map.on('click', function (event) {
             const latlng = event.latlng;
-            marker.setLatLng(latlng); // تغییر موقعیت مارکر
-            document.getElementById('lat').value = latlng.lat; // ذخیره عرض جغرافیایی
-            document.getElementById('lng').value = latlng.lng; // ذخیره طول جغرافیایی
+            marker.setLatLng(latlng);
+            document.getElementById('lat').value = latlng.lat;
+            document.getElementById('lng').value = latlng.lng;
         });
 
-        // رویداد تغییر شهر
         document.getElementById('city').addEventListener('change', function () {
-            const selectedCity = this.value; // نام شهر انتخاب‌شده
+            const selectedCity = this.value;
             if (selectedCity) {
-                // یافتن شهر انتخاب‌شده در داده‌ها
                 const selectedProvince = document.getElementById('province').value;
                 const selectedProvinceData = window.provincesData.find(province => province.name === selectedProvince);
                 if (selectedProvinceData) {
                     const cityData = selectedProvinceData.cities.find(city => city.name === selectedCity);
                     if (cityData && cityData.lat && cityData.lng) {
-                        // تغییر مرکز نقشه به مختصات شهر انتخاب‌شده
                         const lat = parseFloat(cityData.lat);
                         const lng = parseFloat(cityData.lng);
-                        map.setView([lat, lng], 13); // تغییر مرکز نقشه
-                        marker.setLatLng([lat, lng]); // تغییر موقعیت مارکر
-                        document.getElementById('lat').value = lat; // ذخیره عرض جغرافیایی
-                        document.getElementById('lng').value = lng; // ذخیره طول جغرافیایی
+                        map.setView([lat, lng], 13);
+                        marker.setLatLng([lat, lng]);
+                        document.getElementById('lat').value = lat;
+                        document.getElementById('lng').value = lng;
                     }
                 }
             }
         });
     });
 </script>
+<script>
+    // مدیریت تاریخ تولد
+    function initializeDateSelectors() {
+        populateYears();
+        populateMonths();
+        populateDays();
+    }
+    
+    function populateYears() {
+        const yearSelect = document.getElementById('dob_year');
+        const currentYear = moment().jYear();
+        const startYear = 1301;
+    
+        yearSelect.innerHTML = '<option value="">سال</option>';
+        for (let year = currentYear; year >= startYear; year--) {
+            const option = new Option(year, year);
+            option.selected = year === {{ user.year|default:'null' }};
+            yearSelect.appendChild(option);
+        }
+    }
+    
+    function populateMonths() {
+        const months = ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور",
+                        "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"];
+        const monthSelect = document.getElementById('dob_month');
+        monthSelect.innerHTML = '<option value="">ماه</option>';
+        months.forEach((name, index) => {
+            const option = new Option(name, index + 1);
+            option.selected = (index + 1) === {{ user.month|default:'null' }};
+            monthSelect.appendChild(option);
+        });
+    }
+    
+
+    function getJalaliDaysInMonth(year, month) {
+        console.log(year);
+        console.log(month);
+        return moment().jYear(year).jMonth(month - 1).startOf('jMonth').daysInMonth();
+    }
+
+    function populateDays() {
+        const daySelect = document.getElementById('dob_day');
+        const selectedMonth = parseInt(document.getElementById('dob_month').value);
+        const selectedYear = parseInt(document.getElementById('dob_year').value);
+        
+        // مقدار پیش‌فرض روز فعلی کاربر
+        const userDay = parseInt({{ user.day|default:'null' }});
+
+        let daysInMonth = 31;
+        
+        if (selectedMonth && selectedYear) {
+            // ایجاد تاریخ جلالی با استفاده از moment-jalaali
+            daysInMonth = getJalaliDaysInMonth(selectedYear, selectedMonth);
+        }
+
+        daySelect.innerHTML = '<option value="">روز</option>';
+        for (let day = 1; day <= daysInMonth; day++) {
+            const option = new Option(day, day);
+            option.selected = day === userDay;
+            daySelect.appendChild(option);
+        }
+    }
+    
+    // رویداد تغییر ماه و سال
+    document.getElementById('dob_month').addEventListener('change', populateDays);
+    document.getElementById('dob_year').addEventListener('change', populateDays);
+    
+    // مقداردهی اولیه هنگام لود صفحه
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeDateSelectors();
+    });
+    </script>
 {% endblock %}

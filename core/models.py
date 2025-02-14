@@ -1,38 +1,63 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 import random
-from django.contrib.gis.db import models
+from django.contrib.gis.db import models as gis_models
+from django.db.models import Index
+import uuid
+from django.utils.translation import gettext_lazy as _
 
 
 class Province(models.Model):
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=100)
+    slug = models.SlugField(max_length=100, unique=True)
+    coordinates = gis_models.PointField()  # ذخیره مختصات جغرافیایی به عنوان نقطه
 
     class Meta:
-        db_table = 'province'
+        db_table = 'provinces'
+        verbose_name = "استان"
+        verbose_name_plural = "استان ها"
+        indexes = [  # تعریف شاخص GIST
+            Index(fields=['coordinates'], name='province_coordinates_idx')
+        ]
 
     def __str__(self):
         return self.name
+    
+
+
+class County(models.Model):
+    name = models.CharField(max_length=100)
+    slug = models.SlugField(max_length=100, unique=True)
+    province = models.ForeignKey(Province, on_delete=models.CASCADE, related_name="counties")
+    
+    coordinates = gis_models.PointField(null=True, blank=True)
+
+    class Meta:
+        db_table = 'counties'
+        verbose_name = "شهرستان "
+        verbose_name_plural = "شهرستان ها"
+        indexes = [
+            Index(fields=['coordinates'], name='county_coordinates_idx')
+        ]
+
+    def __str__(self):
+        return self.name
+    
 
 
 class City(models.Model):
     name = models.CharField(max_length=100)
-    province = models.ForeignKey(Province, related_name='cities', on_delete=models.CASCADE)
-    lat = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
-    lng = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+    slug = models.SlugField(max_length=100, unique=True)
+    county = models.ForeignKey(County, on_delete=models.CASCADE, related_name="cities")
+    coordinates = gis_models.PointField(null=True, blank=True)
 
     class Meta:
-        db_table = 'city'
-
-    def __str__(self):
-        return self.name
-
-
-
-
-class District(models.Model):
-    name = models.CharField(max_length=100, verbose_name="نام منطقه")
-    city = models.ForeignKey(City, on_delete=models.CASCADE, related_name='districts', verbose_name="شهر")
-    geometry = models.PolygonField(verbose_name="هندسه")
+        db_table = 'cities'
+        verbose_name = "شهر"
+        verbose_name_plural = "شهر ها"
+        indexes = [
+            Index(fields=['coordinates'], name='city_coordinates_idx')
+        ]
 
     def __str__(self):
         return self.name
@@ -40,13 +65,66 @@ class District(models.Model):
 
 
 class Village(models.Model):
-    name = models.CharField(max_length=100, verbose_name="نام روستا")
-    city = models.ForeignKey(City, on_delete=models.CASCADE, related_name='villages', verbose_name="شهر")
-    geometry = models.PolygonField(verbose_name="هندسه")
+    name = models.CharField(max_length=100)
+    slug = models.SlugField(max_length=100, unique=True)
+    county = models.ForeignKey(County, on_delete=models.CASCADE, related_name="villages")
+    province = models.ForeignKey(Province, on_delete=models.CASCADE, related_name="villages")
+    coordinates = gis_models.PointField(null=True, blank=True)
+
+    class Meta:
+        db_table = 'villages'
+        verbose_name = "روستا"
+        verbose_name_plural = "روستا ها"
+        indexes = [
+            Index(fields=['coordinates'], name='village_coordinates_idx')
+        ]
+        
 
     def __str__(self):
         return self.name
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class District(models.Model):
+    name = models.CharField(max_length=100, verbose_name="نام منطقه")
+    county = models.ForeignKey(County, on_delete=models.CASCADE, related_name='districts', verbose_name="شهرستان")
+    geometry = gis_models.PolygonField(verbose_name="هندسه")
+
+    class Meta:
+        db_table = 'districts'
+        indexes = [
+            Index(fields=['geometry'], name='district_coordinates_idx')
+        ]
+        verbose_name = "منطقه"
+        verbose_name_plural = "مناطق"
+        ordering = ['name']
+
+
+    def __str__(self):
+        return self.name
+
+
     
+
+
+
     
 
 # کاربران
@@ -58,8 +136,16 @@ class user(AbstractUser):
     national_code = models.CharField(max_length=10, null=True, blank=True)
     national = models.BooleanField(default=False)
     province_id = models.IntegerField(null=True, blank=True)
+    county_id = models.IntegerField(null=True, blank=True)
     city_id = models.IntegerField(null=True, blank=True)
-    region = models.CharField(max_length=100, null=True, blank=True)
+    village_id = models.IntegerField(null=True, blank=True)
+    district_id = models.IntegerField(null=True, blank=True)
+    coordinates = gis_models.PointField(
+        srid=4326,  # سیستم مختصات WGS 84
+        null=True,
+        blank=True,
+        verbose_name='مختصات'
+    )
     email = models.EmailField(null=True, blank=True)
     email_verified_at = models.DateTimeField(null=True, blank=True)
     password = models.CharField(max_length=128)
@@ -72,24 +158,28 @@ class user(AbstractUser):
     last_active = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    is_mobile_confirmed = models.BooleanField(default=False)  # New field for mobile confirmation
+    is_mobile_confirmed = models.BooleanField()
     created_by_admin = models.BooleanField(default=False)
-    lat = models.DecimalField(max_digits=12, decimal_places=9, null=True, blank=True)
-    lng = models.DecimalField(max_digits=12, decimal_places=9, null=True, blank=True)
+
     
-    
+    class Meta:
+        db_table = 'users'
+        verbose_name = 'کاربر'
+        verbose_name_plural = 'کاربران'
+        ordering = ['id']
+
     def __str__(self):
         return self.username
 
 
 # دسته‌بندی مشاغل
-class category_jobs(models.Model):
+class category_job(models.Model):
     name = models.CharField(max_length=100)
     slug = models.SlugField(unique=True)
     label = models.CharField(max_length=100, null=True, blank=True)
-    icon = models.ImageField(upload_to='categories/icons/', null=True, blank=True)
-    image = models.ImageField(upload_to='categories/images/', null=True, blank=True)
-    banner = models.ImageField(upload_to='categories/banners/', null=True, blank=True)
+    icon = models.ImageField(upload_to='media/categories/icons/', null=True, blank=True)
+    image = models.ImageField(upload_to='media/categories/images/', null=True, blank=True)
+    banner = models.ImageField(upload_to='media/categories/banners/', null=True, blank=True)
     meta_keywords = models.TextField(null=True, blank=True)
     meta_description = models.TextField(null=True, blank=True)
     parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.SET_NULL, related_name='children')
@@ -100,16 +190,27 @@ class category_jobs(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+
+    class Meta:
+        db_table = 'category_job'
+        verbose_name = 'دسته‌بندی مشاغل'
+        verbose_name_plural = 'دسته‌بندی مشاغل'
+        ordering = ['sort_order']
+        get_latest_by = 'created_at'
+        get_latest_by = 'updated_at'
+
+
     def __str__(self):
         return self.name
 
 
 # دسته‌بندی کاربران مشاغل
 class category_user(models.Model):
-    category = models.ForeignKey(category_jobs, on_delete=models.CASCADE)
+    category = models.ForeignKey(category_job, on_delete=models.CASCADE)
     user = models.ForeignKey(user, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
 
 
 # نقش‌ها
@@ -120,6 +221,14 @@ class role(models.Model):
     status = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+
+    class Meta:
+        db_table = 'roles'
+        verbose_name = 'نقش'
+        verbose_name_plural = 'نقش‌ها'
+        ordering = ['name']
+
 
     def __str__(self):
         return self.display_name
@@ -133,21 +242,31 @@ class role_user(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
 
+def generate_job_code():
+    return str(uuid.uuid4().int)[:10]
+
+
 # مشاغل
 class job(models.Model):
     user = models.ForeignKey(user, on_delete=models.CASCADE)
     store_name = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
-    job_code = models.CharField(max_length=10, unique=True, default=str(random.randint(1000000000, 9999999999)))
+    job_code = models.CharField(max_length=10, unique=True, default=generate_job_code)
     mobile = models.CharField(max_length=15, null=True, blank=True)
     phone = models.CharField(max_length=15, null=True, blank=True)
     province = models.ForeignKey(Province, on_delete=models.SET_NULL, null=True)
     city = models.ForeignKey(City, on_delete=models.SET_NULL, null=True)
-    region = models.CharField(max_length=100, null=True, blank=True)
+    district = models.ForeignKey(District, on_delete=models.SET_NULL, null=True)
     address = models.TextField()
     post_code = models.CharField(max_length=20, null=True, blank=True)
-    lat = models.DecimalField(max_digits=9, decimal_places=6)
-    lng = models.DecimalField(max_digits=9, decimal_places=6)
+    # lat = models.DecimalField(max_digits=9, decimal_places=6)
+    # lng = models.DecimalField(max_digits=9, decimal_places=6)
+    coordinates = gis_models.PointField(
+        srid=4326,  # سیستم مختصات WGS 84
+        null=True,
+        blank=True,
+        verbose_name='مختصات'
+    )
     in_person = models.BooleanField(default=False)
     internet_sales = models.BooleanField(default=False)
     single_sale = models.BooleanField(default=False)
@@ -167,6 +286,23 @@ class job(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
 
+    class Meta:
+        db_table = 'jobs'
+        verbose_name = 'کار'
+        verbose_name_plural = 'کارها'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return self.store_name
+    
+    def coordinates_display(self):
+        if self.coordinates:
+            return f"طول: {self.coordinates.x:.6f}, عرض: {self.coordinates.y:.6f}"
+        return "تعیین نشده"
+    
+    coordinates_display.short_description = "مختصات"
+
+
 # تنظیمات
 class setting(models.Model):
     name = models.CharField(max_length=100, unique=True)
@@ -175,30 +311,61 @@ class setting(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        db_table = 'settings'
+    
     def __str__(self):
         return self.label
 
 
-class Locality(models.Model):
-    name = models.CharField(max_length=100)
-    city = models.ForeignKey(City, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.name
-
 
 class JobHours(models.Model):
-    job = models.ForeignKey(job, on_delete=models.CASCADE)
-    saturday = models.TimeField()
-    sunday = models.TimeField()
-    monday = models.TimeField()
-    tuesday = models.TimeField()
-    wednesday = models.TimeField()
-    thursday = models.TimeField()
-    friday = models.TimeField()
-
+    DAYS_OF_WEEK = [
+        ('sat', _('شنبه')),
+        ('sun', _('یکشنبه')),
+        ('mon', _('دوشنبه')),
+        ('tue', _('سه‌شنبه')),
+        ('wed', _('چهارشنبه')),
+        ('thu', _('پنجشنبه')),
+        ('fri', _('جمعه')),
+    ]
+    
+    job = models.ForeignKey(job, on_delete=models.CASCADE, verbose_name=_("کسب‌وکار"))
+    day = models.CharField(max_length=3, choices=DAYS_OF_WEEK, verbose_name=_("روز هفته"))
+    is_closed = models.BooleanField(default=False, verbose_name=_("تعطیل"))
+    
+    class Meta:
+        db_table = 'job_hours'
+        verbose_name = _('ساعت کاری')
+        verbose_name_plural = _('ساعت‌های کاری')
+        unique_together = ('job', 'day')  # هر روز برای یک کسب‌وکار فقط یک بار ثبت شود
+    
     def __str__(self):
-        return f"Hours for {self.job}"
+        return f"{self.get_day_display()} - {self.job}"
+    
+
+    
+class TimeSlot(models.Model):
+    job_hour = models.ForeignKey(JobHours, on_delete=models.CASCADE, related_name='time_slots', verbose_name=_("ساعت کاری"))
+    start_time = models.TimeField(verbose_name=_("زمان شروع"))
+    end_time = models.TimeField(verbose_name=_("زمان پایان"))
+    
+    class Meta:
+        db_table = 'time_slots'
+        verbose_name = _('بازه زمانی')
+        verbose_name_plural = _('بازه‌های زمانی')
+        constraints = [
+            models.UniqueConstraint(
+                fields=['job_hour', 'start_time', 'end_time'],
+                name='unique_time_slot'
+            )
+        ]
+    
+    def __str__(self):
+        return f"{self.start_time} - {self.end_time}"
+    
+
+
 
 
 class JobLinks(models.Model):
@@ -209,6 +376,11 @@ class JobLinks(models.Model):
     robika = models.URLField(null=True, blank=True)
     eitaa = models.URLField(null=True, blank=True)
     bale = models.URLField(null=True, blank=True)
+
+    class Meta:
+        db_table = 'job_links'
+        verbose_name = _('لینک شغل ')
+        verbose_name_plural = _('لینک های شغل')
 
     def __str__(self):
         return f"Links for {self.job}"

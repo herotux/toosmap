@@ -3,13 +3,14 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/add-user.css' %}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-<!-- افزودن Select2 برای فیلدهای جستجوپذیر -->
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<!-- افزودن Select2 برای فیلدهای جستجوپذیر
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" /> -->
 <!-- اضافه کردن CSS Leaflet -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-
+<link rel="stylesheet" href="{% static 'leaflet/leaflet.css' %}"></script>
 <!-- اضافه کردن JavaScript Leaflet -->
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script src="{% static 'leaflet/leaflet.js' %}"></script>
 <style>
     /* استایل‌های کلی */
     .container {
@@ -137,7 +138,7 @@
     }
 
     /* استایل‌های آیکون */
-    .stop-icon {
+ .stop-icon {
         font-size: 24px;
         color: #ff0000;
         background: white;
@@ -200,20 +201,8 @@
     }
 </style>
 <style>
-    .select2-container .select2-selection--single {
-        height: 38px;
-        padding: 6px 12px;
-        direction: rtl;
-    }
 
-    .select2-container--default .select2-selection--single .select2-selection__arrow {
-        left: 12px;
-        right: auto;
-    }
 
-    .select2-container--default .select2-selection--single .select2-selection__rendered {
-        text-align: right;
-    }
     .success-message {
         background-color: #4CAF50; /* سبز */
         color: white; /* متن سفید */
@@ -262,15 +251,16 @@
             <label for="role">گروه کاربری <span class="required-star">*</span></label>
             <select id="role" name="role" required>
                 <option value="">گروه کاربری را انتخاب کنید</option>
-                <option value="admin">مدیر</option>
-                <option value="user" selected>کاربر عادی</option>
-                <option value="seller">فروشنده</option>
+                
+                {% for role in roles %}
+                    <option value="{{role.name}}" {% if role.name == 'user' %} selected {% endif %}>{{role.display_name}}</option>
+                {% endfor %}
             </select>
         </div>
 
         <div class="form-group">
             <label for="mobile">موبایل <span class="required-star">*</span></label>
-            <input type="text" id="mobile" name="mobile" placeholder="09121234567" required>
+            <input type="text" id="mobile" name="mobile" placeholder=" 09121234567" required>
         </div>
 
         <div class="form-group">
@@ -297,19 +287,37 @@
             <label for="province">استان <span class="required-star">*</span></label>
             <select id="province" name="province" required>
                 <option value="">استان را انتخاب کنید</option>
-            </select>
-        </div>
-        
-        <div class="form-group">
-            <label for="city">شهر <span class="required-star">*</span></label>
-            <select id="city" name="city" required>
-                <option value="">شهر را انتخاب کنید</option>
+
             </select>
         </div>
 
         <div class="form-group">
-            <label for="region">محله یا روستا</label>
-            <input type="text" id="region" name="region" placeholder="محله یا روستا را وارد کنید">
+            <label for="county">شهرستان <span class="required-star">*</span></label>
+            <select id="county" name="county" required>
+                <option value="">شهرستان را انتخاب کنید</option>
+            </select>
+        </div>
+        
+        <div class="form-group city-field">
+            <label for="city">شهر </label>
+            <select id="city" name="city">
+                <option value="">شهر را انتخاب کنید</option>
+            </select>
+        </div>
+
+        <div class="form-group district-field" style="display: none;">
+            <label for="district">منطقه</label>
+            <select id="district" name="district">
+                <option value="">منطقه را انتخاب کنید</option>
+                <!-- مناطق به‌صورت دینامیک پر می‌شوند -->
+            </select>
+        </div>
+
+        <div class="form-group village-field">
+            <label for="village">روستا</label>
+            <select id="village" name="village">
+                <option value="">روستا را انتخاب کنید</option>
+            </select>
         </div>
 
         <!-- بخش تاریخ تولد -->
@@ -336,20 +344,20 @@
                 </div>
             </div>
         </div>
-
         <div class="form-group">
             <label for="mobile_verified">وضعیت موبایل</label>
-            <select id="mobile_verified" name="mobile_verified">
-                <option value="mobile_verified">فعال</option>
-                <option value="not_verified" selected>غیرفعال</option>
+            <select id="is_mobile_confirmed" name="is_mobile_confirmed">
+                <option value="True">فعال</option>
+                <option value="False" selected>غیرفعال</option>
             </select>
         </div>
+
+        
 
         <div class="form-group">
             <label for="location">موقعیت جغرافیایی</label>
             <div id="map" style="height: 300px; width: 100%;"></div> <!-- نقشه -->
-            <input type="hidden" id="lat" name="lat"> <!-- فیلد مخفی برای عرض جغرافیایی -->
-            <input type="hidden" id="lng" name="lng"> <!-- فیلد مخفی برای طول جغرافیایی -->
+            <input type="hidden" id="coordinates" name="coordinates">
         </div>
 
         <!-- دکمه ارسال -->
@@ -361,11 +369,13 @@
 
 
 
-<!-- افزودن jQuery -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-<!-- افزودن Select2 -->
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<!-- جاوااسکریپت‌ها -->
+<script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment-jalaali@0.9.2/build/moment-jalaali.js"></script>
+<script src="{% static 'leaflet/leaflet.js' %}"></script>
+
 
 <!-- افزودن Jalali Moment برای تبدیل تاریخ -->
 <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.min.js"></script>
@@ -373,260 +383,516 @@
 
 
 <script>
-    // ارسال فرم با AJAX
+    // --- متغیرهای عمومی ---
+    window.provincesData = [];
+    let map; // Leaflet map instance
+    // در بالای فایل در بخش متغیرهای عمومی
+    let marker; // Marker instance
 
+    // --- مقداردهی اولیه ---
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeApplication();
+    });
 
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
+    // --- توابع نمایش پیام ---
+    function showError(messages) {
+        const errorContainer = document.getElementById('error-message'); // فرض کنید یک div با این ID دارید
+        errorContainer.innerHTML = ''; // پاک کردن پیام‌های قبلی
+        errorContainer.style.display = 'block';
+        const ul = document.createElement('ul'); // ایجاد یک لیست
+        ul.style.color = 'red';  // برای نمایش قرمز
+
+        messages.forEach(message => {
+            const li = document.createElement('li');
+            li.textContent = `خطا! ${message}`;
+            ul.appendChild(li);
+        });
+
+        errorContainer.appendChild(ul);  // اضافه کردن لیست به DOM
     }
 
-    
-    document.getElementById('user-form').addEventListener('submit', function (e) {
-        e.preventDefault();
+    function showSuccess(message) {
+        const successDiv = document.getElementById('success-message');
+        successDiv.innerHTML = message;
+        successDiv.style.display = 'block';
+        setTimeout(() => successDiv.style.display = 'none', 5000);
+    }
 
-        const formData = new FormData(this);
+    // --- مقداردهی اولیه برنامه ---
+    async function initializeApplication() {
+        initializeMap();
+        initializeDateSelectors();
+        initializeFormEvents();
+        addLocationSelectListeners();
 
-        // گرد کردن lat و lng به ۶ رقم اعشار
-        const lat = parseFloat(formData.get('lat')).toFixed(6); // گرد کردن به ۶ رقم اعشار
-        const lng = parseFloat(formData.get('lng')).toFixed(6); // گرد کردن به ۶ رقم اعشار
+        try {
+            await loadProvincesAndCities(); // بارگیری داده‌های جغرافیایی
+        } catch (error) {
+            showError('خطا در مقداردهی اولیه سیستم');
+            console.error('Initialization error:', error);
+        }
 
-        const data = {
-            first_name: formData.get('first_name'),
-            last_name: formData.get('last_name'),
-            role: formData.get('role'),
-            mobile: formData.get('mobile'),
-            password: formData.get('password'),
-            email: formData.get('email') || null,
-            national_code: formData.get('national_code') || null,
-            province: formData.get('province'),
-            city: formData.get('city'),
-            region: formData.get('region') || null,
-            year: parseInt(formData.get('year')) || null,
-            month: parseInt(formData.get('month')) || null,
-            day: parseInt(formData.get('day')) || null,
-            mobile_verified: formData.get('mobile_verified'),
-            lat: lat, // استفاده از مقدار گرد شده
-            lng: lng, // استفاده از مقدار گرد شده
-        };
-
-        console.log('Data being sent:', data); // بررسی داده‌های ارسالی
-
-        fetch('/api/add-user/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': '{{ csrf_token }}',
-            },
-            body: JSON.stringify(data),
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                const successMessage = document.getElementById('success-message');
-                successMessage.innerHTML = 'کاربر با موفقیت ثبت شد!';
-                successMessage.style.display = 'block';
-                document.getElementById('user-form').reset();
-                setTimeout(() => {
-                    successMessage.style.display = 'none';
-                }, 5000);
+        
+        document.getElementById('province').addEventListener('change', handleProvinceChange);
+        document.getElementById('county').addEventListener('change', function() {
+            const selectedCounty = this.value;
+            // بررسی آیا شهرستان انتخاب شده تهران است
+            if (selectedCounty === "تهران") {   
+                toggleDistrictField(true);
+                populateDistricts(selectedCounty);
             } else {
-                const errorMessage = document.getElementById('error-message');
-                errorMessage.innerHTML = `
-                    <strong>خطا!</strong>
-                    <ul>
-                        ${Object.entries(data.errors).map(([field, errors]) => `
-                            <li>${field}: ${errors.join(', ')}</li>
-                        `).join('')}
-                    </ul>
-                `;
-                errorMessage.style.display = 'block';
+                toggleDistrictField(false);
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
+            handleCountyChange(selectedCounty); // فراخوانی تابع اصلی
         });
-    });
-</script>
-<script>
-    // تابع برای پر کردن فیلد سال (شمسی)
-    function populateYears() {
-        const yearSelect = document.getElementById('year');
-        const currentYear = moment().format('jYYYY'); // سال جاری شمسی
-        const startYear = 1301;
+        document.getElementById('city').addEventListener('change', handleCityChange);
+        document.getElementById('county').addEventListener('change', function () {
+            populateVillages(this.value);
+        });
+        document.getElementById('village').addEventListener('change', handleVillageChange);
+        
+    }
 
-        for (let year = startYear; year <= currentYear; year++) {
-            const option = document.createElement('option');
-            option.value = year;
-            option.textContent = year;
-            yearSelect.appendChild(option);
+
+
+
+    function updateCoordinates(position) {
+        const coordinates = {
+            type: "Point",
+            coordinates: [
+                position.lng.toFixed(6),
+                position.lat.toFixed(6)
+            ]
+        };
+        document.getElementById('coordinates').value = JSON.stringify(coordinates);
+    }
+
+    function addLocationSelectListeners() {
+        document.querySelectorAll('#province, #county, #city, #village').forEach(select => {
+            select.addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                const lat = parseFloat(selectedOption.dataset.lat);
+                const lng = parseFloat(selectedOption.dataset.lng);
+                
+                if(!isNaN(lat) && !isNaN(lng)) {
+                    const newPos = L.latLng(lat, lng);
+                    map.setView(newPos, 14);
+                    marker.setLatLng(newPos);
+                    updateCoordinates(newPos); // اکنون تابع قابل دسترسی است
+                }
+            });
+        });
+    }
+
+    // --- دریافت داده‌های جغرافیایی با کش ---
+    async function loadProvincesAndCities() {
+        const cachedData = localStorage.getItem('provincesData');
+        
+        if (cachedData) {
+            window.provincesData = JSON.parse(cachedData);
+            populateSelect('province', 'استان را انتخاب کنید', window.provincesData.map(p => p.name));
+            console.log("داده‌ها از کش بارگیری شدند.");
+            return;
+        }
+
+        try {
+            const response = await fetch('/load-counties/');
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            
+            const data = await response.json();
+            if (!Array.isArray(data)) throw new Error('Invalid data format');
+
+            window.provincesData = data;
+            localStorage.setItem('provincesData', JSON.stringify(data)); // ذخیره در کش
+            populateSelect('province', 'استان را انتخاب کنید', data.map(p => p.name));
+        } catch (error) {
+            console.error('خطا در دریافت استان‌ها:', error);
+            showError('خطا در دریافت اطلاعات جغرافیایی');
+        }
+    }
+    
+
+    // --- مدیریت فرم ---
+    function initializeFormEvents() {
+        document.getElementById('user-form').addEventListener('submit', handleFormSubmit);
+    }
+
+    function populateCounties(selectedProvince) {
+
+        
+        const countySelect = document.getElementById('county');
+        countySelect.innerHTML = '<option value="">شهرستان را انتخاب کنید</option>';
+        console.log('Selected Province:', selectedProvince);  // نمایش استان انتخاب شده
+        
+        if (!window.provincesData.length) {
+            console.log('Provinces data is empty');
+            return;
+        }
+
+        // پیدا کردن استان انتخاب شده از داده‌ها
+        const province = window.provincesData.find(p => p.name === selectedProvince);
+        console.log('Found Province:', province);  // نمایش استان پیدا شده
+
+        if (province) {
+            // بررسی داده‌های شهرستان‌ها
+            console.log('Counties in Province:', province.counties);
+
+            province.counties.forEach(county => {
+                const option = new Option(county.name, county.name);
+                option.dataset.lat = county.lat; // افزودن مختصات
+                option.dataset.lng = county.lng;
+                countySelect.appendChild(option);
+            });
+        } else {
+            console.log('Province not found');
         }
     }
 
-    // تابع برای پر کردن فیلد ماه (فارسی)
-    function populateMonths() {
-        const monthSelect = document.getElementById('month');
-        const months = [
-            "فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور",
-            "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"
-        ];
 
-        months.forEach((month, index) => {
-            const option = document.createElement('option');
-            option.value = index + 1; // مقادیر ماه‌ها از ۱ تا ۱۲
-            option.textContent = month;
-            monthSelect.appendChild(option);
-        });
-    }
 
-    // تابع برای پر کردن فیلد روز
-    function populateDays() {
-        const daySelect = document.getElementById('day');
-
-        for (let day = 1; day <= 31; day++) {
-            const option = document.createElement('option');
-            option.value = day;
-            option.textContent = day;
-            daySelect.appendChild(option);
+        // تابع برای نمایش/مخفی کردن فیلد منطقه
+    function toggleDistrictField(show) {
+        const districtField = document.querySelector('.district-field');
+        const cityField = document.querySelector('.city-field');
+        const villageField = document.querySelector('.village-field');
+        if (show) {
+            districtField.style.display = 'flex'; // یا 'block' بسته به استایل شما
+            cityField.style.display = 'none';
+            villageField.style.display = 'none';
+        } else {
+            districtField.style.display = 'none';
+            cityField.style.display = 'flex';
+            villageField.style.display = 'none';
         }
     }
 
-    // اجرای توابع برای پر کردن فیلدها
-    document.addEventListener('DOMContentLoaded', () => {
-        populateYears();
-        populateMonths();
-        populateDays();
 
-        // فعال کردن Select2 برای فیلدهای جستجوپذیر
-        $('#year').select2({
-            placeholder: "سال را انتخاب کنید",
-            allowClear: true
+    // تابع برای پر کردن فیلد مناطق
+    function populateDistricts(selectedCounty) {
+        const districtSelect = document.getElementById('district');
+        districtSelect.innerHTML = '<option value="">منطقه را انتخاب کنید</option>';
+
+        if (!selectedCounty || !window.provincesData.length) return;
+
+        let foundDistricts = [];
+
+        // جستجوی صحیح در ساختار داده‌ها
+        window.provincesData.forEach(province => {
+            province.counties.forEach(county => {
+                if (county.name === selectedCounty && county.districts) {
+                    foundDistricts = county.districts.map(district => ({
+                        id: district.id, // استفاده از id به جای name برای مناطق
+                        name: district.name,
+                        geometry: district.geometry // هندسه منطقه (در صورت نیاز)
+                    }));
+                }
+            });
         });
 
-        $('#month').select2({
-            placeholder: "ماه را انتخاب کنید",
-            allowClear: true
-        });
-
-        $('#day').select2({
-            placeholder: "روز را انتخاب کنید",
-            allowClear: true
-        });
-    });
-    const monthSelect = document.getElementById('month');
-</script>
-
-
-<script>
-    // تابع برای دریافت استان‌ها و شهرها از API شما
-    function fetchProvincesAndCities() {
-        fetch('/load-cities/')
-            .then(response => response.json())
-            .then(data => {
-                const provinceSelect = document.getElementById('province');
-                provinceSelect.innerHTML = '<option value="">استان را انتخاب کنید</option>';
-                data.forEach(province => {
-                    const option = document.createElement('option');
-                    option.value = province.name;
-                    option.textContent = province.name;
-                    provinceSelect.appendChild(option);
-                });
-                window.provincesData = data;
-            })
-            .catch(error => console.error('Error fetching provinces and cities:', error));
-    }
-
-
-    // تابع برای پر کردن فیلد شهرها بر اساس استان انتخاب‌شده
-    function populateCities(selectedProvince) {
-        const citySelect = document.getElementById('city');
-        citySelect.innerHTML = '<option value="">شهر را انتخاب کنید</option>';
-        const selectedProvinceData = window.provincesData.find(province => province.name === selectedProvince);
-        if (selectedProvinceData) {
-            selectedProvinceData.cities.forEach(city => {
-                const option = document.createElement('option');
-                option.value = city.name;
-                option.textContent = city.name;
-                citySelect.appendChild(option);
+        if (foundDistricts.length > 0) {
+            foundDistricts.forEach(district => {
+                const option = new Option(district.name, district.id); // استفاده از id به عنوان مقدار
+                option.dataset.geometry = district.geometry; // ذخیره هندسه منطقه (در صورت نیاز)
+                districtSelect.appendChild(option);
             });
         }
     }
 
 
-    // رویداد تغییر استان
-    document.getElementById('province').addEventListener('change', function () {
-        const selectedProvince = this.value;
-        if (selectedProvince) {
-            populateCities(selectedProvince);
+
+    // افزودن رویداد تغییر به فیلد شهر
+    document.getElementById('city').addEventListener('change', function () {
+        const cityId = this.value;
+        const countyId = document.getElementById('county').value;
+        handleCitySelection(cityId, countyId);
+    });
+
+    // اجرای اولیه برای بررسی مقدار پیش‌فرض
+    document.addEventListener('DOMContentLoaded', function () {
+        const citySelect = document.getElementById('city');
+        const countySelect = document.getElementById('county');
+        if (citySelect.value && countySelect.value) {
+            handleCitySelection(citySelect.value, countySelect.value);
         }
     });
 
-    document.addEventListener('DOMContentLoaded', fetchProvincesAndCities);
-</script>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // مختصات پیش‌فرض (تهران)
-        const defaultLat = 35.6892;
-        const defaultLng = 51.3890;
+    
+    function populateCities(selectedProvince, selectedCounty) {
+        const citySelect = document.getElementById('city');
+        citySelect.innerHTML = '<option value="">شهر را انتخاب کنید</option>';
+        console.log(selectedCounty);
+        const province = window.provincesData.find(p => p.name === selectedProvince);
+        if (province) {
+            const county = province.counties.find(c => c.name === selectedCounty);
+            if (county) {
+                
+                // در تابع populateCities
+                county.cities.forEach(city => {
+                    const option = new Option(city.name, city.name);
+                    option.dataset.lat = city.lat; // افزودن مختصات
+                    option.dataset.lng = city.lng;
+                    citySelect.appendChild(option);
+                });
+            }
+        }
+    }
 
-        // ایجاد نقشه
-        const map = L.map('map').setView([defaultLat, defaultLng], 13);
+    // --- مدیریت تغییرات فرم ---
+    function handleProvinceChange() {
+        const province = this.value; // دریافت مقدار استان از فیلد انتخابی
+        console.log('Province Selected:', province); // چاپ مقدار استان
+        populateCounties(province);  // ارسال استان به تابع populateCounties
+        resetDependentFields(['city', 'village']);  // تنظیم مجدد فیلدهای وابسته
+        
+    }
 
-        // اضافه کردن لایه نقشه
+    function handleCountyChange(selectedCounty) {
+        const province = document.getElementById('province').value;
+
+        populateCities(province, selectedCounty);
+
+        
+    }
+
+
+    
+
+    function populateVillages(selectedCounty) {
+        const villageSelect = document.getElementById('village');
+        villageSelect.innerHTML = '<option value="">روستا را انتخاب کنید</option>';
+        
+        if (!selectedCounty || !window.provincesData.length) return;
+
+        let foundVillages = [];
+
+        // جستجوی صحیح در ساختار داده‌ها
+        window.provincesData.forEach(province => {
+            province.counties.forEach(county => {
+                if (county.name === selectedCounty && county.villages) {
+                    foundVillages = county.villages.map(village => ({
+                        name: village.name,
+                        lat: parseFloat(village.lat),
+                        lng: parseFloat(village.lng)
+                    }));
+                }
+            });
+        });
+
+        if (foundVillages.length > 0) {
+            foundVillages.forEach(village => {
+                const option = new Option(village.name, village.name);
+                option.dataset.lat = village.lat;
+                option.dataset.lng = village.lng;
+                villageSelect.appendChild(option);
+            });
+        }
+    }
+
+
+    function handleCityChange() {
+        console.log("شهر انتخاب شد:", this.value);
+    }
+
+    function handleVillageChange() {
+        const selectedOption = this.options[this.selectedIndex];
+        const lat = parseFloat(selectedOption.dataset.lat);
+        const lng = parseFloat(selectedOption.dataset.lng);
+        
+        console.log('مختصات روستای انتخاب شده:');
+        console.log('Latitude:', lat);
+        console.log('Longitude:', lng);
+        console.log('----------------------');
+        
+        if(!isNaN(lat) && !isNaN(lng)) {
+            const newPos = L.latLng(lat, lng);
+            map.setView(newPos, 14);
+            marker.setLatLng(newPos);
+            updateCoordinates(newPos);
+        }
+    }
+
+    // --- ارسال فرم ---
+    async function handleFormSubmit(e) {
+        e.preventDefault();
+        const form = e.target;
+
+        try {
+            const coordinatesInput = document.getElementById('coordinates');
+            const coordinates = JSON.parse(coordinatesInput.value);
+            const [lng, lat] = coordinates.coordinates;
+
+            const formData = {
+                first_name: form.first_name.value,
+                last_name: form.last_name.value,
+                role: form.role.value,
+                mobile: form.mobile.value,
+                password: form.password.value,
+                email: form.email.value,
+                national_code: form.national_code.value,
+                national: form.national.checked,
+                province: form.province.value,
+                county: form.county.value,
+                city: form.city.value,
+                village: form.village.value,
+                year: form.year.value,
+                month: form.month.value,
+                day: form.day.value,
+                district_id: form.district.value,
+                is_mobile_confirmed: form.is_mobile_confirmed.value === 'True', // تبدیل به boolean
+                coordinates: {
+                    type: "Point",
+                    coordinates: [lng, lat]
+                }
+            };
+
+            const response = await fetch('/api/add-user/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken(),
+                },
+                body: JSON.stringify(formData),
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                showSuccess('کاربر با موفقیت ثبت شد!');
+                form.reset();
+            } else {
+                const errors = result.errors;
+                const errorMessages = [];
+
+                // برای هر فیلدی که خطا دارد، پیغام خطا را درست کنیم
+                for (const [field, messages] of Object.entries(errors)) {
+                    messages.forEach(message => {
+                        errorMessages.push(`${field}: ${message}`);  // نمایش خطای هر فیلد به‌طور جداگانه
+                        // اضافه کردن خط قرمز دور input ها
+                        const inputField = document.querySelector(`[name="${field}"]`);
+                        if (inputField) {
+                            inputField.style.border = "1px solid red";  // خط قرمز به ورودی اضافه می‌کنیم
+                        }
+                    });
+                }
+
+                // نمایش پیغام‌ها به‌صورت جداگانه
+                showError(errorMessages);  // نمایش هر خطای در یک خط جدید
+            }
+
+        } catch (error) {
+            console.error('Form submission error:', error);
+            showError(`خطا در ارسال اطلاعات: ${error.message}`);
+        }
+    }
+
+    function updateCoordinates(position) {
+        const coordinates = {
+            type: "Point",
+            coordinates: [
+                isNaN(position.lng) ? 0 : position.lng.toFixed(6),
+                isNaN(position.lat) ? 0 : position.lat.toFixed(6)
+            ]
+        };
+        document.getElementById('coordinates').value = JSON.stringify(coordinates);
+    }
+
+    // --- توابع کمکی ---
+    function populateSelect(elementId, placeholder, data) {
+        const select = document.getElementById(elementId);
+        select.innerHTML = `<option value="">${placeholder}</option>`;
+        data.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item;  // مقدار انتخابی باید همان نام استان یا شهرستان باشد
+            option.textContent = item;  // متن نمایشی همان نام استان یا شهرستان
+            select.appendChild(option);
+        });
+    }
+
+    function resetDependentFields(fields) {
+        fields.forEach(field => {
+            let placeholder;
+
+            // تعیین متن placeholder بر اساس نام فیلد
+            if (field === 'province') {
+                placeholder = 'استان را انتخاب کنید';
+            } else if (field === 'county') {
+                placeholder = 'شهرستان را انتخاب کنید';
+            } else if (field === 'city') {
+                placeholder = 'شهر را انتخاب کنید';
+            } else if (field === 'village') {
+                placeholder = 'روستا را انتخاب کنید';
+            }
+
+            // تنظیم innerHTML برای هر فیلد
+            const select = document.getElementById(field);
+            if (select) {
+                select.innerHTML = `<option value="">${placeholder}</option>`;
+            }
+        });
+    }
+
+    // --- مدیریت تاریخ ---
+    function initializeDateSelectors() {
+        populateYears();
+        populateMonths();
+        populateDays();
+    }
+
+    function populateYears() {
+        const yearSelect = document.getElementById('year');
+        const currentYear = moment().jYear();
+        const startYear = 1301;
+
+        yearSelect.innerHTML = '<option value="">سال</option>';
+        for (let year = currentYear; year >= startYear; year--) {
+            yearSelect.appendChild(new Option(year, year));
+        }
+    }
+
+    function populateMonths() {
+        const months = ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور",
+                        "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"];
+        const monthSelect = document.getElementById('month');
+        monthSelect.innerHTML = '<option value="">ماه</option>';
+        months.forEach((name, index) => monthSelect.appendChild(new Option(name, index + 1)));
+    }
+
+    function populateDays() {
+        const daySelect = document.getElementById('day');
+        daySelect.innerHTML = '<option value="">روز</option>';
+        for (let day = 1; day <= 31; day++) {
+            daySelect.appendChild(new Option(day, day));
+        }
+    }
+
+    function initializeMap() {
+        map = L.map('map').setView([32.4279, 53.6880], 5);
+        
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
-        // ایجاد مارکر
-        let marker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(map);
+        // ایجاد مارکر و ذخیره در متغیر global
+        marker = L.marker(map.getCenter(), {
+            draggable: true
+        }).addTo(map);
 
-        // رویداد برای تغییر موقعیت مارکر
-        marker.on('dragend', function (event) {
-            const position = marker.getLatLng();
-            document.getElementById('lat').value = position.lat; // ذخیره عرض جغرافیایی
-            document.getElementById('lng').value = position.lng; // ذخیره طول جغرافیایی
+        // ذخیره مختصات اولیه
+        updateCoordinates(map.getCenter());
+
+        // افزودن رویداد حرکت مارکر
+        marker.on('dragend', function(e) {
+            const position = e.target.getLatLng();
+            updateCoordinates(position);
+            map.panTo(position);
         });
 
-        // رویداد برای کلیک روی نقشه و تغییر موقعیت مارکر
-        map.on('click', function (event) {
-            const latlng = event.latlng;
-            marker.setLatLng(latlng); // تغییر موقعیت مارکر
-            document.getElementById('lat').value = latlng.lat; // ذخیره عرض جغرافیایی
-            document.getElementById('lng').value = latlng.lng; // ذخیره طول جغرافیایی
-        });
+    }
 
-        // رویداد تغییر شهر
-        document.getElementById('city').addEventListener('change', function () {
-            const selectedCity = this.value; // نام شهر انتخاب‌شده
-            if (selectedCity) {
-                // یافتن شهر انتخاب‌شده در داده‌ها
-                const selectedProvince = document.getElementById('province').value;
-                const selectedProvinceData = window.provincesData.find(province => province.name === selectedProvince);
-                if (selectedProvinceData) {
-                    const cityData = selectedProvinceData.cities.find(city => city.name === selectedCity);
-                    if (cityData && cityData.lat && cityData.lng) {
-                        // تغییر مرکز نقشه به مختصات شهر انتخاب‌شده
-                        const lat = parseFloat(cityData.lat);
-                        const lng = parseFloat(cityData.lng);
-                        map.setView([lat, lng], 13); // تغییر مرکز نقشه
-                        marker.setLatLng([lat, lng]); // تغییر موقعیت مارکر
-                        document.getElementById('lat').value = lat; // ذخیره عرض جغرافیایی
-                        document.getElementById('lng').value = lng; // ذخیره طول جغرافیایی
-                    }
-                }
-            }
-        });
-    });
+    // --- دریافت CSRF ---
+    function getCSRFToken() {
+        return document.querySelector('[name=csrfmiddlewaretoken]').value;
+    }
 </script>
 
 

@@ -64,6 +64,10 @@ input, select {
     width: 100%; /* در صفحه‌های کوچک عرض فرم 100% می‌شود */
 }
 
+#user-edit-form {
+    max-width: 600px; /* عرض فرم محدود می‌شود */
+    width: 100%; /* در صفحه‌های کوچک عرض فرم 100% می‌شود */
+}
 /* هدر فرم بدون flexbox */
 .form-header {
     background-color: #bfdefd;

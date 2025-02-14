@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
-from .views import AddCategoryAPIView, EditUserAPIView, AddUserAPIView, load_cities, list_users, register, otp_login, login_view, verify_otp, verify_password, map_view, admin_dashboard, seller_dashboard, user_dashboard, list_categories, add_category, edit_category, delete_category, ProvinceCityAPIView, add_user  # Import the add_user view
-from .views import AddJobAPIView, add_job, edit_user_view
+from .views import edit_category, AddCategoryAPIView, EditUserAPIView, AddUserAPIView, load_counties, list_users, register, otp_login, login_view, verify_otp, verify_password, map_view, admin_dashboard, seller_dashboard, user_dashboard, list_categories, add_category, edit_category, delete_category, ProvinceCityAPIView, add_user  # Import the add_user view
+from .views import edit_setting_ajax, update_category_status, home, settings_view, create_job_hours, create_job_links, create_job, logout_view, AddJobAPIView, make_seller, add_job, edit_user_view, provinces_cities_api, main_view
 
 urlpatterns = [
     path('register/', register, name='register'),
@@ -22,14 +22,30 @@ urlpatterns = [
     # User management URLs
     path('admin/users/', list_users, name='list_users'),
     path('admin/users/add/', add_user, name='add_user'),  # New URL for adding a user
-    path('api/provinces-cities/', ProvinceCityAPIView.as_view(), name='provinces_cities'),
+    path('api/provinces-cities/', provinces_cities_api, name='provinces_cities'),
     path('map/', map_view, name='map'),
-    path('load-cities/', load_cities, name='load_cities'),
+    path('load-counties/', load_counties, name='load_counties'),
     path('api/add-user/', AddUserAPIView.as_view(), name='add_user_api'),
     path('api/add-category/', AddCategoryAPIView.as_view(), name='add_category_api'),
+    path(
+        'api/categories/<int:category_id>/edit/',
+        edit_category,
+        name='edit_category_api'
+    ),
     path('api/add-job/', AddJobAPIView.as_view(), name='add-job'),
     path('admin/seller/create/', add_job, name='add_seller'),
     path('api/edit-user/<int:user_id>/', EditUserAPIView.as_view(), name='edit_user'),
     path('admin/edit-user/<int:user_id>/', edit_user_view, name='edit_user_view'),
+    path('main/', main_view, name='main'),
+    path('create-job/<int:user_id>/', make_seller, name='make_seller'),
+    path('logout/', logout_view, name='logout'),
+    path('api/jobs/create/', create_job, name='create_job'),
+    path('api/jobs/<int:job_id>/hours/', create_job_hours, name='create_job_hours'),
+    path('api/jobs/<int:job_id>/links/', create_job_links, name='create_job_links'),
+    path('', home, name='home'),
+    path('admin/settings/', settings_view, name='settings'),
+    path('admin/category/<int:pk>/update-status/', update_category_status, name='cat-job-update-status'),
+    path('edit_setting_ajax/', edit_setting_ajax, name='edit_setting_ajax'),
+    
     
 ]

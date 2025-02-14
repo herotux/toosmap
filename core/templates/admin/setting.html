@@ -1,0 +1,177 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}مدیریت کاربران{% endblock %}
+{% load static %}
+{% load jalali_tags %}
+{% load custom_filters %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/users.css' %}">
+<style>
+    .container_header {
+        display: block;
+    }
+
+    .form-header {
+        background-color: #bfdefd;
+        color: #333;
+        padding: 15px 25px;
+        border-radius: 8px 8px 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .form-header h2 {
+        margin: 0;
+        font-size: 18px;
+    }
+
+    .form-header a {
+        text-decoration: none;
+        color: #333;
+    }
+
+    .form-header a:hover {
+        color: #000;
+    }
+
+    .search-fields input {
+        width: 100%;
+        padding: 5px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 14px;
+        direction: rtl;
+    }
+
+    .search-fields th {
+        padding: 5px;
+    }
+    .categories-table td a{
+        color: antiquewhite;
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+    <div class="container_header">
+        <div class="form-header">
+            <h2> تنظیمات</h2>
+            
+        </div>
+    </div>
+    
+    <section class="content categories-container">
+
+        <table class="categories-table">
+            <thead>
+                <tr>
+                    <th># </th>
+                    <th>عنوان تنظیمات</th>
+                    <th>محتوا</th>
+                    <th>متد بارگذاری</th>
+                    <th> عملیات</th>
+                </tr>
+                
+            </thead>
+            <tbody>
+                {% for setting in settings %}
+                <tr>
+                    <td>{{ setting.id }}</td>
+                    <td>{{ setting.name }}</td>
+                    <td>{{ setting.value }}</td>
+                    
+                    <td>
+                        <span class="status فعال">خودکار </span>
+                    </td>
+            
+                    <td>
+                        <button class="btn-action btn-edit text-white" data-bs-toggle="modal" data-bs-target="#editSettingModal" 
+                                data-setting-id="{{ setting.id }}" data-setting-value="{{ setting.value }}">
+                        ویرایش مقدار
+                        </button>
+                        
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </section>
+</div>
+
+<!-- مودال برای ویرایش مقدار -->
+<div class="modal fade" id="editSettingModal" tabindex="-1" aria-labelledby="editSettingModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editSettingModalLabel">ویرایش مقدار</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="editSettingForm" method="post">
+            {% csrf_token %}
+            <input type="hidden" id="settingId" name="setting_id">
+            <div class="mb-3">
+              <label for="settingValue" class="form-label">مقدار</label>
+              <textarea class="form-control" id="settingValue" name="value" rows="3"></textarea>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">لغو</button>
+          <button type="button" class="btn btn-primary" id="saveChangesBtn">ذخیره تغییرات</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>    
+<script>
+   document.addEventListener('DOMContentLoaded', function () {
+  // هنگام کلیک روی دکمه ویرایش
+  document.querySelectorAll('.btn-edit').forEach(button => {
+    button.addEventListener('click', function () {
+      const settingId = this.getAttribute('data-setting-id');
+      const settingValue = this.getAttribute('data-setting-value');
+
+      // پر کردن فرم مودال با داده‌های رکورد انتخاب‌شده
+      document.getElementById('settingId').value = settingId;
+      document.getElementById('settingValue').value = settingValue;
+    });
+  });
+
+  // هنگام کلیک روی دکمه ذخیره تغییرات
+  document.getElementById('saveChangesBtn').addEventListener('click', function () {
+    const form = document.getElementById('editSettingForm');
+    const formData = new FormData(form);
+
+    // ارسال داده‌ها با AJAX
+    fetch("{% url 'edit_setting_ajax' %}", {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-CSRFToken': formData.get('csrfmiddlewaretoken'), // ارسال توکن CSRF
+      },
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        location.reload(); // رفرش صفحه پس از موفقیت
+      } else {
+        alert('خطا در ذخیره تغییرات');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
+  });
+});
+</script>
+{% endblock %}

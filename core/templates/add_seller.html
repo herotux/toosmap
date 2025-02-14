@@ -1,0 +1,381 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/add-user.css' %}">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    .container {
+        width: 100%;
+        margin: 20px auto;
+        background: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: right;
+    }
+
+    .form-header {
+        background-color: #bfdefd;
+        color: #333;
+        padding: 15px 25px;
+        border-radius: 8px 8px 0 0;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .form-group label {
+        flex: 0 0 150px;
+        /* عرض ثابت برای لیبل‌ها */
+        font-weight: bold;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        flex: 1;
+        /* اینپوت‌ها بقیه فضا رو می‌گیرن */
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        direction: rtl;
+        background-color: #fff;
+        color: gray;
+    }
+
+    #map {
+        height: 300px;
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    .btn-submit {
+        width: 100%;
+        padding: 10px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-top: 20px;
+        font-size: 16px;
+    }
+
+    .nested-form {
+        border: 1px solid #ddd;
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 5px;
+    }
+
+    .leaflet-control a {
+        font-size: 20px;
+        color: #333;
+
+    }
+
+    .leaflet-control a:hover {
+        color: #007bff;
+        /* تغییر رنگ هنگام هاور */
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container_header">
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    <div class="form-header">
+        <h2>ایجاد شغل جدید</h2>
+
+    </div>
+</div>
+
+<div class="container">
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <!-- بخش اطلاعات اصلی شغل -->
+        <div class="form-section">
+            <h2>اطلاعات اصلی</h2>
+            <div class="form-group">
+                <label for="id_store_name">نام فروشگاه</label>
+                {{ job_form.store_name }}
+            </div>
+
+            <div class="form-group">
+                <label for="id_store_slug">نامک</label>
+                {{ job_form.slug }}
+            </div>
+            
+            <div class="form-group">
+                <label for="id_store_mobile">موبایل</label>
+                {{ job_form.mobile }}
+            </div>
+            <div class="form-group">
+                <label for="id_store_phone"> تلفن ثابت</label>
+                {{ job_form.phone }}
+            </div>
+            
+            <div class="form-group">
+                <label for="province">استان <span class="required-star">*</span></label>
+                <select id="province" name="province" required>
+                    <option value="">استان را انتخاب کنید</option>
+    
+                </select>
+            </div>
+    
+            <div class="form-group">
+                <label for="county">شهرستان <span class="required-star">*</span></label>
+                <select id="county" name="county" required>
+                    <option value="">شهرستان را انتخاب کنید</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="city">شهر <span class="required-star">*</span></label>
+                <select id="city" name="city" required>
+                    <option value="">شهر را انتخاب کنید</option>
+                </select>
+            </div>
+    
+            <div class="form-group">
+                <label for="village">روستا</label>
+                <select id="village" name="village">
+                    <option value="">روستا را انتخاب کنید</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>آدرس</label>
+                {{ job_form.address }}
+            </div>
+
+            <div class="form-group">
+                <label>فروش حضوری</label>
+                {{ job_form.in_person }}
+            </div>
+
+            <div class="form-group">
+                <label>فروش اینترنتی</label>
+                {{ job_form.internet_sales }}
+            </div>
+
+            <div class="form-group">
+                <label>تکفروشی </label>
+                {{ job_form.single_sale }}
+            </div>
+
+            <div class="form-group">
+                <label>فروش عمده </label>
+                {{ job_form.wholesale_sales }}
+            </div>
+
+            <div class="form-group">
+                <label> تولیدکننده هستم </label>
+                {{ job_form.is_producer }}
+            </div>
+
+            <div class="form-group">
+                <label>کالای نو  </label>
+                {{ job_form.unused_product }}
+            </div>
+
+            <div class="form-group">
+                <label>خریدار هستم </label>
+                {{ job_form.buyer }}
+            </div>
+
+            <div class="form-group">
+                <label>خرید در فروشگاه</label>
+                {{ job_form.purchase_in_store }}
+            </div>
+
+
+            <div class="form-group">
+                <label>خرید درمحل مشتری</label>
+                {{ job_form.purchase_in_home }}
+            </div>
+
+
+            <div class="form-group">
+                <label>شعار فروشگاه</label>
+                {{ job_form.slang }}
+            </div>
+
+            <div class="form-group">
+                <label>پیام فروشگاه</label>
+                {{ job_form.message }}
+            </div>
+
+            <div class="form-group">
+                <label>درباره فروشگاه </label>
+                {{ job_form.about }}
+            </div>
+
+            <div class="form-group">
+                <label>تصویر پروفایل </label>
+                {{ job_form.profile }}
+            </div>
+
+            
+            <!-- بخش ساعت کاری -->
+            <div class="nested-form">
+                <h2>ساعت کاری</h2>
+
+                <!-- انتخاب روزهای هفته -->
+                <div class="form-group">
+                    <label>انتخاب روزهای هفته</label>
+                    <div>
+                        <input type="checkbox" id="sat" name="work_days" value="sat"> شنبه
+                        <input type="checkbox" id="sun" name="work_days" value="sun"> یکشنبه
+                        <input type="checkbox" id="mon" name="work_days" value="mon"> دوشنبه
+                        <input type="checkbox" id="tue" name="work_days" value="tue"> سه‌شنبه
+                        <input type="checkbox" id="wed" name="work_days" value="wed"> چهارشنبه
+                        <input type="checkbox" id="thu" name="work_days" value="thu"> پنج‌شنبه
+                        <input type="checkbox" id="fri" name="work_days" value="fri"> جمعه
+                    </div>
+                </div>
+
+                <!-- انتخاب زمان شروع و پایان برای هر روز -->
+                <div id="time_slots">
+                    <div class="form-group">
+                        <label for="start_time_sat">ساعت شروع (شنبه)</label>
+                        <input type="text" id="start_time_sat" name="start_time_sat" class="timepicker">
+                    </div>
+                    <div class="form-group">
+                        <label for="end_time_sat">ساعت پایان (شنبه)</label>
+                        <input type="text" id="end_time_sat" name="end_time_sat" class="timepicker">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="start_time_sun">ساعت شروع (یکشنبه)</label>
+                        <input type="text" id="start_time_sun" name="start_time_sun" class="timepicker">
+                    </div>
+                    <div class="form-group">
+                        <label for="end_time_sun">ساعت پایان (یکشنبه)</label>
+                        <input type="text" id="end_time_sun" name="end_time_sun" class="timepicker">
+                    </div>
+
+                    <!-- ادامه برای روزهای دیگر -->
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="id_coordinates">موقعیت جغرافیایی</label>
+                <div id="map"></div>
+                {{ job_form.coordinates }}
+            </div>
+        </div>
+
+        
+
+        <button type="submit" class="btn-submit">ذخیره شغل</button>
+    </form>
+</div>
+
+<script src="{% static 'leaflet/leaflet.js' %}"></script>
+<script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+<script src="{% static 'leaflet/leaflet.js' %}"></script>
+<script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+<script>
+    let map, marker;
+
+    function initializeMap() {
+        // ایجاد نقشه و تنظیم نمای اولیه
+        map = L.map('map').setView([32.4279, 53.6880], 5);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+        // ایجاد مارکر اولیه در مرکز نقشه
+        marker = L.marker(map.getCenter(), { draggable: true }).addTo(map);
+
+        // به‌روزرسانی مختصات هنگام جابجایی مارکر به صورت دستی
+        marker.on('dragend', function (e) {
+            const position = marker.getLatLng();
+            updateCoordinates(position);
+        });
+
+        // افزودن قابلیت جستجو در نقشه
+        L.Control.geocoder({
+            defaultMarkGeocode: false
+        })
+        .on('markgeocode', function (e) {
+            const position = e.geocode.center;
+            map.setView(position, 16);  // زوم به مکان پیدا شده
+            marker.setLatLng(position);  // جابجایی مارکر به مکان پیدا شده
+            updateCoordinates(position);
+        })
+        .addTo(map);
+    }
+
+    // تابع برای به‌روزرسانی فیلد مختصات
+    function updateCoordinates(position) {
+        document.getElementById('id_coordinates').value =
+            `{"type": "Point", "coordinates": [${position.lng.toFixed(6)}, ${position.lat.toFixed(6)}]}`;
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        initializeMap();
+
+        // اگر مختصات قبلاً ثبت شده بود، مارکر رو به اون نقطه منتقل کن
+        const coordInput = document.getElementById('id_coordinates');
+        if (coordInput.value) {
+            const coords = JSON.parse(coordInput.value).coordinates;
+            const savedPosition = L.latLng(coords[1], coords[0]);
+            map.setView(savedPosition, 14);
+            marker.setLatLng(savedPosition);
+        }
+
+        // اضافه کردن آیکون لوکیشن به نقشه
+        const locationControl = L.control({ position: 'topleft' });
+        locationControl.onAdd = function (map) {
+            const div = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
+            div.innerHTML = '<a href="#" title="موقعیت من" id="locate-icon"><i class="fa fa-location-dot"></i></a>';
+            L.DomEvent.disableClickPropagation(div);  // جلوگیری از تداخل با کنترل‌های نقشه
+            return div;
+        };
+        locationControl.addTo(map);
+
+        // عملکرد آیکون لوکیشن برای نمایش موقعیت فعلی
+        document.getElementById('locate-icon').addEventListener('click', function (e) {
+            e.preventDefault();
+            map.locate({ setView: true, maxZoom: 16 });
+        });
+
+        // پیدا کردن موقعیت کاربر و جابه‌جایی مارکر به اون نقطه
+        map.on('locationfound', function (e) {
+            marker.setLatLng(e.latlng);  // جابجایی مارکر به موقعیت فعلی
+            updateCoordinates(e.latlng);
+            marker.bindPopup("موقعیت فعلی شما!").openPopup();
+        });
+
+        // مدیریت خطای موقعیت‌یابی
+        map.on('locationerror', function () {
+            alert("امکان دسترسی به موقعیت شما وجود ندارد.");
+        });
+
+        // جابجایی مارکر با کلیک روی نقشه
+        map.on('click', function (e) {
+            marker.setLatLng(e.latlng);
+            updateCoordinates(e.latlng);
+        });
+    });
+</script>
+{% endblock %}

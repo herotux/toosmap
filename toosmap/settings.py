@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -31,6 +32,9 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'leaflet',
+    'crispy_forms',
+    "crispy_bootstrap4",
     'core',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -38,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.gis',
     'jalali_date',
     'rest_framework',
 ]
@@ -65,6 +70,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'core.context_processors.current_user',
             ],
         },
     },
@@ -76,12 +82,25 @@ WSGI_APPLICATION = 'toosmap.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
+
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+       'default': {
+           'ENGINE': 'django.contrib.gis.db.backends.postgis',
+           'NAME': 'mygisdb',
+           'USER': 'postgres',
+           'PASSWORD': 'toospass2025',
+           'HOST': 'localhost',
+           'PORT': '5432',
+       }
+   }
 
 
 # Password validation
@@ -167,3 +186,21 @@ JALALI_DATE_DEFAULTS = {
         }
     },
 }
+
+AUTH_USER_MODEL = 'core.user'
+
+LOGIN_URL = '/login/'
+
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap4"
+
+CRISPY_TEMPLATE_PACK = "bootstrap4"
+
+
+LEAFLET_CONFIG = {
+    'DEFAULT_CENTER': (32.4279, 53.6880),
+    'DEFAULT_ZOOM': 5,
+    'ATTRIBUTION_PREFIX': 'سامانه مکانیابی مشاغل',
+}
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

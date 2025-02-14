@@ -1,0 +1,69 @@
+/* header-footer.css */
+.P-Header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+#part--footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+body {
+    padding-top: 60px; /* Adjust based on header height */
+    padding-bottom: 60px; /* Adjust based on footer height */
+}
+
+.container {
+    min-height: auto;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.social-link {
+    display: flex; /* Align items horizontally */
+    justify-content: center; /* Center the social links */
+    gap: 1rem; /* Add space between the links */
+    padding: 1rem; /* Add padding around the links */
+    background-color: #f8f9fa; /* Light background color */
+    border-radius: 8px; /* Rounded corners */
+}
+
+.social-link a {
+    display: flex; /* Use flexbox for the link */
+    align-items: center; /* Center items vertically */
+    text-decoration: none; /* Remove underline from links */
+    color: #333; /* Default text color */
+    transition: color 0.3s ease; /* Smooth color transition */
+}
+
+.social-link a:hover {
+    color: #007bff; /* Change color on hover */
+}
+
+.social-link svg {
+    width: 24px; /* Set width for the icons */
+    height: 24px; /* Set height for the icons */
+    fill: currentColor; /* Use the current text color */
+    margin-right: 0.5rem; /* Add space between icon and text */
+}
+
+.social-link span {
+    font-size: 1rem; /* Set font size for the text */
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .social-link {
+        flex-direction: column; /* Stack links vertically on smaller screens */
+        align-items: center; /* Center items */
+    }
+}

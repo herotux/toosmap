@@ -219,6 +219,7 @@ body {
     max-width: 25%;
     transition: all 0.3s ease; /* انیمیشن برای حالت کشویی */
     max-width: 250px;
+
 }
 
 /* سایدبار */
@@ -228,7 +229,7 @@ body {
     margin: 20px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     padding: 20px;
-    height: auto; /* ارتفاع خودکار */
+    /* height: auto; */
     display: inline-block; /* جلوگیری از کشیده شدن */
 }
 
