@@ -26,7 +26,11 @@ SECRET_KEY = 'django-insecure-!ud@l0lm^63674))lf=$)sg$!^1=bw4^8klo%a4sxwzs$oe$ll
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'jobs-map.chbk.app',
+    'localhost',  # برای توسعه محلی
+    '127.0.0.1',  # برای توسعه محلی
+]
 
 
 # Application definition
@@ -82,12 +86,6 @@ WSGI_APPLICATION = 'toosmap.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
 
 
 
@@ -101,7 +99,6 @@ DATABASES = {
            'PORT': '5432',
        }
    }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -204,3 +201,11 @@ LEAFLET_CONFIG = {
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://jobs-map.chbk.app',
+    'http://jobs-map.chbk.app',  # اگر از HTTP هم استفاده می‌کنید
+]
+
+
