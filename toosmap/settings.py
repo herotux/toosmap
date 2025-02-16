@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-!ud@l0lm^63674))lf=$)sg$!^1=bw4^8klo%a4sxwzs$oe$ll
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['jobs-map.chbk.app']
 
 
 # Application definition
@@ -82,26 +82,30 @@ WSGI_APPLICATION = 'toosmap.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+
+
+
 # DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-
-
+#        'default': {
+#            'ENGINE': 'django.contrib.gis.db.backends.postgis',
+#            'NAME': 'mygisdb',
+#            'USER': 'postgres',
+#            'PASSWORD': 'toospass2025',
+#            'HOST': 'localhost',
+#            'PORT': '5432',
+#        }
+#    }
 
 DATABASES = {
-       'default': {
-           'ENGINE': 'django.contrib.gis.db.backends.postgis',
-           'NAME': 'mygisdb',
-           'USER': 'postgres',
-           'PASSWORD': 'toospass2025',
-           'HOST': 'localhost',
-           'PORT': '5432',
-       }
-   }
-
+        'default': {
+            'ENGINE': 'django.contrib.gis.db.backends.postgis',
+            'NAME': 'jason',
+            'USER': 'postgres',
+            'PASSWORD': 'an5Dow4j6ZaROX7h', 
+            'HOST': 'services.irn10.chabokan.net',
+            'PORT': '9957',
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -143,9 +147,14 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# Default primary key field type
+STATIC_URL = 'static/' 
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles') 
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
+
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -153,13 +162,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'core.user'  # اگر مدل user در اپلیکیشن core قرار دارد
 
-# Static files (CSS, JavaScript, Images)
-STATIC_URL = '/static/'
-
-# Add this line if it doesn't exist
-STATICFILES_DIRS = [
-    BASE_DIR / "core/static",  # Adjust the path as necessary
-]
 
 JALALI_DATE_DEFAULTS = {
    # if change it to true then all dates of the list_display will convert to the Jalali.
@@ -204,3 +206,8 @@ LEAFLET_CONFIG = {
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
+CSRF_TRUSTED_ORIGINS = [ 'https://jobs-map.chbk.app', 
+    'http://jobs-map.chbk.app',
+]
