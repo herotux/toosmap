@@ -1,14 +1,12 @@
 from rest_framework import serializers
-from .models import JobLinks, County, user, Province, City, category_job, job, role, role_user, Village, JobHours, TimeSlot
+from .models import Place, JobLinks, County, user, Province, City, category_job, job, role, role_user, Village, JobHours, TimeSlot
 import uuid
 from django.utils import timezone
 from decimal import Decimal, ROUND_HALF_UP
 from django.contrib.gis.db import models as gis_models
 import random
 from django.contrib.gis.geos import Point
-
-
-
+from rest_framework_gis.serializers import GeoFeatureModelSerializer
 
 
 
@@ -245,6 +243,21 @@ class CategoryJobsSerializer(serializers.ModelSerializer):
         }
 
 
+
+
+class CategoryJobSerializer(serializers.ModelSerializer):
+    subCategories = serializers.SerializerMethodField()
+
+    class Meta:
+        model = category_job
+        fields = ['id', 'name', 'subCategories']
+
+    def get_subCategories(self, obj):
+        children = obj.children.all()
+        return CategoryJobSerializer(children, many=True).data
+
+
+
 class JobSerializer(serializers.ModelSerializer):
     class Meta:
         model = job
@@ -279,7 +292,27 @@ class JobHoursSerializer(serializers.ModelSerializer):
             )
         return job_hour
 
+class JobSerializer(GeoFeatureModelSerializer):
+    class Meta:
+        model = job
+        geo_field = 'coordinates'  # فیلد مختصات
+        fields = '__all__'
+
+
+
+class PlaceSerializer(GeoFeatureModelSerializer):
+    jobs = JobSerializer(many=True, read_only=True)  # لیست Jobهای مرتبط
+
+    class Meta:
+        model = Place
+        geo_field = 'coordinates'  # فیلد مختصات
+        fields = ['id', 'name', 'coordinates', 'address', 'province', 'city', 'district', 'jobs']
+
+
 class JobLinksSerializer(serializers.ModelSerializer):
     class Meta:
         model = JobLinks
         fields = ['website', 'telegram', 'instagram', 'robika', 'eitaa', 'bale']
+
+
+

@@ -23,12 +23,13 @@ from django.contrib.auth import logout
 import json
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-from .serializers import JobHoursSerializer, TimeSlotSerializer, JobSerializer, JobLinksSerializer
+from .serializers import CategoryJobSerializer, JobHoursSerializer, TimeSlotSerializer, JobSerializer, PlaceSerializer
 from rest_framework.decorators import api_view
 from django.db import IntegrityError
 from rest_framework import permissions
 from .decorators import role_required
-
+from rest_framework import viewsets
+from .models import Place, job
 
 class IsAdminUser(permissions.BasePermission):
     def has_permission(self, request, view):
@@ -904,3 +905,23 @@ def edit_setting_ajax(request):
         except setting.DoesNotExist:
             return JsonResponse({'success': False, 'error': 'رکورد پیدا نشد'})
     return JsonResponse({'success': False, 'error': 'درخواست نامعتبر'})
+
+
+
+
+class PlaceViewSet(viewsets.ModelViewSet):
+    queryset = Place.objects.prefetch_related('job_set').all()  # پیش‌بارگذاری Jobهای مرتبط
+    serializer_class = PlaceSerializer
+
+class IndependentJobViewSet(viewsets.ModelViewSet):
+    queryset = job.objects.filter(place__isnull=True, coordinates__isnull=False)  # فقط Jobهایی که Place ندارند
+    serializer_class = JobSerializer
+
+
+
+
+class CategoryJobView(APIView):
+    def get(self, request):
+        categories = category_job.objects.filter(parent__isnull=True)
+        serializer = CategoryJobSerializer(categories, many=True)
+        return Response({"categories": serializer.data})
