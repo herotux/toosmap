@@ -642,6 +642,7 @@
     });
 </script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
 <script>
 
     document.addEventListener('DOMContentLoaded', function () {
@@ -695,32 +696,32 @@
         const formData = new FormData(form);
         formData.append('user', {{ user.id }}); // Make sure this is the correct user ID
 
-    // Make the first request to create the job
-    try {
-        const response = await fetch('/api/jobs/create/', {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken'),
-            },
-            body: formData
-        });
+        // Make the first request to create the job
+        try {
+            const response = await fetch('/api/jobs/create/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                },
+                body: formData
+            });
 
-        const result = await response.json();
-        if (response.ok) {
-            // Job created successfully
-            const jobId = result.id; // Assuming the response has the job ID
+            const result = await response.json();
+            if (response.ok) {
+                // Job created successfully
+                const jobId = result.id; // Assuming the response has the job ID
 
-            // Now handle the rest of the form data
-            await submitJobHoursAndLinks(jobId);
-            alert('شغل با موفقیت ایجاد شد!');
-            window.location.reload();
-        } else {
-            throw new Error(result.error || 'خطا در ایجاد شغل');
+                // Now handle the rest of the form data
+                await submitJobHoursAndLinks(jobId);
+                alert('شغل با موفقیت ایجاد شد!');
+                window.location.reload();
+            } else {
+                throw new Error(result.error || 'خطا در ایجاد شغل');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert(error.message);
         }
-    } catch (error) {
-        console.error('Error:', error);
-        alert(error.message);
-    }
     }
 
     function filterUniqueShifts(shifts) {

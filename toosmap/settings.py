@@ -35,6 +35,7 @@ ALLOWED_HOSTS = [
 # Application definition
 
 INSTALLED_APPS = [
+    'rest_framework_gis',
     'leaflet',
     'crispy_forms',
     "crispy_bootstrap4",
@@ -48,6 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.gis',
     'jalali_date',
     'rest_framework',
+    'rest_framework_simplejwt',
 ]
 
 MIDDLEWARE = [
@@ -215,3 +217,9 @@ CSRF_TRUSTED_ORIGINS = [
     'https://jobs-map.chbk.app',
     'http://jobs-map.chbk.app',  # اگر از HTTP هم استفاده می‌کنید
 ]
+
+# REST_FRAMEWORK = {
+#     'DEFAULT_AUTHENTICATION_CLASSES': (
+#         'rest_framework_simplejwt.authentication.JWTAuthentication',
+#     ),
+# }
