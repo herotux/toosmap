@@ -246,6 +246,34 @@ def generate_job_code():
     return str(uuid.uuid4().int)[:10]
 
 
+
+
+class Place(models.Model):
+    name = models.CharField(max_length=200)
+    slug = models.SlugField(unique=True)
+    coordinates = gis_models.PointField(
+        srid=4326,
+        null=True,
+        blank=True,
+        verbose_name='مختصات'
+    )
+    address = models.TextField()
+    province = models.ForeignKey(Province, on_delete=models.SET_NULL, null=True)
+    city = models.ForeignKey(City, on_delete=models.SET_NULL, null=True)
+    district = models.ForeignKey(District, on_delete=models.SET_NULL, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'place'
+        verbose_name = 'مکان'
+        verbose_name_plural = 'مکان‌ها'
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+    
+
 # مشاغل
 class job(models.Model):
     user = models.ForeignKey(user, on_delete=models.CASCADE)
@@ -267,6 +295,11 @@ class job(models.Model):
         blank=True,
         verbose_name='مختصات'
     )
+
+
+    place = models.ForeignKey(Place, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='مکان تجاری')
+
+
     in_person = models.BooleanField(default=False)
     internet_sales = models.BooleanField(default=False)
     single_sale = models.BooleanField(default=False)
@@ -300,8 +333,17 @@ class job(models.Model):
             return f"طول: {self.coordinates.x:.6f}, عرض: {self.coordinates.y:.6f}"
         return "تعیین نشده"
     
+    def get_nearby_pois(self, radius_km=5):
+        if not self.coordinates:
+            return Place.objects.none()
+
+        point = self.coordinates
+        return Place.objects.filter(coordinates__distance_lte=(point, D(km=radius_km)))
+    
+
     coordinates_display.short_description = "مختصات"
 
+    
 
 # تنظیمات
 class setting(models.Model):
