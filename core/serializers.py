@@ -7,7 +7,7 @@ from django.contrib.gis.db import models as gis_models
 import random
 from django.contrib.gis.geos import Point
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
-
+from shapely.geometry import Polygon
 
 
 
@@ -320,15 +320,18 @@ class JobLinksSerializer(serializers.ModelSerializer):
 
 
 class DistrictSerializer(serializers.ModelSerializer):
-    geometry = serializers.SerializerMethodField()
+    centroid = serializers.SerializerMethodField()
 
     class Meta:
         model = District
-        fields = ['id', 'name', 'geometry']
+        fields = ['id', 'name', 'centroid']
 
-    def get_geometry(self, obj):
+    def get_centroid(self, obj):
         if obj.geometry:
-            return obj.geometry.geojson  # هندسه به فرمت GeoJSON
+            # اگر obj.geometry از نوع Polygon است، مستقیماً از آن استفاده کنید
+            if isinstance(obj.geometry, Polygon):
+                centroid = obj.geometry.centroid
+                return {"type": "Point", "coordinates": [centroid.x, centroid.y]}
         return None
 
 
@@ -341,12 +344,7 @@ class VillageSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        if instance.coordinates:
-            data['lat'] = instance.coordinates.y
-            data['lng'] = instance.coordinates.x
-        else:
-            data['lat'] = None
-            data['lng'] = None
+        
         return data
 
 class CitySerializer(serializers.ModelSerializer):
@@ -356,12 +354,7 @@ class CitySerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        if instance.coordinates:
-            data['lat'] = instance.coordinates.y
-            data['lng'] = instance.coordinates.x
-        else:
-            data['lat'] = None
-            data['lng'] = None
+        
         return data
 
 class CountySerializer(serializers.ModelSerializer):
@@ -375,12 +368,7 @@ class CountySerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        if instance.coordinates:
-            data['lat'] = instance.coordinates.y
-            data['lng'] = instance.coordinates.x
-        else:
-            data['lat'] = None
-            data['lng'] = None
+        
         return data
 
 class ProvinceSerializer(serializers.ModelSerializer):
