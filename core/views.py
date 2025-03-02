@@ -14,7 +14,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import user_passes_test
 from .forms import UserForm, JobForm, JobHoursForm, TimeSlotForm
 from rest_framework import status
-from .serializers import UserSerializer, CategoryJobsSerializer
+from .serializers import ProvinceSerializer, UserSerializer, CategoryJobsSerializer
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.db.models import Q
 from django.contrib.gis.geos import GEOSGeometry
@@ -925,3 +925,10 @@ class CategoryJobView(APIView):
         categories = category_job.objects.filter(parent__isnull=True)
         serializer = CategoryJobSerializer(categories, many=True)
         return Response({"categories": serializer.data})
+
+
+class ProvinceView(APIView):
+    def get(self, request):
+        provinces = Province.objects.all()
+        serializer = ProvinceSerializer(provinces, many=True)
+        return Response(serializer.data)

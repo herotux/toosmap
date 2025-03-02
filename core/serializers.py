@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Place, JobLinks, County, user, Province, City, category_job, job, role, role_user, Village, JobHours, TimeSlot
+from .models import District, Place, JobLinks, County, user, Province, City, category_job, job, role, role_user, Village, JobHours, TimeSlot
 import uuid
 from django.utils import timezone
 from decimal import Decimal, ROUND_HALF_UP
@@ -316,3 +316,76 @@ class JobLinksSerializer(serializers.ModelSerializer):
 
 
 
+
+
+
+class DistrictSerializer(serializers.ModelSerializer):
+    geometry = serializers.SerializerMethodField()
+
+    class Meta:
+        model = District
+        fields = ['id', 'name', 'geometry']
+
+    def get_geometry(self, obj):
+        if obj.geometry:
+            return obj.geometry.geojson  # هندسه به فرمت GeoJSON
+        return None
+
+
+
+
+class VillageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Village
+        fields = ['id', 'name', 'coordinates']
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if instance.coordinates:
+            data['lat'] = instance.coordinates.y
+            data['lng'] = instance.coordinates.x
+        else:
+            data['lat'] = None
+            data['lng'] = None
+        return data
+
+class CitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = City
+        fields = ['id', 'name', 'coordinates']
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if instance.coordinates:
+            data['lat'] = instance.coordinates.y
+            data['lng'] = instance.coordinates.x
+        else:
+            data['lat'] = None
+            data['lng'] = None
+        return data
+
+class CountySerializer(serializers.ModelSerializer):
+    cities = CitySerializer(many=True, read_only=True)
+    villages = VillageSerializer(many=True, read_only=True)
+    districts = DistrictSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = County
+        fields = ['id', 'name', 'coordinates', 'cities', 'villages', 'districts']
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if instance.coordinates:
+            data['lat'] = instance.coordinates.y
+            data['lng'] = instance.coordinates.x
+        else:
+            data['lat'] = None
+            data['lng'] = None
+        return data
+
+class ProvinceSerializer(serializers.ModelSerializer):
+    counties = CountySerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Province
+        fields = ['id', 'name', 'counties']
