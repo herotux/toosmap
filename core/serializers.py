@@ -8,6 +8,10 @@ import random
 from django.contrib.gis.geos import Point
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
 from shapely.geometry import Polygon
+from django.db.models import Count
+
+
+
 
 
 
@@ -247,14 +251,20 @@ class CategoryJobsSerializer(serializers.ModelSerializer):
 
 class CategoryJobSerializer(serializers.ModelSerializer):
     subCategories = serializers.SerializerMethodField()
+    job_count = serializers.SerializerMethodField()  # اضافه کردن فیلد job_count
 
     class Meta:
         model = category_job
-        fields = ['id', 'name', 'subCategories']
+        fields = ['id', 'name', 'subCategories', 'job_count']
 
     def get_subCategories(self, obj):
-        children = obj.children.all()
+        # محاسبه تعداد job‌ها برای هر زیردسته
+        children = obj.children.all().annotate(job_count=Count('category_place__job', distinct=True))
         return CategoryJobSerializer(children, many=True).data
+
+    def get_job_count(self, obj):
+        # محاسبه تعداد job‌ها برای دسته‌بندی فعلی
+        return obj.category_place_set.count() 
 
 
 
@@ -321,14 +331,14 @@ class JobLinksSerializer(serializers.ModelSerializer):
 
 class DistrictSerializer(serializers.ModelSerializer):
     centroid = serializers.SerializerMethodField()
+    job_count = serializers.IntegerField(read_only=True)  # اضافه کردن فیلد job_count
 
     class Meta:
         model = District
-        fields = ['id', 'name', 'centroid']
+        fields = ['id', 'name', 'centroid', 'job_count']
 
     def get_centroid(self, obj):
         if obj.geometry:
-            # اگر obj.geometry از نوع Polygon است، مستقیماً از آن استفاده کنید
             if isinstance(obj.geometry, Polygon):
                 centroid = obj.geometry.centroid
                 return {"type": "Point", "coordinates": [centroid.x, centroid.y]}
@@ -338,9 +348,11 @@ class DistrictSerializer(serializers.ModelSerializer):
 
 
 class VillageSerializer(serializers.ModelSerializer):
+    job_count = serializers.IntegerField(read_only=True)  # اضافه کردن فیلد job_count
+
     class Meta:
         model = Village
-        fields = ['id', 'name', 'coordinates']
+        fields = ['id', 'name', 'coordinates', 'job_count']
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
@@ -348,9 +360,11 @@ class VillageSerializer(serializers.ModelSerializer):
         return data
 
 class CitySerializer(serializers.ModelSerializer):
+    job_count = serializers.IntegerField(read_only=True)  # اضافه کردن فیلد job_count
+
     class Meta:
         model = City
-        fields = ['id', 'name', 'coordinates']
+        fields = ['id', 'name', 'coordinates', 'job_count']
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
@@ -361,10 +375,11 @@ class CountySerializer(serializers.ModelSerializer):
     cities = CitySerializer(many=True, read_only=True)
     villages = VillageSerializer(many=True, read_only=True)
     districts = DistrictSerializer(many=True, read_only=True)
+    job_count = serializers.IntegerField(read_only=True)  # اضافه کردن فیلد job_count
 
     class Meta:
         model = County
-        fields = ['id', 'name', 'coordinates', 'cities', 'villages', 'districts']
+        fields = ['id', 'name', 'coordinates', 'cities', 'villages', 'districts', 'job_count']
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
@@ -373,7 +388,8 @@ class CountySerializer(serializers.ModelSerializer):
 
 class ProvinceSerializer(serializers.ModelSerializer):
     counties = CountySerializer(many=True, read_only=True)
+    job_count = serializers.IntegerField(read_only=True)  # اضافه کردن فیلد job_count
 
     class Meta:
         model = Province
-        fields = ['id', 'name', 'counties']
+        fields = ['id', 'name', 'counties', 'job_count']

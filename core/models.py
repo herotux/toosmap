@@ -172,7 +172,7 @@ class user(AbstractUser):
         return self.username
 
 
-# دسته‌بندی مشاغل
+# دسته‌بندی ها
 class category_job(models.Model):
     name = models.CharField(max_length=100)
     slug = models.SlugField(unique=True)
@@ -204,12 +204,7 @@ class category_job(models.Model):
         return self.name
 
 
-# دسته‌بندی کاربران مشاغل
-class category_user(models.Model):
-    category = models.ForeignKey(category_job, on_delete=models.CASCADE)
-    user = models.ForeignKey(user, on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+
 
 
 
@@ -285,6 +280,7 @@ class job(models.Model):
     province = models.ForeignKey(Province, on_delete=models.SET_NULL, null=True)
     city = models.ForeignKey(City, on_delete=models.SET_NULL, null=True)
     district = models.ForeignKey(District, on_delete=models.SET_NULL, null=True)
+    village = models.ForeignKey(Village, on_delete=models.SET_NULL, null=True, blank=True)
     address = models.TextField()
     post_code = models.CharField(max_length=20, null=True, blank=True)
     # lat = models.DecimalField(max_digits=9, decimal_places=6)
@@ -344,6 +340,14 @@ class job(models.Model):
     coordinates_display.short_description = "مختصات"
 
     
+
+# دسته‌بندی  مشاغل
+class category_place(models.Model):
+    category = models.ForeignKey(category_job, on_delete=models.CASCADE)
+    job = models.ForeignKey(job, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
 
 # تنظیمات
 class setting(models.Model):

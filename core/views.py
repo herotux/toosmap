@@ -14,7 +14,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import user_passes_test
 from .forms import UserForm, JobForm, JobHoursForm, TimeSlotForm
 from rest_framework import status
-from .serializers import ProvinceSerializer, UserSerializer, CategoryJobsSerializer
+from .serializers import VillageSerializer, ProvinceSerializer, UserSerializer, CategoryJobsSerializer
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.db.models import Q
 from django.contrib.gis.geos import GEOSGeometry
@@ -23,13 +23,16 @@ from django.contrib.auth import logout
 import json
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-from .serializers import CategoryJobSerializer, JobHoursSerializer, TimeSlotSerializer, JobSerializer, PlaceSerializer
+from .serializers import CountySerializer, CitySerializer, DistrictSerializer, CategoryJobSerializer, JobHoursSerializer, TimeSlotSerializer, JobSerializer, PlaceSerializer
 from rest_framework.decorators import api_view
 from django.db import IntegrityError
 from rest_framework import permissions
 from .decorators import role_required
 from rest_framework import viewsets
 from .models import Place, job
+from django.db.models import Count
+
+
 
 class IsAdminUser(permissions.BasePermission):
     def has_permission(self, request, view):
@@ -922,13 +925,47 @@ class IndependentJobViewSet(viewsets.ModelViewSet):
 
 class CategoryJobView(APIView):
     def get(self, request):
-        categories = category_job.objects.filter(parent__isnull=True)
+        # محاسبه تعداد job‌ها برای هر دسته‌بندی
+        categories = category_job.objects.filter(parent__isnull=True).annotate(
+            job_count=Count('category_place__job', distinct=True)
+        )
         serializer = CategoryJobSerializer(categories, many=True)
         return Response({"categories": serializer.data})
 
 
+
+
 class ProvinceView(APIView):
     def get(self, request):
-        provinces = Province.objects.all()
-        serializer = ProvinceSerializer(provinces, many=True)
-        return Response(serializer.data)
+        # محاسبه تعداد job‌ها برای استان‌ها
+        provinces = Province.objects.annotate(job_count=Count('counties__cities__job'))
+        
+        # محاسبه تعداد job‌ها برای شهرستان‌ها
+        counties = County.objects.annotate(job_count=Count('cities__job'))
+        
+        # محاسبه تعداد job‌ها برای شهرها
+        cities = City.objects.annotate(job_count=Count('job'))
+        
+        # محاسبه تعداد job‌ها برای مناطق
+        districts = District.objects.annotate(job_count=Count('job'))
+
+        # محاسبه تعداد job‌ها برای روستاها
+        villages = Village.objects.annotate(job_count=Count('job'))
+
+        # سریالایز کردن داده‌ها
+        province_serializer = ProvinceSerializer(provinces, many=True)
+        county_serializer = CountySerializer(counties, many=True)
+        city_serializer = CitySerializer(cities, many=True)
+        district_serializer = DistrictSerializer(districts, many=True)
+        village_serializer = VillageSerializer(villages, many=True)
+
+        # ترکیب پاسخ‌ها
+        response_data = {
+            "provinces": province_serializer.data,
+            "counties": county_serializer.data,
+            "cities": city_serializer.data,
+            "districts": district_serializer.data,
+            "villages": village_serializer.data,
+        }
+
+        return Response(response_data)
