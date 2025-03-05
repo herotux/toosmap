@@ -39,6 +39,6 @@ admin.site.register(TimeSlot)
 # استفاده از LeafletGeoAdmin برای مدل Place
 @admin.register(Place)
 class PlaceAdmin(LeafletGeoAdmin):
-    list_display = ('name', 'address', 'province', 'city')
+    list_display = ('name', 'address', 'province', 'county', 'city')
     search_fields = ('name', 'address')
     list_filter = ('province', 'city')

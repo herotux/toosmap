@@ -253,9 +253,10 @@ class Place(models.Model):
         verbose_name='مختصات'
     )
     address = models.TextField()
-    province = models.ForeignKey(Province, on_delete=models.SET_NULL, null=True)
-    city = models.ForeignKey(City, on_delete=models.SET_NULL, null=True)
-    district = models.ForeignKey(District, on_delete=models.SET_NULL, null=True)
+    province = models.ForeignKey(Province, on_delete=models.SET_NULL, null=True, blank=True, related_name='places')
+    county = models.ForeignKey(County, on_delete=models.SET_NULL, null=True, blank=True, related_name='places')
+    city = models.ForeignKey(City, on_delete=models.SET_NULL, null=True, blank=True, related_name='places')
+    district = models.ForeignKey(District, on_delete=models.SET_NULL, null=True, blank=True, related_name='places')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -278,6 +279,7 @@ class job(models.Model):
     mobile = models.CharField(max_length=15, null=True, blank=True)
     phone = models.CharField(max_length=15, null=True, blank=True)
     province = models.ForeignKey(Province, on_delete=models.SET_NULL, null=True)
+    county = models.ForeignKey(County, on_delete=models.SET_NULL, null=True)
     city = models.ForeignKey(City, on_delete=models.SET_NULL, null=True)
     district = models.ForeignKey(District, on_delete=models.SET_NULL, null=True)
     village = models.ForeignKey(Village, on_delete=models.SET_NULL, null=True, blank=True)
