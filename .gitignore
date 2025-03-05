@@ -139,4 +139,5 @@ GitHub.sublime-settings
 .history
 
 
-core/migrations/*
+core/migrations/*__pycache__/
+*.pyc
