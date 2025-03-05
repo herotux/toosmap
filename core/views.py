@@ -69,7 +69,7 @@ def admin_dashboard(request):
         'name': request.user.username,
         'role': role_user.objects.filter(user=request.user).first().role.name
     }
-    return render(request, 'admin/dashboard.html', {'user_info': user_info,'jobcount':jobcount,'usercount':usercount,'catcount':catcount})
+    return render(request, 'admin_user/dashboard.html', {'user_info': user_info,'jobcount':jobcount,'usercount':usercount,'catcount':catcount})
 
 
 
@@ -237,7 +237,7 @@ def list_users(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
-    return render(request, 'admin/users_list.html', {'page_obj': page_obj, 'user_roles': user_roles})
+    return render(request, 'admin_user/users_list.html', {'page_obj': page_obj, 'user_roles': user_roles})
 
 
 
@@ -267,7 +267,7 @@ def list_categories(request):
     for category in page_obj:
         category.subcategories = category_job.objects.filter(parent=category).order_by('sort_order')
 
-    return render(request, 'admin/categories.html', {
+    return render(request, 'admin_user/categories.html', {
         'page_obj': page_obj,
         'search_query': search_query,
         'records_per_page': records_per_page
@@ -297,7 +297,7 @@ def add_category(request):
     categories = category_job.objects.all().order_by('sort_order')
     hierarchical_categories = get_categories_hierarchically(categories)
     print("Hierarchical Categories:", hierarchical_categories)
-    return render(request, 'admin/add_category.html',{'categories': hierarchical_categories})
+    return render(request, 'admin_user/add_category.html',{'categories': hierarchical_categories})
 
 
 
@@ -397,7 +397,7 @@ def make_seller(request, user_id):
         'time_slot_form': time_slot_form,
         'user': user_instance,  # Pass the user instance to the template
     }
-    return render(request, 'admin/make_user_seller.html', context)
+    return render(request, 'admin_user/make_user_seller.html', context)
 
 
 
@@ -418,7 +418,7 @@ def add_user(request):
         form = UserForm()
         roles = role.objects.all()
         provinces = Province.objects.all()
-    return render(request, 'admin/add_user.html', {'form': form, 'provinces':provinces,'roles':roles})
+    return render(request, 'admin_user/add_user.html', {'form': form, 'provinces':provinces,'roles':roles})
 
 
 
@@ -596,7 +596,7 @@ def edit_category(request, category_id):
         return redirect('list_categories')
     
     
-    return render(request, 'admin/edit_category.html', {
+    return render(request, 'admin_user/edit_category.html', {
         'category': category,
         'categories': hierarchical_categories
     })
@@ -644,7 +644,7 @@ def add_job(request):
         form = UserForm()
         roles = role.objects.all()
         provinces = Province.objects.all()
-    return render(request, 'admin/add_seller.html', {'form': form, 'provinces':provinces,'roles':roles, 'title':title})
+    return render(request, 'admin_user/add_seller.html', {'form': form, 'provinces':provinces,'roles':roles, 'title':title})
 
 
 @login_required
@@ -667,7 +667,7 @@ def edit_user_view(request, user_id):
     print(f"user lat is {user_lat}")
     print(f"user lng is {user_lng}")
 
-    return render(request, 'admin/edit_user.html', {
+    return render(request, 'admin_user/edit_user.html', {
         'provinces': provinces,
         'cities': cities,
         'usercity': city,
@@ -871,7 +871,7 @@ def settings_view(request):
     # شرط‌های فیلتر کردن
     settings = setting.objects.all().order_by('id')
 
-    return render(request, 'admin/setting.html', {'settings': settings})
+    return render(request, 'admin_user/setting.html', {'settings': settings})
 
 
 

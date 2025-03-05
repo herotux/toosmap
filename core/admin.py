@@ -35,4 +35,10 @@ admin.site.register(District)
 admin.site.register(Village)
 admin.site.register(County)
 admin.site.register(TimeSlot)
-admin.site.register(Place)
+
+# استفاده از LeafletGeoAdmin برای مدل Place
+@admin.register(Place)
+class PlaceAdmin(LeafletGeoAdmin):
+    list_display = ('name', 'address', 'province', 'city')
+    search_fields = ('name', 'address')
+    list_filter = ('province', 'city')
