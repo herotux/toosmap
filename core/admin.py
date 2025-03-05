@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import TimeSlot, County, District, Village, setting, user, role_user, job, category_place, role, category_job, Province, City, role, role_user, JobHours, JobLinks
+from .models import Place, TimeSlot, County, District, Village, setting, user, role_user, job, category_place, role, category_job, Province, City, role, role_user, JobHours, JobLinks
 from django.contrib.gis.admin import GISModelAdmin
 from leaflet.admin import LeafletGeoAdmin
 from django.utils.safestring import mark_safe
@@ -35,3 +35,5 @@ admin.site.register(District)
 admin.site.register(Village)
 admin.site.register(County)
 admin.site.register(TimeSlot)
+admin.site.register(Place)
+admin.site.register(job)
