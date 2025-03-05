@@ -14,7 +14,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import user_passes_test
 from .forms import UserForm, JobForm, JobHoursForm, TimeSlotForm
 from rest_framework import status
-from .serializers import VillageSerializer, ProvinceSerializer, UserSerializer, CategoryJobsSerializer
+from .serializers import VillageSerializer, ProvinceSerializer, UserSerializer, CategoryJobsSerializer, JobLinksSerializer
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.db.models import Q
 from django.contrib.gis.geos import GEOSGeometry
@@ -969,3 +969,66 @@ class ProvinceView(APIView):
         }
 
         return Response(response_data)
+    
+
+
+
+
+@api_view(['GET'])
+def get_independent_jobs_and_commercial_places(request):
+    page = int(request.query_params.get('page', 1))  # شماره صفحه (پیش‌فرض: 1)
+    page_size = int(request.query_params.get('page_size', 30))  # تعداد نتایج در هر صفحه (پیش‌فرض: 30)
+    
+    # دریافت پارامترهای فیلتر
+    province_id = request.query_params.get('province')
+    county_id = request.query_params.get('county')
+    city_id = request.query_params.get('city')
+    category_id = request.query_params.get('category')
+    
+    # دریافت مشاغل مستقل (جایی که place خالی است)
+    independent_jobs = job.objects.filter(place__isnull=True, coordinates__isnull=False)
+    
+    # دریافت تمام مکان‌های تجاری (همه مقادیر در جدول Place)
+    commercial_places = Place.objects.all()
+    
+    # اعمال فیلترها روی مشاغل مستقل
+    if province_id:
+        independent_jobs = independent_jobs.filter(province_id=province_id)
+    if county_id:
+        independent_jobs = independent_jobs.filter(county_id=county_id)
+    if city_id:
+        independent_jobs = independent_jobs.filter(city_id=city_id)
+    if category_id:
+        independent_jobs = independent_jobs.filter(category_id=category_id)
+    
+    # اعمال فیلترها روی مکان‌های تجاری
+    if province_id:
+        commercial_places = commercial_places.filter(province_id=province_id)
+    if county_id:
+        commercial_places = commercial_places.filter(county_id=county_id)
+    if city_id:
+        commercial_places = commercial_places.filter(city_id=city_id)
+    if category_id:
+        commercial_places = commercial_places.filter(category_id=category_id)
+    
+    # صفحه‌بندی نتایج
+    paginator_jobs = Paginator(independent_jobs, page_size)
+    paginator_places = Paginator(commercial_places, page_size)
+    
+    # دریافت نتایج صفحه فعلی
+    jobs_page = paginator_jobs.page(page)
+    places_page = paginator_places.page(page)
+    
+    # سریالایز کردن داده‌ها
+    job_serializer = JobSerializer(jobs_page.object_list, many=True)
+    place_serializer = PlaceSerializer(places_page.object_list, many=True)
+    
+    # برگرداندن پاسخ
+    return Response({
+        "independent_jobs_count": paginator_jobs.count,
+        "commercial_places_count": paginator_places.count,
+        "current_page": page,
+        "total_pages": max(paginator_jobs.num_pages, paginator_places.num_pages),
+        "independent_jobs": job_serializer.data,
+        "commercial_places": place_serializer.data
+    })
