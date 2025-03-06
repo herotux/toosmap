@@ -308,18 +308,23 @@ class JobSerializer(GeoFeatureModelSerializer):
         geo_field = 'coordinates'
         fields = '__all__'
         extra_kwargs = {
-            'coordinates': {'allow_null': True}  # اجازه دهید فیلد `null` باشد
+            'coordinates': {'allow_null': True}
         }
 
 
 
 class PlaceSerializer(GeoFeatureModelSerializer):
-    jobs = JobSerializer(many=True, read_only=True)  # لیست Jobهای مرتبط
+    jobs = JobSerializer(many=True, read_only=True, required=False)
 
     class Meta:
         model = Place
-        geo_field = 'coordinates'  # فیلد مختصات
-        fields = ['id', 'name', 'coordinates', 'address', 'province', 'city', 'district', 'jobs']
+        geo_field = 'coordinates'
+        fields = ['id', 'name', 'coordinates', 'address', 'province', 'county', 'city', 'district', 'jobs']
+        extra_kwargs = {
+            'province': {'allow_null': True},
+            'city': {'allow_null': True},
+            'district': {'allow_null': True},
+        }
 
 
 class JobLinksSerializer(serializers.ModelSerializer):
