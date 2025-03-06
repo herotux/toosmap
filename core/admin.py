@@ -5,7 +5,7 @@ from leaflet.admin import LeafletGeoAdmin
 from django.utils.safestring import mark_safe
 
 
-class JobAdmin(admin.ModelAdmin):
+class JobAdmin(LeafletGeoAdmin):
     list_display = ('store_name', 'map_preview')
     
     def map_preview(self, obj):
