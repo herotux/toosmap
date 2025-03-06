@@ -305,8 +305,11 @@ class JobHoursSerializer(serializers.ModelSerializer):
 class JobSerializer(GeoFeatureModelSerializer):
     class Meta:
         model = job
-        geo_field = 'coordinates'  # فیلد مختصات
+        geo_field = 'coordinates'
         fields = '__all__'
+        extra_kwargs = {
+            'coordinates': {'allow_null': True}  # اجازه دهید فیلد `null` باشد
+        }
 
 
 
