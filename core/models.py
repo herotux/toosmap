@@ -295,7 +295,7 @@ class job(models.Model):
     )
 
 
-    place = models.ForeignKey(Place, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='مکان تجاری')
+    place = models.ForeignKey(Place, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='مکان تجاری', related_name='jobs')
 
 
     in_person = models.BooleanField(default=False)
