@@ -1033,3 +1033,28 @@ def get_independent_jobs_and_commercial_places(request):
         "independent_jobs": job_serializer.data,
         "commercial_places": place_serializer.data
     })
+
+
+
+class JobDetailAPIView(APIView):
+    """
+    جزئیات یک شغل را بر اساس id برمی‌گرداند.
+    """
+
+    def get(self, request, id):
+        try:
+            # پیدا کردن شغل بر اساس id
+            rhejob = job.objects.get(id=id)
+            serializer = JobSerializer(rhejob)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        except job.DoesNotExist:
+            return Response(
+                {"status": "error", "message": "شغل مورد نظر یافت نشد."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            return Response(
+                {"status": "error", "message": "خطای سرور رخ داده است."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 from .views import edit_category, AddCategoryAPIView, EditUserAPIView, AddUserAPIView, load_counties, list_users, register, otp_login, login_view, verify_otp, verify_password, map_view, admin_dashboard, seller_dashboard, user_dashboard, list_categories, add_category, edit_category, delete_category, ProvinceCityAPIView, add_user  # Import the add_user view
-from .views import get_independent_jobs_and_commercial_places, ProvinceView, CategoryJobView, IndependentJobViewSet, PlaceViewSet, edit_setting_ajax, update_category_status, home, settings_view, create_job_hours, create_job_links, create_job, logout_view, AddJobAPIView, make_seller, add_job, edit_user_view, provinces_cities_api, main_view
+from .views import JobDetailAPIView, get_independent_jobs_and_commercial_places, ProvinceView, CategoryJobView, IndependentJobViewSet, PlaceViewSet, edit_setting_ajax, update_category_status, home, settings_view, create_job_hours, create_job_links, create_job, logout_view, AddJobAPIView, make_seller, add_job, edit_user_view, provinces_cities_api, main_view
 
 urlpatterns = [
     path('register/', register, name='register'),
@@ -51,5 +51,6 @@ urlpatterns = [
     path('api/categories/', CategoryJobView.as_view(), name='categories'),
     path('api/provinces/', ProvinceView.as_view(), name='provinces'),
     path('api/jobs-and-places/', get_independent_jobs_and_commercial_places, name='jobs-and-places'),
+    path('api/jobs/<int:id>/', JobDetailAPIView.as_view(), name='job-detail'),
     
 ]
