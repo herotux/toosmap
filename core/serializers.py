@@ -311,6 +311,12 @@ class JobSerializer(GeoFeatureModelSerializer):
             'coordinates': {'allow_null': True}
         }
 
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        if not instance.coordinates:
+            representation['coordinates'] = None
+        return representation
+
 
 
 class PlaceSerializer(GeoFeatureModelSerializer):
