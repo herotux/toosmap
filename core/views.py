@@ -31,7 +31,9 @@ from .decorators import role_required
 from rest_framework import viewsets
 from .models import Place, job
 from django.db.models import Count
+import logging
 
+logger = logging.getLogger(__name__)
 
 
 class IsAdminUser(permissions.BasePermission):
@@ -976,6 +978,7 @@ class ProvinceView(APIView):
 
 @api_view(['GET'])
 def get_independent_jobs_and_commercial_places(request):
+    logger.debug("Starting get_independent_jobs_and_commercial_places")
     # دریافت پارامترهای فیلتر
     province_id = request.query_params.get('province')
     county_id = request.query_params.get('county')
