@@ -340,6 +340,7 @@ class JobLinksSerializerForFlutter(serializers.ModelSerializer):
 
     def get_links(self, obj):
         links = []
+
         if obj.website:
             links.append(["website", obj.website])
         if obj.telegram:
@@ -380,7 +381,7 @@ class JobSerializer(GeoFeatureModelSerializer):
 
 class JobSerializerForFlutter(serializers.ModelSerializer):
     contacts = serializers.SerializerMethodField()
-    links = JobLinksSerializerForFlutter(source='joblinks', read_only=True)
+    links = JobLinksSerializerForFlutter(source='joblinks', many=True, read_only=True)  # اضافه کردن many=True
     hours = serializers.SerializerMethodField()
 
     class Meta:
