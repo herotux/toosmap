@@ -420,7 +420,7 @@ class TimeSlot(models.Model):
 
 
 class JobLinks(models.Model):
-    job = models.ForeignKey(job, on_delete=models.CASCADE)
+    job = models.ForeignKey(job, on_delete=models.CASCADE, related_name='joblinks')
     website = models.URLField(null=True, blank=True)
     telegram = models.URLField(null=True, blank=True)
     instagram = models.URLField(null=True, blank=True)
