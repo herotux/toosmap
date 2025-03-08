@@ -14,7 +14,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import user_passes_test
 from .forms import UserForm, JobForm, JobHoursForm, TimeSlotForm
 from rest_framework import status
-from .serializers import VillageSerializer, ProvinceSerializer, UserSerializer, CategoryJobsSerializer, JobLinksSerializer
+from .serializers import JobSerializerForFlutter, VillageSerializer, ProvinceSerializer, UserSerializer, CategoryJobsSerializer, JobLinksSerializer
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.db.models import Q
 from django.contrib.gis.geos import GEOSGeometry
@@ -1073,15 +1073,12 @@ def get_independent_jobs_and_commercial_places(request):
 
 
 class JobDetailAPIView(APIView):
-    """
-    جزئیات یک شغل را بر اساس id برمی‌گرداند.
-    """
 
     def get(self, request, id):
         try:
             # پیدا کردن شغل بر اساس id
-            rhejob = job.objects.get(id=id)
-            serializer = JobSerializer(rhejob)
+            thejob = job.objects.get(id=id)
+            serializer = JobSerializerForFlutter(thejob)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         except job.DoesNotExist:

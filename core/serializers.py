@@ -268,10 +268,10 @@ class CategoryJobSerializer(serializers.ModelSerializer):
 
 
 
-class JobSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = job
-        fields = '__all__'  # Ensure user_id is included in these fields
+# class JobSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = job
+#         fields = '__all__'
 
 
 class TimeSlotSerializer(serializers.ModelSerializer):
@@ -301,6 +301,59 @@ class JobHoursSerializer(serializers.ModelSerializer):
                 end_time=shift['end']
             )
         return job_hour
+    
+
+class JobHoursSerializerForFlutter(serializers.ModelSerializer):
+    shifts = serializers.SerializerMethodField()
+
+    class Meta:
+        model = JobHours
+        fields = ['day', 'shifts']
+
+    def get_shifts(self, obj):
+        shifts = []
+        for time_slot in obj.time_slots.all():
+            start = time_slot.start_time.strftime("%H_%M")
+            end = time_slot.end_time.strftime("%H_%M")
+            shifts.append(f"{start}-{end}")
+        return shifts
+    
+
+
+class JobLinksSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = JobLinks
+        fields = ['website', 'telegram', 'instagram', 'robika', 'eitaa', 'bale']
+
+
+
+class JobLinksSerializerForFlutter(serializers.ModelSerializer):
+    contacts = serializers.SerializerMethodField()
+    social_links = serializers.SerializerMethodField()
+
+    class Meta:
+        model = JobLinks
+        fields = ['contacts', 'social_links']
+
+    def get_contacts(self, obj):
+        contacts = []
+        if obj.phone:
+            contacts.append(["phone", obj.phone])
+        if obj.mobile:
+            contacts.append(["mobile", obj.mobile])
+        return contacts
+
+    def get_social_links(self, obj):
+        social_links = []
+        if obj.telegram:
+            social_links.append(["telegram", obj.telegram])
+        if obj.instagram:
+            social_links.append(["instagram", obj.instagram])
+        if obj.website:
+            social_links.append(["website", obj.website])
+        return social_links
+    
+
 
 class JobSerializer(GeoFeatureModelSerializer):
     class Meta:
@@ -316,6 +369,34 @@ class JobSerializer(GeoFeatureModelSerializer):
         if not instance.coordinates:
             representation['coordinates'] = None
         return representation
+    
+
+
+
+class JobSerializerForFlutter(serializers.ModelSerializer):
+    links = JobLinksSerializerForFlutter(source='joblinks', read_only=True)
+    hours = JobHoursSerializerForFlutter(source='jobhours_set', many=True, read_only=True)
+    coordinates_display = serializers.SerializerMethodField()
+
+    class Meta:
+        model = job
+        fields = [
+            'id', 'user', 'store_name', 'slug', 'job_code',
+            'mobile', 'phone', 'province', 'county', 'city',
+            'district', 'village', 'address', 'post_code',
+            'coordinates', 'coordinates_display', 'place',
+            'in_person', 'internet_sales', 'single_sale',
+            'wholesale_sales', 'is_producer', 'unused_product',
+            'used_product', 'buyer', 'purchase_in_store',
+            'purchase_in_home', 'slang', 'message', 'about',
+            'profile', 'last_active', 'created_at', 'updated_at',
+            'links', 'hours'
+        ]
+
+    def get_coordinates_display(self, obj):
+        if obj.coordinates:
+            return f"طول: {obj.coordinates.x}, عرض: {obj.coordinates.y}"
+        return None
 
 
 
@@ -331,13 +412,6 @@ class PlaceSerializer(GeoFeatureModelSerializer):
             'city': {'allow_null': True},
             'district': {'allow_null': True},
         }
-
-
-class JobLinksSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = JobLinks
-        fields = ['website', 'telegram', 'instagram', 'robika', 'eitaa', 'bale']
-
 
 
 
