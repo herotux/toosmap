@@ -1076,12 +1076,14 @@ class JobDetailAPIView(APIView):
     def get(self, request, id):
         try:
             thejob = job.objects.prefetch_related('joblinks').get(id=id)
+            print(thejob)  
             serializer = JobSerializerForFlutter(thejob)
+            print(serializer.data)  
             return Response(serializer.data, status=status.HTTP_200_OK)
         except job.DoesNotExist:
             return Response({"error": "شغل مورد نظر یافت نشد."}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
-            # خطای سرور را لاگ کنید
+
             print(f"خطا: {str(e)}")
             return Response({"error": "خطای سرور رخ داده است."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
