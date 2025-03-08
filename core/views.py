@@ -993,7 +993,7 @@ def get_independent_jobs_and_commercial_places(request):
     page_size = int(request.query_params.get('page_size', 30))  # تعداد نتایج در هر صفحه (پیش‌فرض: 30)
 
     # فیلتر کردن مشاغل
-    independent_jobs = Job.objects.filter(place__isnull=True, coordinates__isnull=False)  # مشاغل مستقل
+    independent_jobs = job.objects.filter(place__isnull=True, coordinates__isnull=False)  # مشاغل مستقل
     commercial_places = Place.objects.all()  # همه مکان‌ها
 
     # اعمال فیلترها روی مشاغل مستقل
