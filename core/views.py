@@ -1073,24 +1073,21 @@ def get_independent_jobs_and_commercial_places(request):
 
 
 class JobDetailAPIView(APIView):
-
     def get(self, request, id):
         try:
-            # پیدا کردن شغل بر اساس id
-            thejob = job.objects.get(id=id)
+            thejob = job.objects.prefetch_related('joblinks').get(id=id)
             serializer = JobSerializerForFlutter(thejob)
             return Response(serializer.data, status=status.HTTP_200_OK)
-
         except job.DoesNotExist:
-            return Response(
-                {"status": "error", "message": "شغل مورد نظر یافت نشد."},
-                status=status.HTTP_404_NOT_FOUND
-            )
+            return Response({"error": "شغل مورد نظر یافت نشد."}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
-            return Response(
-                {"status": "error", "message": "خطای سرور رخ داده است."},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+            # خطای سرور را لاگ کنید
+            print(f"خطا: {str(e)}")
+            return Response({"error": "خطای سرور رخ داده است."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+
 
 
 
