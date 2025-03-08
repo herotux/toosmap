@@ -14,7 +14,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import user_passes_test
 from .forms import UserForm, JobForm, JobHoursForm, TimeSlotForm
 from rest_framework import status
-from .serializers import VillageSerializer, ProvinceSerializer, UserSerializer, CategoryJobsSerializer, JobLinksSerializer
+from .serializers import JobSerializerForFlutter, VillageSerializer, ProvinceSerializer, UserSerializer, CategoryJobsSerializer, JobLinksSerializer
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.db.models import Q
 from django.contrib.gis.geos import GEOSGeometry
@@ -979,16 +979,21 @@ class ProvinceView(APIView):
 @api_view(['GET'])
 def get_independent_jobs_and_commercial_places(request):
     logger.debug("Starting get_independent_jobs_and_commercial_places")
+    
     # دریافت پارامترهای فیلتر
     province_id = request.query_params.get('province')
     county_id = request.query_params.get('county')
     city_id = request.query_params.get('city')
     category_id = request.query_params.get('category')
+    min_lat = request.query_params.get('min_lat')  # حداقل عرض جغرافیایی
+    max_lat = request.query_params.get('max_lat')  # حداکثر عرض جغرافیایی
+    min_lng = request.query_params.get('min_lng')  # حداقل طول جغرافیایی
+    max_lng = request.query_params.get('max_lng')  # حداکثر طول جغرافیایی
     page = int(request.query_params.get('page', 1))  # شماره صفحه (پیش‌فرض: 1)
     page_size = int(request.query_params.get('page_size', 30))  # تعداد نتایج در هر صفحه (پیش‌فرض: 30)
 
     # فیلتر کردن مشاغل
-    independent_jobs = job.objects.filter(place__isnull=True, coordinates__isnull=False)  # مشاغل مستقل
+    independent_jobs = Job.objects.filter(place__isnull=True, coordinates__isnull=False)  # مشاغل مستقل
     commercial_places = Place.objects.all()  # همه مکان‌ها
 
     # اعمال فیلترها روی مشاغل مستقل
@@ -1000,6 +1005,20 @@ def get_independent_jobs_and_commercial_places(request):
         independent_jobs = independent_jobs.filter(city_id=city_id)
     if category_id:
         independent_jobs = independent_jobs.filter(category_place__category_id=category_id)
+    if min_lat and max_lat and min_lng and max_lng:  # فیلتر بر اساس محدوده جغرافیایی
+        try:
+            min_lat = float(min_lat)
+            max_lat = float(max_lat)
+            min_lng = float(min_lng)
+            max_lng = float(max_lng)
+            independent_jobs = independent_jobs.filter(
+                latitude__gte=min_lat,
+                latitude__lte=max_lat,
+                longitude__gte=min_lng,
+                longitude__lte=max_lng
+            )
+        except ValueError:
+            return Response({"error": "Invalid latitude or longitude values."}, status=400)
 
     # اعمال فیلترها روی مکان‌ها
     if province_id:
@@ -1011,14 +1030,31 @@ def get_independent_jobs_and_commercial_places(request):
     if category_id:
         # فیلتر مکان‌ها بر اساس دسته‌بندی مشاغل
         commercial_places = commercial_places.filter(jobs__category_place__category_id=category_id).distinct()
+    if min_lat and max_lat and min_lng and max_lng:  # فیلتر بر اساس محدوده جغرافیایی
+        try:
+            min_lat = float(min_lat)
+            max_lat = float(max_lat)
+            min_lng = float(min_lng)
+            max_lng = float(max_lng)
+            commercial_places = commercial_places.filter(
+                latitude__gte=min_lat,
+                latitude__lte=max_lat,
+                longitude__gte=min_lng,
+                longitude__lte=max_lng
+            )
+        except ValueError:
+            return Response({"error": "Invalid latitude or longitude values."}, status=400)
 
     # صفحه‌بندی نتایج
     paginator_jobs = Paginator(independent_jobs, page_size)
     paginator_places = Paginator(commercial_places, page_size)
 
     # دریافت نتایج صفحه فعلی
-    jobs_page = paginator_jobs.page(page)
-    places_page = paginator_places.page(page)
+    try:
+        jobs_page = paginator_jobs.page(page)
+        places_page = paginator_places.page(page)
+    except Exception as e:
+        return Response({"error": str(e)}, status=400)
 
     # سریالایز کردن داده‌ها
     job_serializer = JobSerializer(jobs_page.object_list, many=True)
@@ -1037,15 +1073,12 @@ def get_independent_jobs_and_commercial_places(request):
 
 
 class JobDetailAPIView(APIView):
-    """
-    جزئیات یک شغل را بر اساس id برمی‌گرداند.
-    """
 
     def get(self, request, id):
         try:
             # پیدا کردن شغل بر اساس id
-            rhejob = job.objects.get(id=id)
-            serializer = JobSerializer(rhejob)
+            thejob = job.objects.get(id=id)
+            serializer = JobSerializerForFlutter(thejob)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         except job.DoesNotExist:
@@ -1058,3 +1091,7 @@ class JobDetailAPIView(APIView):
                 {"status": "error", "message": "خطای سرور رخ داده است."},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+
+
+
