@@ -380,7 +380,7 @@ class JobSerializer(GeoFeatureModelSerializer):
 
 class JobSerializerForFlutter(serializers.ModelSerializer):
     contacts = serializers.SerializerMethodField()
-    links = JobLinksSerializer(source='joblinks', read_only=True)
+    links = JobLinksSerializerForFlutter(source='joblinks', read_only=True)
     hours = serializers.SerializerMethodField()
 
     class Meta:
