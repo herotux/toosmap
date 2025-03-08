@@ -1010,7 +1010,7 @@ def get_independent_jobs_and_commercial_places(request):
         commercial_places = commercial_places.filter(city_id=city_id)
     if category_id:
         # فیلتر مکان‌ها بر اساس دسته‌بندی مشاغل
-        commercial_places = commercial_places.filter(job__category_place__category_id=category_id).distinct()
+        commercial_places = commercial_places.filter(jobs__category_place__category_id=category_id).distinct()
 
     # صفحه‌بندی نتایج
     paginator_jobs = Paginator(independent_jobs, page_size)
