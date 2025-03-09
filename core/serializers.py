@@ -329,6 +329,41 @@ class JobLinksSerializer(serializers.ModelSerializer):
 
 
 
+class PlaceSerializer(GeoFeatureModelSerializer):
+    jobs = JobSerializer(many=True, read_only=True, required=False)
+
+    class Meta:
+        model = Place
+        geo_field = 'coordinates'
+        fields = ['id', 'name', 'coordinates', 'address', 'province', 'county', 'city', 'district', 'jobs']
+        extra_kwargs = {
+            'province': {'allow_null': True},
+            'city': {'allow_null': True},
+            'district': {'allow_null': True},
+        }
+
+
+class PlaceSerializerForFlutter(serializers.ModelSerializer):
+    coordinates_display = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Place
+        fields = [
+            'id', 'name', 'slug', 'coordinates', 'coordinates_display',
+            'address', 'province', 'county', 'city', 'district',
+            'created_at', 'updated_at'
+        ]
+
+    def get_coordinates_display(self, obj):
+        if obj.coordinates:
+            return f"طول: {obj.coordinates.x:.6f}, عرض: {obj.coordinates.y:.6f}"
+        return "تعیین نشده"
+
+
+
+
+
+
 
 
 class JobLinksSerializerForFlutter(serializers.ModelSerializer):
@@ -381,8 +416,9 @@ class JobSerializer(GeoFeatureModelSerializer):
 
 class JobSerializerForFlutter(serializers.ModelSerializer):
     contacts = serializers.SerializerMethodField()
-    links = JobLinksSerializerForFlutter(source='joblinks', many=True, read_only=True)  # اضافه کردن many=True
+    links = JobLinksSerializerForFlutter(source='joblinks', many=True, read_only=True)
     hours = serializers.SerializerMethodField()
+    place = PlaceSerializer(read_only=True)  # اضافه کردن PlaceSerializer
 
     class Meta:
         model = job
@@ -419,20 +455,6 @@ class JobSerializerForFlutter(serializers.ModelSerializer):
     
 
 
-
-
-class PlaceSerializer(GeoFeatureModelSerializer):
-    jobs = JobSerializer(many=True, read_only=True, required=False)
-
-    class Meta:
-        model = Place
-        geo_field = 'coordinates'
-        fields = ['id', 'name', 'coordinates', 'address', 'province', 'county', 'city', 'district', 'jobs']
-        extra_kwargs = {
-            'province': {'allow_null': True},
-            'city': {'allow_null': True},
-            'district': {'allow_null': True},
-        }
 
 
 
