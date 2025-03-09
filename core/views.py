@@ -14,7 +14,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import user_passes_test
 from .forms import UserForm, JobForm, JobHoursForm, TimeSlotForm
 from rest_framework import status
-from .serializers import JobSerializerForFlutter, VillageSerializer, ProvinceSerializer, UserSerializer, CategoryJobsSerializer, JobLinksSerializer
+from .serializers import PlaceSerializerForFlutter, JobSerializerForFlutter, VillageSerializer, ProvinceSerializer, UserSerializer, CategoryJobsSerializer, JobLinksSerializer
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.db.models import Q
 from django.contrib.gis.geos import GEOSGeometry
@@ -984,6 +984,8 @@ def get_independent_jobs_and_commercial_places(request):
     province_id = request.query_params.get('province')
     county_id = request.query_params.get('county')
     city_id = request.query_params.get('city')
+    district_id = request.query_params.get('district')  # دریافت district_id
+    village_id = request.query_params.get('village')  # دریافت village_id
     category_id = request.query_params.get('category')
     min_lat = request.query_params.get('min_lat')  # حداقل عرض جغرافیایی
     max_lat = request.query_params.get('max_lat')  # حداکثر عرض جغرافیایی
@@ -1003,6 +1005,10 @@ def get_independent_jobs_and_commercial_places(request):
         independent_jobs = independent_jobs.filter(county_id=county_id)
     if city_id:
         independent_jobs = independent_jobs.filter(city_id=city_id)
+    if district_id:  # اعمال فیلتر district
+        independent_jobs = independent_jobs.filter(district_id=district_id)
+    if village_id:  # اعمال فیلتر village
+        independent_jobs = independent_jobs.filter(village_id=village_id)
     if category_id:
         independent_jobs = independent_jobs.filter(category_place__category_id=category_id)
     if min_lat and max_lat and min_lng and max_lng:  # فیلتر بر اساس محدوده جغرافیایی
@@ -1027,6 +1033,10 @@ def get_independent_jobs_and_commercial_places(request):
         commercial_places = commercial_places.filter(county_id=county_id)
     if city_id:
         commercial_places = commercial_places.filter(city_id=city_id)
+    if district_id:  # اعمال فیلتر district
+        commercial_places = commercial_places.filter(district_id=district_id)
+    if village_id:  # اعمال فیلتر village
+        commercial_places = commercial_places.filter(village_id=village_id)
     if category_id:
         # فیلتر مکان‌ها بر اساس دسته‌بندی مشاغل
         commercial_places = commercial_places.filter(jobs__category_place__category_id=category_id).distinct()
@@ -1088,6 +1098,14 @@ class JobDetailAPIView(APIView):
 
 
 
-
-
-
+class PlaceDetailAPIView(APIView):
+    def get(self, request, id):
+        try:
+            place = Place.objects.get(id=id)
+            serializer = PlaceSerializerForFlutter(place)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Place.DoesNotExist:
+            return Response({"error": "مکان مورد نظر یافت نشد."}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            print(f"خطا: {str(e)}")
+            return Response({"error": "خطای سرور رخ داده است."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
