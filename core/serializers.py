@@ -329,6 +329,25 @@ class JobLinksSerializer(serializers.ModelSerializer):
 
 
 
+
+class JobSerializer(GeoFeatureModelSerializer):
+    class Meta:
+        model = job
+        geo_field = 'coordinates'
+        fields = '__all__'
+        extra_kwargs = {
+            'coordinates': {'allow_null': True}
+        }
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        if not instance.coordinates:
+            representation['coordinates'] = None
+        return representation
+    
+
+    
+
 class PlaceSerializer(GeoFeatureModelSerializer):
     jobs = JobSerializer(many=True, read_only=True, required=False)
 
@@ -394,20 +413,7 @@ class JobLinksSerializerForFlutter(serializers.ModelSerializer):
     
 
 
-class JobSerializer(GeoFeatureModelSerializer):
-    class Meta:
-        model = job
-        geo_field = 'coordinates'
-        fields = '__all__'
-        extra_kwargs = {
-            'coordinates': {'allow_null': True}
-        }
 
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
-        if not instance.coordinates:
-            representation['coordinates'] = None
-        return representation
     
 
 
