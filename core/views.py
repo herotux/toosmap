@@ -31,6 +31,8 @@ from .decorators import role_required
 from rest_framework import viewsets
 from .models import Place, job
 from django.db.models import Count
+from django.contrib.gis.geos import Polygon
+
 import logging
 
 logger = logging.getLogger(__name__)
@@ -979,7 +981,7 @@ class ProvinceView(APIView):
 @api_view(['GET'])
 def get_independent_jobs_and_commercial_places(request):
     logger.debug("Starting get_independent_jobs_and_commercial_places")
-    
+
     # دریافت پارامترهای فیلتر
     province_id = request.query_params.get('province')
     county_id = request.query_params.get('county')
@@ -1013,16 +1015,10 @@ def get_independent_jobs_and_commercial_places(request):
         independent_jobs = independent_jobs.filter(category_place__category_id=category_id)
     if min_lat and max_lat and min_lng and max_lng:  # فیلتر بر اساس محدوده جغرافیایی
         try:
-            min_lat = float(min_lat)
-            max_lat = float(max_lat)
-            min_lng = float(min_lng)
-            max_lng = float(max_lng)
-            independent_jobs = independent_jobs.filter(
-                latitude__gte=min_lat,
-                latitude__lte=max_lat,
-                longitude__gte=min_lng,
-                longitude__lte=max_lng
-            )
+            # Create a bounding box polygon
+            bounding_box = Polygon.from_bbox((float(min_lng), float(min_lat), float(max_lng), float(max_lat)))
+            # Filter using spatial lookup
+            independent_jobs = independent_jobs.filter(coordinates__within=bounding_box)
         except ValueError:
             return Response({"error": "Invalid latitude or longitude values."}, status=400)
 
@@ -1042,16 +1038,10 @@ def get_independent_jobs_and_commercial_places(request):
         commercial_places = commercial_places.filter(jobs__category_place__category_id=category_id).distinct()
     if min_lat and max_lat and min_lng and max_lng:  # فیلتر بر اساس محدوده جغرافیایی
         try:
-            min_lat = float(min_lat)
-            max_lat = float(max_lat)
-            min_lng = float(min_lng)
-            max_lng = float(max_lng)
-            commercial_places = commercial_places.filter(
-                latitude__gte=min_lat,
-                latitude__lte=max_lat,
-                longitude__gte=min_lng,
-                longitude__lte=max_lng
-            )
+            # Create a bounding box polygon
+            bounding_box = Polygon.from_bbox((float(min_lng), float(min_lat), float(max_lng), float(max_lat)))
+            # Filter using spatial lookup
+            commercial_places = commercial_places.filter(coordinates__within=bounding_box)
         except ValueError:
             return Response({"error": "Invalid latitude or longitude values."}, status=400)
 
