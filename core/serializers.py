@@ -362,21 +362,6 @@ class PlaceSerializer(GeoFeatureModelSerializer):
         }
 
 
-class PlaceSerializerForFlutter(serializers.ModelSerializer):
-    coordinates_display = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Place
-        fields = [
-            'id', 'name', 'slug', 'coordinates', 'coordinates_display',
-            'address', 'province', 'county', 'city', 'district',
-            'created_at', 'updated_at'
-        ]
-
-    def get_coordinates_display(self, obj):
-        if obj.coordinates:
-            return f"طول: {obj.coordinates.x:.6f}, عرض: {obj.coordinates.y:.6f}"
-        return "تعیین نشده"
 
 
 
@@ -424,8 +409,8 @@ class JobSerializerForFlutter(serializers.ModelSerializer):
     contacts = serializers.SerializerMethodField()
     links = JobLinksSerializerForFlutter(source='joblinks', many=True, read_only=True)
     hours = serializers.SerializerMethodField()
-    place = PlaceSerializer(read_only=True)  # اضافه کردن PlaceSerializer
-
+    place = PlaceSerializer(read_only=True)
+    category_hierarchy = serializers.SerializerMethodField() 
     class Meta:
         model = job
         fields = [
@@ -437,7 +422,8 @@ class JobSerializerForFlutter(serializers.ModelSerializer):
             'wholesale_sales', 'is_producer', 'unused_product',
             'used_product', 'buyer', 'purchase_in_store',
             'purchase_in_home', 'slang', 'message', 'about',
-            'profile', 'last_active', 'created_at', 'updated_at'
+            'profile', 'last_active', 'created_at', 'updated_at',
+            'category_hierarchy' 
         ]
 
     def get_contacts(self, obj):
@@ -458,10 +444,54 @@ class JobSerializerForFlutter(serializers.ModelSerializer):
                 shifts.append(f"{start}-{end}")
             hours.append([job_hour.get_day_display(), shifts])
         return hours
+
+    def get_category_hierarchy(self, obj):
+
+        categories = obj.category_place_set.all()
+        hierarchy = []
+
+        for category_place in categories:
+            category = category_place.category
+
+            category_chain = self.get_category_chain(category)
+            hierarchy.append(category_chain)
+
+        return hierarchy
+
+    def get_category_chain(self, category):
+        # ساخت سلسله‌مراتب دسته‌بندی به صورت بازگشتی
+        chain = []
+        current_category = category
+
+        while current_category:
+            chain.insert(0, current_category.name)  
+            current_category = current_category.parent
+
+        return " > ".join(chain)
     
 
 
 
+class PlaceSerializerForFlutter(serializers.ModelSerializer):
+    coordinates_display = serializers.SerializerMethodField()
+    jobs = JobSerializer(many=True, read_only=True, required=False)
+    class Meta:
+        model = Place
+        fields = [
+            'id', 'name', 'slug', 'coordinates', 'coordinates_display',
+            'address', 'province', 'county', 'city', 'district',
+            'jobs'
+        ]
+        extra_kwargs = {
+            'province': {'allow_null': True},
+            'city': {'allow_null': True},
+            'district': {'allow_null': True},
+        }
+
+    def get_coordinates_display(self, obj):
+        if obj.coordinates:
+            return f"طول: {obj.coordinates.x:.6f}, عرض: {obj.coordinates.y:.6f}"
+        return "تعیین نشده"
 
 
 

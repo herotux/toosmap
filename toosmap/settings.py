@@ -223,3 +223,6 @@ CSRF_TRUSTED_ORIGINS = [
 #         'rest_framework_simplejwt.authentication.JWTAuthentication',
 #     ),
 # }
+
+
+LIMOSMS_API_KEY = "xxxx-xxxx-xxxx-xxxxx"
