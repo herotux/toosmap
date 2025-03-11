@@ -32,10 +32,16 @@ from rest_framework import viewsets
 from .models import Place, job
 from django.db.models import Count
 from django.contrib.gis.geos import Polygon
+from .services import LimoSMSClient
+
+
+
 
 import logging
 
 logger = logging.getLogger(__name__)
+
+
 
 
 class IsAdminUser(permissions.BasePermission):
