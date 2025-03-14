@@ -23,7 +23,7 @@ from django.contrib.auth import logout
 import json
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-from .serializers import CountySerializer, CitySerializer, DistrictSerializer, CategoryJobSerializer, JobHoursSerializer, TimeSlotSerializer, JobSerializer, PlaceSerializer
+from .serializers import SettingSerializer, CountySerializer, CitySerializer, DistrictSerializer, CategoryJobSerializer, JobHoursSerializer, TimeSlotSerializer, JobSerializer, PlaceSerializer
 from rest_framework.decorators import api_view
 from django.db import IntegrityError
 from rest_framework import permissions
@@ -1105,3 +1105,14 @@ class PlaceDetailAPIView(APIView):
         except Exception as e:
             print(f"خطا: {str(e)}")
             return Response({"error": "خطای سرور رخ داده است."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+
+class VersionSettingView(APIView):
+    def get(self, request):
+        try:
+            version_setting = setting.objects.get(label='version')
+            serializer = SettingSerializer(version_setting)
+            return Response(serializer.data)
+        except setting.DoesNotExist:
+            return Response({"error": "Setting with label 'version' not found."}, status=404)

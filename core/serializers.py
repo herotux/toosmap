@@ -10,7 +10,7 @@ from rest_framework_gis.serializers import GeoFeatureModelSerializer
 from shapely.geometry import Polygon
 from django.db.models import Count
 
-
+from .models import setting
 
 
 
@@ -560,3 +560,11 @@ class ProvinceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Province
         fields = ['id', 'name', 'counties', 'job_count']
+
+
+
+
+class SettingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = setting
+        fields = ['name', 'label', 'value', 'updated_at']
