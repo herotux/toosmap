@@ -474,7 +474,7 @@ class JobSerializerForFlutter(serializers.ModelSerializer):
 
 class PlaceSerializerForFlutter(serializers.ModelSerializer):
     coordinates_display = serializers.SerializerMethodField()
-    jobs = JobSerializer(many=True, read_only=True, required=False)
+    jobs = JobSerializerForFlutter(many=True, read_only=True, required=False)
     class Meta:
         model = Place
         fields = [
@@ -495,6 +495,7 @@ class PlaceSerializerForFlutter(serializers.ModelSerializer):
 
 
 
+from django.contrib.gis.geos import Polygon, Point, LineString
 
 class DistrictSerializer(serializers.ModelSerializer):
     centroid = serializers.SerializerMethodField()
@@ -507,6 +508,11 @@ class DistrictSerializer(serializers.ModelSerializer):
     def get_centroid(self, obj):
         if obj.geometry:
             if isinstance(obj.geometry, Polygon):
+                centroid = obj.geometry.centroid
+                return {"type": "Point", "coordinates": [centroid.x, centroid.y]}
+            elif isinstance(obj.geometry, Point):
+                return {"type": "Point", "coordinates": [obj.geometry.x, obj.geometry.y]}
+            elif isinstance(obj.geometry, LineString):
                 centroid = obj.geometry.centroid
                 return {"type": "Point", "coordinates": [centroid.x, centroid.y]}
         return None
