@@ -33,7 +33,7 @@ from .models import Place, job
 from django.db.models import Count
 from django.contrib.gis.geos import Polygon
 from .services import LimoSMSClient
-
+import re
 
 
 
@@ -982,6 +982,11 @@ class ProvinceView(APIView):
     
 
 
+def clean_text(text):
+    # حذف فاصله‌های اضافی و نیم‌فاصله
+    text = re.sub(r'\s+', ' ', text).strip()
+    return text
+
 
 
 @api_view(['GET'])
@@ -1006,7 +1011,7 @@ def get_independent_jobs_and_commercial_places(request):
     # فیلتر کردن مشاغل
     independent_jobs = job.objects.filter(place__isnull=True, coordinates__isnull=False)  # مشاغل مستقل
     commercial_places = Place.objects.all()  # همه مکان‌ها
-
+    name = clean_text(name)
     # اعمال فیلترها روی مشاغل مستقل
     if province_id:
         independent_jobs = independent_jobs.filter(province_id=province_id)
