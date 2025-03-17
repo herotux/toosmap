@@ -1011,7 +1011,7 @@ def get_independent_jobs_and_commercial_places(request):
     # فیلتر کردن مشاغل
     independent_jobs = job.objects.filter(place__isnull=True, coordinates__isnull=False)  # مشاغل مستقل
     commercial_places = Place.objects.all()  # همه مکان‌ها
-    name = clean_text(name)
+    
     # اعمال فیلترها روی مشاغل مستقل
     if province_id:
         independent_jobs = independent_jobs.filter(province_id=province_id)
@@ -1025,8 +1025,18 @@ def get_independent_jobs_and_commercial_places(request):
         independent_jobs = independent_jobs.filter(village_id=village_id)
     if category_id:
         independent_jobs = independent_jobs.filter(category_place__category_id=category_id)
-    if name:  # اعمال فیلتر بر اساس نام
-        independent_jobs = independent_jobs.filter(store_name__icontains=name)  # جستجو در فیلد name
+    if name:
+        print("جستجو برای نام:", name)
+        print("تعداد مشاغل قبل از فیلتر:", independent_jobs.count())
+        name = clean_text(name)
+        # تقسیم متن جستجو به کلمات جداگانه
+        search_terms = name.split()
+        query = Q()
+        for term in search_terms:
+            query &= Q(store_name__icontains=term)
+        independent_jobs = independent_jobs.filter(query)
+
+        print("تعداد مشاغل بعد از فیلتر:", independent_jobs.count())
     if min_lat and max_lat and min_lng and max_lng:  # فیلتر بر اساس محدوده جغرافیایی
         try:
             # Create a bounding box polygon
@@ -1051,6 +1061,7 @@ def get_independent_jobs_and_commercial_places(request):
         # فیلتر مکان‌ها بر اساس دسته‌بندی مشاغل
         commercial_places = commercial_places.filter(jobs__category_place__category_id=category_id).distinct()
     if name:  # اعمال فیلتر بر اساس نام
+        name = clean_text(name)
         commercial_places = commercial_places.filter(name__icontains=name)  # جستجو در فیلد name
     if min_lat and max_lat and min_lng and max_lng:  # فیلتر بر اساس محدوده جغرافیایی
         try:
