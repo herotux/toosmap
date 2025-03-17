@@ -1021,7 +1021,7 @@ def get_independent_jobs_and_commercial_places(request):
     if category_id:
         independent_jobs = independent_jobs.filter(category_place__category_id=category_id)
     if name:  # اعمال فیلتر بر اساس نام
-        independent_jobs = independent_jobs.filter(name__icontains=name)  # جستجو در فیلد name
+        independent_jobs = independent_jobs.filter(store_name__icontains=name)  # جستجو در فیلد name
     if min_lat and max_lat and min_lng and max_lng:  # فیلتر بر اساس محدوده جغرافیایی
         try:
             # Create a bounding box polygon
