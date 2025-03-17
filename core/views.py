@@ -999,6 +999,7 @@ def get_independent_jobs_and_commercial_places(request):
     max_lat = request.query_params.get('max_lat')  # حداکثر عرض جغرافیایی
     min_lng = request.query_params.get('min_lng')  # حداقل طول جغرافیایی
     max_lng = request.query_params.get('max_lng')  # حداکثر طول جغرافیایی
+    name = request.query_params.get('name')  # دریافت نام برای فیلتر
     page = int(request.query_params.get('page', 1))  # شماره صفحه (پیش‌فرض: 1)
     page_size = int(request.query_params.get('page_size', 30))  # تعداد نتایج در هر صفحه (پیش‌فرض: 30)
 
@@ -1019,6 +1020,8 @@ def get_independent_jobs_and_commercial_places(request):
         independent_jobs = independent_jobs.filter(village_id=village_id)
     if category_id:
         independent_jobs = independent_jobs.filter(category_place__category_id=category_id)
+    if name:  # اعمال فیلتر بر اساس نام
+        independent_jobs = independent_jobs.filter(name__icontains=name)  # جستجو در فیلد name
     if min_lat and max_lat and min_lng and max_lng:  # فیلتر بر اساس محدوده جغرافیایی
         try:
             # Create a bounding box polygon
@@ -1042,6 +1045,8 @@ def get_independent_jobs_and_commercial_places(request):
     if category_id:
         # فیلتر مکان‌ها بر اساس دسته‌بندی مشاغل
         commercial_places = commercial_places.filter(jobs__category_place__category_id=category_id).distinct()
+    if name:  # اعمال فیلتر بر اساس نام
+        commercial_places = commercial_places.filter(name__icontains=name)  # جستجو در فیلد name
     if min_lat and max_lat and min_lng and max_lng:  # فیلتر بر اساس محدوده جغرافیایی
         try:
             # Create a bounding box polygon
