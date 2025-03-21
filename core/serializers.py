@@ -558,6 +558,47 @@ class CountySerializer(serializers.ModelSerializer):
         data = super().to_representation(instance)
         
         return data
+    
+
+
+
+class NextCountySerializer(serializers.ModelSerializer):
+    cities = serializers.SerializerMethodField()
+    villages = serializers.SerializerMethodField()
+    districts = serializers.SerializerMethodField()
+    job_count = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = County
+        fields = ['id', 'name', 'coordinates', 'cities', 'villages', 'districts', 'job_count']
+
+    def get_cities(self, obj):
+        # فقط اگر type مشخص شده باشد، شهرها برگردانده می‌شوند
+        if self.context.get('include_details', False):
+            return CitySerializer(
+                City.objects.filter(county_id=obj.id).annotate(job_count=Count('job')),
+                many=True
+            ).data
+        return []
+
+    def get_villages(self, obj):
+        # فقط اگر type مشخص شده باشد، روستاها برگردانده می‌شوند
+        if self.context.get('include_details', False):
+            return VillageSerializer(
+                Village.objects.filter(county_id=obj.id).annotate(job_count=Count('job')),
+                many=True
+            ).data
+        return []
+
+    def get_districts(self, obj):
+        # فقط اگر type مشخص شده باشد، مناطق برگردانده می‌شوند
+        if self.context.get('include_details', False):
+            return DistrictSerializer(
+                District.objects.filter(county_id=obj.id).annotate(job_count=Count('job')),
+                many=True
+            ).data
+        return []
+    
 
 class ProvinceSerializer(serializers.ModelSerializer):
     counties = CountySerializer(many=True, read_only=True)
@@ -566,6 +607,14 @@ class ProvinceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Province
         fields = ['id', 'name', 'counties', 'job_count']
+
+
+class NextProvinceSerializer(serializers.ModelSerializer):
+    job_count = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Province
+        fields = ['id', 'name', 'coordinates', 'job_count']
 
 
 

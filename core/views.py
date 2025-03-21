@@ -14,7 +14,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import user_passes_test
 from .forms import UserForm, JobForm, JobHoursForm, TimeSlotForm
 from rest_framework import status
-from .serializers import PlaceSerializerForFlutter, JobSerializerForFlutter, VillageSerializer, ProvinceSerializer, UserSerializer, CategoryJobsSerializer, JobLinksSerializer
+from .serializers import NextProvinceSerializer, NextCountySerializer, PlaceSerializerForFlutter, JobSerializerForFlutter, VillageSerializer, ProvinceSerializer, UserSerializer, CategoryJobsSerializer, JobLinksSerializer
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.db.models import Q
 from django.contrib.gis.geos import GEOSGeometry
@@ -980,6 +980,88 @@ class ProvinceView(APIView):
 
         return Response(response_data)
     
+
+
+
+class LocationView(APIView):
+    def get(self, request):
+        province_id = request.query_params.get('province_id')
+        county_id = request.query_params.get('county_id')
+        location_type = request.query_params.get('type')
+
+        if province_id:
+            # دریافت شهرستان‌های مرتبط با استان
+            counties = County.objects.filter(province_id=province_id).annotate(job_count=Count('cities__job'))
+
+            if location_type:
+                # اگر type مشخص شده باشد، شهرها، روستاها و مناطق هر شهرستان نیز برگردانده می‌شوند
+                serializer = NextCountySerializer(
+                    counties,
+                    many=True,
+                    context={'include_details': True}  # شامل شهرها، روستاها و مناطق
+                )
+                return Response({"counties": serializer.data})
+            else:
+                # اگر type مشخص نشده باشد، فقط شهرستان‌ها برگردانده می‌شوند
+                serializer = NextCountySerializer(
+                    counties,
+                    many=True,
+                    context={'include_details': False}  # فقط شهرستان‌ها
+                )
+                return Response({"counties": serializer.data})
+
+        elif county_id:
+            if location_type:
+                # اگر type مشخص شده باشد، فقط همان نوع برگردانده می‌شود
+                if location_type == 'city':
+                    cities = City.objects.filter(county_id=county_id).annotate(job_count=Count('job'))
+                    serializer = CitySerializer(cities, many=True)
+                    return Response({"cities": serializer.data})
+
+                elif location_type == 'village':
+                    villages = Village.objects.filter(county_id=county_id).annotate(job_count=Count('job'))
+                    serializer = VillageSerializer(villages, many=True)
+                    return Response({"villages": serializer.data})
+
+                elif location_type == 'district':
+                    districts = District.objects.filter(county_id=county_id).annotate(job_count=Count('job'))
+                    serializer = DistrictSerializer(districts, many=True)
+                    return Response({"districts": serializer.data})
+
+                else:
+                    return Response({"error": "نوع نامعتبر است."}, status=400)
+            else:
+                # اگر type مشخص نشده باشد، همه‌ی موارد (شهرها، روستاها و مناطق) برگردانده می‌شوند
+                cities = City.objects.filter(county_id=county_id).annotate(job_count=Count('job'))
+                villages = Village.objects.filter(county_id=county_id).annotate(job_count=Count('job'))
+                districts = District.objects.filter(county_id=county_id).annotate(job_count=Count('job'))
+
+                city_serializer = CitySerializer(cities, many=True)
+                village_serializer = VillageSerializer(villages, many=True)
+                district_serializer = DistrictSerializer(districts, many=True)
+
+                return Response({
+                    "cities": city_serializer.data,
+                    "villages": village_serializer.data,
+                    "districts": district_serializer.data
+                })
+
+        else:
+            return Response({"error": "لطفاً province_id یا county_id را ارسال کنید."}, status=400)
+            
+
+
+
+class ProvinceListView(APIView):
+    def get(self, request):
+        # دریافت همه‌ی استان‌ها به‌همراه تعداد مشاغل مرتبط
+        provinces = Province.objects.annotate(job_count=Count('counties__cities__job'))
+
+        # سریالایز کردن داده‌ها
+        serializer =  NextProvinceSerializer(provinces, many=True)
+
+        # برگرداندن پاسخ
+        return Response({"provinces": serializer.data})
 
 
 def clean_text(text):
