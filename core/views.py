@@ -1111,13 +1111,13 @@ def get_independent_jobs_and_commercial_places(request):
         print("جستجو برای نام:", name)
         print("تعداد مشاغل قبل از فیلتر:", independent_jobs.count())
         name = clean_text(name)
-        # تقسیم متن جستجو به کلمات جداگانه
-        search_terms = name.split()
-        query = Q()
-        for term in search_terms:
-            query &= Q(store_name__icontains=term)
-        independent_jobs = independent_jobs.filter(query)
-
+        
+        # ساخت عبارت منظم برای جستجوی اسامی مشابه
+        regex_pattern = f"^{re.escape(name)}"  # جستجو برای اسامی که با عبارت جستجو شروع می‌شوند
+        
+        # اعمال فیلتر با استفاده از regex
+        independent_jobs = independent_jobs.filter(store_name__iregex=regex_pattern)
+        
         print("تعداد مشاغل بعد از فیلتر:", independent_jobs.count())
     if min_lat and max_lat and min_lng and max_lng:  # فیلتر بر اساس محدوده جغرافیایی
         try:
@@ -1142,9 +1142,14 @@ def get_independent_jobs_and_commercial_places(request):
     if category_id:
         # فیلتر مکان‌ها بر اساس دسته‌بندی مشاغل
         commercial_places = commercial_places.filter(jobs__category_place__category_id=category_id).distinct()
-    if name:  # اعمال فیلتر بر اساس نام
+    if name:
         name = clean_text(name)
-        commercial_places = commercial_places.filter(name__icontains=name)  # جستجو در فیلد name
+        
+        # ساخت عبارت منظم برای جستجوی اسامی مشابه
+        regex_pattern = f"^{re.escape(name)}"
+        
+        # اعمال فیلتر با استفاده از regex
+        commercial_places = commercial_places.filter(name__iregex=regex_pattern)
     if min_lat and max_lat and min_lng and max_lng:  # فیلتر بر اساس محدوده جغرافیایی
         try:
             # Create a bounding box polygon
