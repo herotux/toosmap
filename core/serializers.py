@@ -263,8 +263,14 @@ class CategoryJobSerializer(serializers.ModelSerializer):
         return CategoryJobSerializer(children, many=True).data
 
     def get_job_count(self, obj):
-        # محاسبه تعداد job‌ها برای دسته‌بندی فعلی
-        return obj.category_place_set.count() 
+        # محاسبه تعداد job‌ها برای دسته‌بندی فعلی و زیردسته‌های آن
+        total_jobs = obj.category_place_set.count()  # تعداد مشاغل مستقیم این دسته
+        
+        # محاسبه تعداد مشاغل زیردسته‌ها به صورت بازگشتی
+        for child in obj.children.all():
+            total_jobs += self.get_job_count(child)
+        
+        return total_jobs
 
 
 
