@@ -51,6 +51,7 @@ urlpatterns = [
     path('api/categories/', CategoryJobView.as_view(), name='categories'),
     path('api/provinces/', ProvinceListView.as_view(), name='provinces'),
     path('api/locations/', LocationView.as_view(), name='locations'),
+    path('api/all_provinces/', ProvinceView.as_view(), name='provinces'),
     
     path('api/jobs-and-places/', get_independent_jobs_and_commercial_places, name='jobs-and-places'),
     path('api/jobs/<int:id>/', JobDetailAPIView.as_view(), name='job-detail'),
