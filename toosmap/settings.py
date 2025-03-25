@@ -36,6 +36,7 @@ ALLOWED_HOSTS = [
 # Application definition
 
 INSTALLED_APPS = [
+    'corsheaders',
     'rest_framework_gis',
     'leaflet',
     'crispy_forms',
@@ -54,6 +55,9 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'core.middleware.flutter_detection.FlutterRequestMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'core.middleware.custom_cors.FlutterAwareCorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -208,6 +212,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 CSRF_TRUSTED_ORIGINS = [
     'https://jobs-map.chbk.app',
     'http://jobs-map.chbk.app',  # اگر از HTTP هم استفاده می‌کنید
+    "http://localhost:8000",
 ]
 
 
@@ -222,3 +227,33 @@ CSRF_TRUSTED_ORIGINS = [
 
 
 LIMOSMS_API_KEY = "xxxx-xxxx-xxxx-xxxxx"
+
+
+# CORS Settings
+CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOW_CREDENTIALS = True
+
+
+CORS_ALLOWED_ORIGINS = [
+    "https://jobs-map.chbk.app",
+]
+
+# تنظیمات خاص Flutter
+CORS_FLUTTER_SETTINGS = {
+    'ALLOWED_METHODS': ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    'ALLOWED_HEADERS': [
+        'accept',
+        'accept-encoding',
+        'authorization',
+        'content-type',
+        'dnt',
+        'origin',
+        'user-agent',
+        'x-csrftoken',
+        'x-requested-with',
+        'x-device-id',
+        'x-app-version'
+    ],
+    'MAX_AGE': 86400,
+}
+
