@@ -230,13 +230,13 @@ LIMOSMS_API_KEY = "xxxx-xxxx-xxxx-xxxxx"
 
 
 # CORS Settings
-CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
 
-CORS_ALLOWED_ORIGINS = [
-    "https://jobs-map.chbk.app",
-]
+# CORS_ALLOWED_ORIGINS = [
+#     "https://jobs-map.chbk.app",
+# ]
 
 # تنظیمات خاص Flutter
 CORS_FLUTTER_SETTINGS = {
