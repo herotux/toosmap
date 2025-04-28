@@ -53,7 +53,56 @@ class IsAdminUser(permissions.BasePermission):
         # بررسی کنید که کاربر دارای نقش admin است
         return role_user.objects.filter(user=request.user, role__name='admin').exists()
     
+# rendering test html pages
+def test1(request):
+    return render(request,'test/categories.html')
+    
+def test2(request):
+    return render(request,'test/complex.html')
+    
+def test3(request):
+    return render(request,'test/createcategories.html')
+    
+def test4(request):
+    return render(request,'test/createcomplex.html')
+    
+def test5(request):
+    return render(request,'test/createplaces.html')
+    
+def test6(request):
+    return render(request,'test/createuser.html')
+    
+def test7(request):
+    return render(request,'test/editroles.html')
+    
+def test8(request):
+    return render(request,'test/editsettings.html')
+    
 
+    
+def test10(request):
+    return render(request,'test/roles.html')
+    
+def test11(request):
+    return render(request,'test/settings.html')
+    
+def test12(request):
+    return render(request,'test/users.html')
+    
+def test13(request):
+    return render(request,'test/createroles.html')
+    
+def test14(request):
+    return render(request,'test/editcategories.html')
+    
+def test15(request):
+    return render(request,'test/editcomplex.html')
+    
+def test16(request):
+    return render(request,'test/edituser.html')
+    
+def test17(request):
+    return render(request,'test/editplaces.html')
 
 def get_categories_hierarchically(categories, parent=None, prefix=''):
     """
@@ -79,7 +128,7 @@ def admin_dashboard(request):
         'name': request.user.username,
         'role': role_user.objects.filter(user=request.user).first().role.name
     }
-    return render(request, 'admin_user/dashboard.html', {'user_info': user_info,'jobcount':jobcount,'usercount':usercount,'catcount':catcount})
+    return render(request, 'admin_user/index.html', {'user_info': user_info,'jobcount':jobcount,'usercount':usercount,'catcount':catcount})
 
 
 

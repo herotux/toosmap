@@ -1,0 +1,397 @@
+{% extends 'mainadmin.html' %}
+
+{% block content %}
+          <div class="col-lg-10 col-md-8 col-xs-12 content-col pl-0">
+            <!-- Content Wrapper. Contains page content -->
+            <div class="content-wrapper">
+              <!-- Content Header (Page header) -->
+
+              <!-- Main content -->
+              <section class="content">
+                <div class="row">
+                  <div class="col-lg-9 col-xs-12">
+                    <div class="row">
+                      <div class="col-xs-12">
+                        <div class="box">
+                          <div class="box-header with-border">
+                            <h3 class="box-title">داشبورد</h3>
+                          </div>
+                          <!-- /.box-header -->
+                          <div class="box-body">
+                            <div class="container-fluid">
+                              <div class="row">
+                                <div class="col-md-12">
+                                  <div
+                                    class="charts"
+                                    style="background: inherit"
+                                  >
+                                    <div
+                                      data-duration="500"
+                                      class="charts-loader enabled"
+                                      style="
+                                        display: none;
+                                        position: relative;
+                                        top: 170px;
+                                        height: 0;
+                                      "
+                                    >
+                                      <center>
+                                        <div
+                                          class="loading-spinner"
+                                          style="
+                                            border: 3px solid #000000;
+                                            border-right-color: transparent;
+                                          "
+                                        ></div>
+                                      </center>
+                                    </div>
+                                    <div class="charts-chart">
+                                      <div
+                                        id="afIblFnyqK"
+                                        style="height: 400px"
+                                      ></div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <!-- /.box-body -->
+                          <div class="box-footer clearfix"></div>
+                          <!-- /.box-footer -->
+                        </div>
+                        <!-- /.box -->
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-lg-3 col-xs-12">
+                    <div class="row">
+                      <div class="col-xs-12">
+                        <!-- small box -->
+                        <div class="small-box box-item">
+                          <div class="inner">
+                            <h3>{{ usercount }}</h3>
+
+                            <p>کل کاربران</p>
+                          </div>
+                          <div class="icon">
+                            <i class="fa fa-users"></i>
+                          </div>
+                          <a
+                            href="/admin/orders"
+                            class="small-box-footer"
+                            >اطلاعات بیشتر
+                            <i class="fa fa-arrow-circle-left"></i
+                          ></a>
+                        </div>
+                      </div>
+                      <!-- ./col -->
+                      <div class="col-xs-12">
+                        <!-- small box -->
+                        <div class="small-box box-item">
+                          <div class="inner">
+                            <h3>{{ jobcount }}</h3>
+
+                            <p>کل مکان‌ها</p>
+                          </div>
+                          <div class="icon">
+                            <i class="fa-solid fa-location-dot"></i>
+                          </div>
+                          <a
+                            href="/admin/users"
+                            class="small-box-footer"
+                            >اطلاعات بیشتر
+                            <i class="fa fa-arrow-circle-left"></i
+                          ></a>
+                        </div>
+                      </div>
+                      <!-- ./col -->
+                      <div class="col-xs-12">
+                        <!-- small box -->
+                        <div class="small-box box-item">
+                          <div class="inner">
+                            <h3>{{ catcount }}</h3>
+
+                            <p>کل دسته‌ها</p>
+                          </div>
+                          <div class="icon">
+                            <i class="fa fa-folder-open"></i>
+                          </div>
+                          <a
+                            href="/admin/categories"
+                            class="small-box-footer"
+                            >اطلاعات بیشتر
+                            <i class="fa fa-arrow-circle-left"></i
+                          ></a>
+                        </div>
+                      </div>
+                      <!-- ./col -->
+                    </div>
+                  </div>
+                </div>
+
+                <!-- /.row -->
+                <script
+                  type="text/javascript"
+                  src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"
+                ></script>
+                <script
+                  type="text/javascript"
+                  src="https://cdn.rawgit.com/Mikhus/canvas-gauges/gh-pages/download/2.1.2/all/gauge.min.js"
+                ></script>
+                <script
+                  type="text/javascript"
+                  src="https://cdnjs.cloudflare.com/ajax/libs/chartist/0.10.1/chartist.min.js"
+                ></script>
+                <script
+                  type="text/javascript"
+                  src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"
+                ></script>
+                <script
+                  type="text/javascript"
+                  src="https://static.fusioncharts.com/code/latest/fusioncharts.js"
+                ></script>
+                <script
+                  type="text/javascript"
+                  src="https://static.fusioncharts.com/code/latest/themes/fusioncharts.theme.fint.js"
+                ></script>
+                <script
+                  type="text/javascript"
+                  src="https://www.google.com/jsapi"
+                ></script>
+                <script
+                  type="text/javascript"
+                  src="https://www.gstatic.com/charts/loader.js"
+                ></script>
+                <script type="text/javascript">
+                  google.charts.load("current", {
+                    packages: ["corechart", "gauge", "geochart", "bar", "line"],
+                  });
+                </script>
+                <script
+                  type="text/javascript"
+                  src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/5.0.7/highcharts.js"
+                ></script>
+                <script
+                  type="text/javascript"
+                  src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/5.0.7/js/modules/offline-exporting.js"
+                ></script>
+                <script
+                  type="text/javascript"
+                  src="https://cdnjs.cloudflare.com/ajax/libs/highmaps/5.0.7/js/modules/map.js"
+                ></script>
+                <script
+                  type="text/javascript"
+                  src="https://cdnjs.cloudflare.com/ajax/libs/highmaps/5.0.7/js/modules/data.js"
+                ></script>
+                <script
+                  type="text/javascript"
+                  src="https://code.highcharts.com/mapdata/custom/world.js"
+                ></script>
+                <script
+                  type="text/javascript"
+                  src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.2.6/raphael.min.js"
+                ></script>
+                <script
+                  type="text/javascript"
+                  src="https://cdnjs.cloudflare.com/ajax/libs/justgage/1.2.2/justgage.min.js"
+                ></script>
+                <script
+                  type="text/javascript"
+                  src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.2.6/raphael.min.js"
+                ></script>
+                <script
+                  type="text/javascript"
+                  src="https://cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.min.js"
+                ></script>
+                <script
+                  type="text/javascript"
+                  src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"
+                ></script>
+                <script
+                  type="text/javascript"
+                  src="https://cdnjs.cloudflare.com/ajax/libs/plottable.js/2.8.0/plottable.min.js"
+                ></script>
+                <script
+                  type="text/javascript"
+                  src="https://cdnjs.cloudflare.com/ajax/libs/progressbar.js/1.0.1/progressbar.min.js"
+                ></script>
+                <script
+                  type="text/javascript"
+                  src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"
+                ></script>
+                <script
+                  type="text/javascript"
+                  src="https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.11/c3.min.js"
+                ></script>
+                <script
+                  type="text/javascript"
+                  src="https://cdnjs.cloudflare.com/ajax/libs/echarts/3.6.2/echarts.min.js"
+                ></script>
+                <script
+                  type="text/javascript"
+                  src="https://cdnjs.cloudflare.com/ajax/libs/amcharts/3.21.2/amcharts.js"
+                ></script>
+                <script
+                  type="text/javascript"
+                  src="https://cdnjs.cloudflare.com/ajax/libs/amcharts/3.21.2/serial.js"
+                ></script>
+                <script
+                  type="text/javascript"
+                  src="https://cdnjs.cloudflare.com/ajax/libs/amcharts/3.21.2/plugins/export/export.min.js"
+                ></script>
+                <script
+                  type="text/javascript"
+                  src="https://cdnjs.cloudflare.com/ajax/libs/amcharts/3.21.2/themes/light.js"
+                ></script>
+                <script>
+                  $(function () {
+                    $(".charts").each(function () {
+                      var chart = $(this).find(".charts-chart");
+                      var loader = $(this).find(".charts-loader");
+                      var time = loader.data("duration");
+
+                      if (loader.hasClass("enabled")) {
+                        chart.css({ visibility: "hidden" });
+                        loader.fadeIn(350);
+
+                        setTimeout(function () {
+                          loader.fadeOut(350, function () {
+                            chart
+                              .css({ opacity: 0, visibility: "visible" })
+                              .animate({ opacity: 1 }, 350);
+                          });
+                        }, time);
+                      }
+                    });
+                  });
+                </script>
+
+                <script type="text/javascript">
+                  var afIblFnyqK;
+                  FusionCharts.ready(function () {
+                    afIblFnyqK = new FusionCharts({
+                      type: "column2d",
+                      renderAt: "afIblFnyqK",
+                      height: "400px",
+
+                      width: "100%",
+                      dataFormat: "json",
+                      dataSource: {
+                        chart: {
+                          exportenabled: "1",
+                          baseFont: "Anisa",
+                          exportatclient: "1",
+                          caption: "تعداد کاربران ثبت‌نامی در ۱۲ ماه اخیر",
+                          yAxisName: "تعداد",
+                          paletteColors: "#0075c2",
+                          bgColor: "#ffffff",
+                          borderAlpha: "20",
+                          canvasBorderAlpha: "0",
+                          usePlotGradientColor: "0",
+                          plotBorderAlpha: "10",
+                          rotatevalues: "1",
+                          valueFontColor: "#ffffff",
+                          showXAxisLine: "1",
+                          xAxisLineColor: "#999999",
+                          divlineColor: "#999999",
+                          divLineIsDashed: "1",
+                          showAlternateHGridColor: "0",
+                          subcaptionFontBold: "0",
+                          subcaptionFontSize: "14",
+                        },
+                        data: [
+                          {
+                            label: "فروردین",
+                            value: 0,
+                            color: "#B71C1C",
+                          },
+                          {
+                            label: "اردیبهشت",
+                            value: 0,
+                            color: "#F44336",
+                          },
+                          {
+                            label: "خرداد",
+                            value: 11,
+                            color: "#E57373",
+                          },
+                          {
+                            label: "تیر",
+                            value: 0,
+                            color: "#B71C1C",
+                          },
+                          {
+                            label: "مرداد",
+                            value: 2,
+                            color: "#F44336",
+                          },
+                          {
+                            label: "شهریور",
+                            value: 1,
+                            color: "#E57373",
+                          },
+                          {
+                            label: "مهر",
+                            value: 11,
+                            color: "#B71C1C",
+                          },
+                          {
+                            label: "آبان",
+                            value: 0,
+                            color: "#F44336",
+                          },
+                          {
+                            label: "آذر",
+                            value: 5,
+                            color: "#E57373",
+                          },
+                          {
+                            label: "دی",
+                            value: 0,
+                            color: "#B71C1C",
+                          },
+                          {
+                            label: "بهمن",
+                            value: 0,
+                            color: "#F44336",
+                          },
+                          {
+                            label: "اسفند",
+                            value: 1,
+                            color: "#E57373",
+                          },
+                        ],
+                      },
+                    }).render();
+                  });
+                </script>
+              </section>
+              <!-- /.content -->
+            </div>
+          </div>
+{% endblock content %}
+
+{% block scripts %}
+    <script>
+      $(document).ready(function () {
+        $(".pagination").addClass("pagination-sm no-margin pull-right");
+        $(".close-callout").click(function () {
+          $(this).parentsUntil(".pad").remove();
+        });
+      });
+    </script>
+    <script>
+      $(document).ready(function () {
+        $(".close-callout").click(function () {
+          $(this).parentsUntil(".pad").remove();
+        });
+      });
+    </script>
+    <script>
+      $(".sidebar-toggle").click(function () {
+        $(".side-col").toggleClass("col-lg-1 col-md-2");
+        $(".content-col").toggleClass("col-lg-11 col-md-10");
+      });
+    </script>
+{% endblock %}

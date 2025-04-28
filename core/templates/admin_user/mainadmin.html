@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <title>یافتم</title>
+    <meta
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+      name="viewport"
+    />
+    
+    <!--Tinymce-->
+    {% block style %}
+    
+    {% endblock %}
+    {% load static %}
+    
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      id="u0"
+      href="{% static 'test/admin/js/js/tinymce/skins/lightgray/skin.min.css' %}"
+    />
+    <!-- Bootstrap 3.3.6 -->
+    <link rel="stylesheet" href="{% static 'test/admin/styles/bootstrap.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'test/admin/styles/bootstrap-toggle.min.css' %}" />
+    <link
+      rel="stylesheet"
+      href="{% static 'test/admin/styles/bootstrap-rtl.min.css' %}"
+    />
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <!-- Theme style -->
+    <link rel="stylesheet" href="{% static 'test/admin/styles/AdminLTE.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'test/admin/styles/AdminLTE-rtl.min.css' %}" />
+    <!-- AdminLTE Skins. Choose a skin from the css/skins
+     folder instead of downloading all of them to reduce the load. -->
+    <link
+      rel="stylesheet"
+      href="{% static 'test/admin/styles/_all-skins-rtl.min.css' %}"
+    />
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/chartist/0.10.1/chartist.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/plottable.js/2.2.0/plottable.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.11/c3.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/amcharts/3.21.2/plugins/export/export.css"
+    />
+  </head>
+  <body class="hold-transition skin-purple-light sidebar-mini">
+    <div
+      class="modal modal-static fade"
+      id="processing-modal"
+      role="dialog"
+      aria-hidden="true"
+      data-keyboard="false"
+      data-backdrop="static"
+    >
+      <div class="modal-dialog">
+        <div class="spinner">
+          <div class="dot1"></div>
+          <div class="dot2"></div>
+        </div>
+      </div>
+    </div>
+    <div class="wrapper">
+      <header class="main-header">
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <!-- Logo -->
+        <a href="/" class="logo">
+          <!-- mini logo for sidebar mini 50x50 pixels -->
+          <span class="logo-mini"><b>Y</b>F</span>
+          <!-- logo for regular state and mobile devices -->
+          <span class="logo-lg"><b>یافتم</b></span>
+        </a>
+        <!-- Header Navbar: style can be found in header.less -->
+        <nav class="navbar navbar-static-top">
+          <!-- Sidebar toggle button-->
+          <a
+            href="#"
+            class="sidebar-toggle"
+            data-toggle="offcanvas"
+            role="button"
+          >
+            <span class="sr-only">Toggle navigation</span>
+          </a>
+
+          <div class="navbar-custom-menu">
+            <ul class="nav navbar-nav">
+              <!-- User Account: style can be found in dropdown.less -->
+              <li class="dropdown user user-menu">
+                <a href="#" class="dropdown-toggle">
+                  <i class="fa fa-user"></i>
+                  <span class="hidden-xs">{{ current_user.first_name }} </span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </nav>
+      </header>
+      <!-- Left side column. contains the logo and sidebar -->
+
+      <div class="container-fluid main-container">
+        <div class="row">
+          <div class="col-lg-2 col-md-4 col-xs-12 p-0 side-col">
+            <aside class="main-sidebar">
+              <!-- sidebar: style can be found in sidebar.less -->
+              <section class="sidebar">
+                <!-- Sidebar user panel -->
+                <div class="user-panel">
+                  <div class="pull-left image">
+                    <i class="fa fa-user img-circle" style="font-size: 30px;"></i>
+                  </div>
+                  <div class="pull-left info">
+                    <p>{{ current_user.first_name }} {{ current_user.last_name }}</p>
+                    <span class="text-muted">{{ user_role }}</span>
+                  </div>
+                </div>
+                <!-- sidebar menu: : style can be found in sidebar.less -->
+                <ul class="sidebar-menu">
+                  <li class="header">پنل مدیریت</li>
+                  <li class="active treeview">
+                    <a href="/admin/dashboard" class="nav-link">
+                      <i class="fa fa-dashboard"></i>
+                      <span class="title">داشبورد</span>
+                    </a>
+                  </li>
+                  <li class="treeview">
+                    <a href="#">
+                      <i class="fa fa-location-dot"></i>
+                      <span>مکان‌ها</span>
+                      <span class="pull-right-container">
+                        <i class="fa fa-angle-left pull-right"></i>
+                      </span>
+                    </a>
+                    <ul class="treeview-menu">
+                      <li class="nav-item">
+                        <a href="/admin/categories" class="nav-link">
+                          <span class="fa fa-circle-o"></span>
+                          <span class="title">دسته‌بندی‌ها</span>
+                        </a>
+                      </li>
+                      <li class="nav-item">
+                        <a href="/admin/categories" class="nav-link">
+                          <span class="fa fa-circle-o"></span>
+                          <span class="title">جستو یا درج مکان</span>
+                        </a>
+                      </li>
+                      <li class="nav-item">
+                        <a href="/admin/categories" class="nav-link">
+                          <span class="fa fa-circle-o"></span>
+                          <span class="title">مراکز چندواحدی</span>
+                        </a>
+                      </li>
+                    </ul>
+                  </li>
+                  <li class="treeview">
+                    <a href="#">
+                      <i class="fa fa-users"></i>
+                      <span>سیستم</span>
+                      <span class="pull-right-container">
+                        <i class="fa fa-angle-left pull-right"></i>
+                      </span>
+                    </a>
+                    <ul class="treeview-menu">
+                      <li class="nav-item">
+                        <a href="/admin/settings" class="nav-link">
+                          <span class="fa fa-circle-o"></span>
+                          <span class="title">تنظیمات</span>
+                        </a>
+                      </li>
+                      <li class="nav-item">
+                        <a href="/admin/orders" class="nav-link">
+                          <span class="fa fa-circle-o"></span>
+                          <span class="title">نقش‌های کاربری</span>
+                        </a>
+                      </li>
+                      <li class="nav-item">
+                        <a href="/admin/users" class="nav-link">
+                          <span class="fa fa-circle-o"></span>
+                          <span class="title">کاربران</span>
+                        </a>
+                      </li>
+                    </ul>
+                  </li>
+                  <li>
+                    <a
+                      href="/logout"
+                      onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
+                      class="dropdown-item"
+                    >
+                      <i class="fa fa-unlock"></i> <span>خروج از سیستم</span>
+                    </a>
+                    <form
+                      id="logout-form"
+                      action="/logout"
+                      method="POST"
+                      style="display: none"
+                    >
+                      <input
+                        type="hidden"
+                        name="_token"
+                        value="ZopUcPw8uSNjwfbSKGl6U0dWCzFkLR97L9tlAHNk"
+                      />
+                    </form>
+                  </li>
+                </ul>
+              </section>
+              <!-- /.sidebar -->
+            </aside>
+          </div>
+          {% block content %}
+		  
+          {% endblock %}
+        </div>
+      </div>
+    </div>
+    <script src="{% static 'test/admin/js/js/jQuery/jquery-2.2.3.min.js' %}"></script>
+    <script src="{% static 'test/admin/js/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'test/admin/js/js/app.min.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>>
+    <script src="{% static 'test/admin/js/js/tinymce/tinymce.min.js' %}"></script>
+	<script src="{% static 'test/admin/js/js/bootstrap-toggle.min.js' %}"></script>
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+     crossorigin=""/>
+	<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+     crossorigin=""></script>
+
+    {% block scripts %}
+	
+	{% endblock %}
+  </body>
+</html>
