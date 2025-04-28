@@ -26,7 +26,10 @@ SECRET_KEY = 'django-insecure-!ud@l0lm^63674))lf=$)sg$!^1=bw4^8klo%a4sxwzs$oe$ll
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+
+
 ALLOWED_HOSTS = [
+    'yaftam.com',
     'jobs-map.chbk.app',
     'localhost',  # برای توسعه محلی
     '127.0.0.1',  # برای توسعه محلی
@@ -159,7 +162,7 @@ USE_TZ = True
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 STATIC_URL = 'static/' 
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles') 
+STATIC_ROOT = os.path.join(BASE_DIR, 'static') 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
@@ -218,6 +221,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
 CSRF_TRUSTED_ORIGINS = [
+    'https://yaftam.com',
     'https://jobs-map.chbk.app',
     'http://jobs-map.chbk.app',  # اگر از HTTP هم استفاده می‌کنید
     "http://localhost:8000",
