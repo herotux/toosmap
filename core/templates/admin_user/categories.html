@@ -1,250 +1,275 @@
 {% extends 'mainadmin.html' %}
+{% block title %}مدیریت دسته‌بندی‌ها{% endblock %}
+{% load static %}
+
 {% block style %}
+<link rel="stylesheet" href="{% static 'css/categories.css' %}">
 <style>
-    .custom-controls {
+    /* استایل‌های هدر آبی */
+    .container_header {
+        display: block;
+    }
+    .form-header {
+        background-color: #bfdefd; /* آبی روشن */
+        color: #333; /* متن تیره */
+        padding: 15px 25px;
+        border-radius: 8px 8px 0 0;
         display: flex;
-        justify-content: space-between;
+        justify-content: space-between; /* عناصر را در دو طرف قرار می‌دهد */
         align-items: center;
-        margin-bottom: 10px;
     }
-    @media only screen and (max-width: 768px) {
-        .dt-paging {
-            margin-right: 10px!important;
-            margin-left: 10px!important;
-        }
+    .form-header h2 {
+        margin: 0;
+        font-size: 18px;
     }
-    div.dt-container div.dt-info {
-        text-align:right!important;
+    .form-header a {
+        text-decoration: none;
+        color: #333; /* متن تیره */
     }
-    .dt-paging, .dt-search {
-        white-space: nowrap; 
+    .form-header a:hover {
+        color: #000; /* متن سیاه هنگام هاور */
     }
-    .info-section {
-        margin-bottom: 10px;
+    .btn-toggle-status {
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 4px;
+        cursor: pointer;
     }
-    th {
-        text-align: right!important;
+    .btn-toggle-status[data-current-status="false"] {
+        background-color: #28a745;
+    }
+    .btn-toggle-status:hover {
+        opacity: 0.8;
     }
     .pagination {
         margin: 20px 0 !important;
     }
 </style>
-<link href="https://cdn.datatables.net/v/bs/dt-2.2.2/datatables.min.css" rel="stylesheet" integrity="sha384-xd6yqpSXZRZVl62sBIxyT2i4xVlfaxWVjVQB7qsVte0qEr3iepsBrLi/awgmIoPV" crossorigin="anonymous">
 {% endblock %}
+
 {% block content %}
-<div class="content-col pl-0">
-    <div class="col-lg-10 col-md-8 col-xs-12 content-col pl-0">
-        <div class="content-wrapper" style="min-height: 750px">
-            <section class="content">
-                <div class="row">
-                    <div class="col-xs-12">
-                        <div class="box">
-                            <div class="box-header with-border">
-                                <h3 class="box-title">لیست دسته‌بندی‌ها</h3>
-                                <div class="box-tools">
-                                    <div class="input-group input-group-sm">
-                                        <a href="{% url 'add_category' %}" class="btn btn-default btn-sm">
-                                            <span class="fa fa-plus"></span> افزودن دسته‌بندی
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="box-body table-responsive no-padding">
-                                <table class="table table-hover" id="categories">
-                                    <thead>
-                                        <tr>
-                                            <th>#</th>
-                                            <th style="padding-left:70px">نام دسته‌بندی</th>
-                                            <th>ترتیب</th>
-                                            <th>وضعیت</th>
-                                            <th>عملیات</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for category in page_obj %}
-                                        <tr>
-                                            <td>{{ forloop.counter }}</td>
-                                            <td class="demo">
-                                                <span class="category_child" data-type="{{ category.id }}">
-                                                    <i class="plus fa fa-plus-circle"></i>
-                                                </span>
-                                                {{ category.name }}
-                                            </td>
-                                            <td>{{ category.sort_order|default_if_none:"-" }}</td>
-                                            <td>
-                                                {% if category.status %}
-                                                    <span class="label label-success">فعال</span>
-                                                {% else %}
-                                                    <span class="label label-warning">غیرفعال</span>
-                                                {% endif %}
-                                            </td>
-                                            <td>
-                                                <a href="{% url 'edit_category' category.id %}" class="btn btn-primary btn-xs">
-                                                    <span class="fa fa-pencil"></span> ویرایش
-                                                </a>
-                                                {% if category.status %}
-                                                    <button type="submit" class="btn btn-warning btn-xs toggle-status" data-category-id="{{ category.id }}" data-current-status="true">
-                                                        <span class="fa fa-exclamation"></span> غیرفعال کردن
-                                                    </button>
-                                                {% else %}
-                                                    <button type="submit" class="btn btn-success btn-xs toggle-status" data-category-id="{{ category.id }}" data-current-status="false">
-                                                        <span class="fa fa-exclamation"></span> فعال کردن
-                                                    </button>
-                                                {% endif %}
-                                            </td>
-                                        </tr>
-                                        <!-- زیردسته‌ها -->
-                                        {% for subcategory in category.subcategories %}
-                                        <tr class="hide category{{ category.id }}">
-                                            <td>{{ forloop.parentloop.counter }}.{{ forloop.counter }}</td>
-                                            <td class="demo" style="padding-right: 20px; color:#625f5f">
-                                                <span class="category_child" data-type="{{ subcategory.id }}">
-                                                    <i class="fa fa-plus-circle"></i>
-                                                </span>
-                                                {{ subcategory.name }}
-                                            </td>
-                                            <td>{{ subcategory.sort_order|default_if_none:"-" }}</td>
-                                            <td>
-                                                {% if subcategory.status %}
-                                                    <span class="label label-success">فعال</span>
-                                                {% else %}
-                                                    <span class="label label-warning">غیرفعال</span>
-                                                {% endif %}
-                                            </td>
-                                            <td>
-                                                <a href="{% url 'edit_category' subcategory.id %}" class="btn btn-primary btn-xs">
-                                                    <span class="fa fa-pencil"></span> ویرایش
-                                                </a>
-                                                {% if subcategory.status %}
-                                                    <button type="submit" class="btn btn-warning btn-xs toggle-status" data-category-id="{{ subcategory.id }}" data-current-status="true">
-                                                        <span class="fa fa-exclamation"></span> غیرفعال کردن
-                                                    </button>
-                                                {% else %}
-                                                    <button type="submit" class="btn btn-success btn-xs toggle-status" data-category-id="{{ subcategory.id }}" data-current-status="false">
-                                                        <span class="fa fa-exclamation"></span> فعال کردن
-                                                    </button>
-                                                {% endif %}
-                                            </td>
-                                        </tr>
-                                        {% endfor %}
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div class="box-footer clearfix">
-                                <div class="pagination">
-                                    <span class="step-links">
-                                        {% if page_obj.has_previous %}
-                                            <a href="?page=1&records_per_page={{ records_per_page }}&search={{ search_query|urlencode }}">&laquo; اول</a>
-                                            <a href="?page={{ page_obj.previous_page_number }}&records_per_page={{ records_per_page }}&search={{ search_query|urlencode }}">قبلی</a>
-                                        {% endif %}
-                                        <span class="current">
-                                            صفحه {{ page_obj.number }} از {{ page_obj.paginator.num_pages }}
-                                        </span>
-                                        {% if page_obj.has_next %}
-                                            <a href="?page={{ page_obj.next_page_number }}&records_per_page={{ records_per_page }}&search={{ search_query|urlencode }}">بعدی</a>
-                                            <a href="?page={{ page_obj.paginator.num_pages }}&records_per_page={{ records_per_page }}&search={{ search_query|urlencode }}">آخر &raquo;</a>
-                                        {% endif %}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
+<div class="container-fluid">
+    <div class="container_header">
+        <!-- هدر آبی -->
+        <div class="form-header">
+            <h2>لیست دسته‌بندی‌ها</h2>
+            <a href="{% url 'add_category' %}" class="btn btn-success btn-sm text-white">افزودن دسته‌بندی</a>
         </div>
     </div>
+    <section class="content categories-container">
+        <div class="filters d-flex justify-content-between align-items-center my-3">
+            <form method="GET" class="d-flex align-items-center">
+                <label for="records_per_page" class="ml-2 small">نمایش</label>
+                <select name="records_per_page" id="records_per_page" class="form-control form-control-sm mr-2" onchange="this.form.submit()">
+                    <option value="10" {% if request.GET.records_per_page == "10" %}selected{% endif %}>10</option>
+                    <option value="25" {% if request.GET.records_per_page == "25" or not request.GET.records_per_page %}selected{% endif %}>25</option>
+                    <option value="50" {% if request.GET.records_per_page == "50" %}selected{% endif %}>50</option>
+                    <option value="100" {% if request.GET.records_per_page == "100" %}selected{% endif %}>100</option>
+                    <option value="250" {% if request.GET.records_per_page == "250" %}selected{% endif %}>250</option>
+                    <option value="500" {% if request.GET.records_per_page == "500" %}selected{% endif %}>500</option>
+                </select>
+                <label class="ml-2 small">رکورد</label>
+            </form>
+            <div class="pagination">
+                <span class="step-links">
+                    {% if page_obj.has_previous %}
+                        <a href="?page=1&records_per_page={{ records_per_page }}&search={{ search_query|urlencode }}">&laquo; اول</a>
+                        <a href="?page={{ page_obj.previous_page_number }}&records_per_page={{ records_per_page }}&search={{ search_query|urlencode }}">قبلی</a>
+                    {% endif %}
+                    <span class="current">
+                        صفحه {{ page_obj.number }} از {{ page_obj.paginator.num_pages }}
+                    </span>
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}&records_per_page={{ records_per_page }}&search={{ search_query|urlencode }}">بعدی</a>
+                        <a href="?page={{ page_obj.paginator.num_pages }}&records_per_page={{ records_per_page }}&search={{ search_query|urlencode }}">آخر &raquo;</a>
+                    {% endif %}
+                </span>
+            </div>
+            <form method="GET" class="d-flex align-items-center" id="search-form">
+                <input type="text" 
+                       name="search" 
+                       class="form-control search-box form-control-sm" 
+                       placeholder="جستجو بر اساس نام دسته..."
+                       value="{{ search_query }}"
+                       id="search-input">
+            </form>
+        </div>
+        <table class="categories-table table table-hover">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>نام دسته</th>
+                    <th>لیبل</th>
+                    <th>ترتیب</th>
+                    <th>وضعیت</th>
+                    <th>عملیات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for category in page_obj %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>
+                        <span class="icon-toggle" onclick="toggleSubmenu(this)">+</span>
+                        {{ category.name }}
+                    </td>
+                    <td>{{ category.label|default_if_none:"-" }}</td>
+                    <td>{{ category.sort_order|default_if_none:"-" }}</td>
+                    <td>
+                        {% if category.status %}
+                            <span class="status فعال">فعال</span>
+                        {% else %}
+                            <span class="status غیرفعال">غیرفعال</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'edit_category' category.id %}" class="btn-action btn-edit text-white">ویرایش</a>
+                        {% if category.status %}
+                            <button class="status غیرفعال btn-action btn-toggle-status" 
+                                    data-category-id="{{ category.id }}" 
+                                    data-current-status="true">
+                                غیرفعال کردن
+                            </button>
+                        {% else %}
+                            <button class="status btn-action btn-toggle-status" 
+                                    data-category-id="{{ category.id }}" 
+                                    data-current-status="false">
+                                فعال کردن
+                            </button>
+                        {% endif %}
+                    </td>
+                </tr>
+                <!-- نمایش زیرمجموعه‌ها -->
+                {% for subcategory in category.subcategories %}
+                <tr class="submenu" style="display: none;">
+                    <td>{{ forloop.parentloop.counter }}.{{ forloop.counter }}</td>
+                    <td style="padding-right: 20px;">{{ subcategory.name }}</td>
+                    <td>{{ subcategory.label|default_if_none:"-" }}</td>
+                    <td>{{ subcategory.sort_order|default_if_none:"-" }}</td>
+                    <td>
+                        {% if subcategory.status %}
+                            <span class="status فعال">فعال</span>
+                        {% else %}
+                            <span class="status غیرفعال">غیرفعال</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'edit_category' subcategory.id %}" class="btn-action btn-edit text-white">ویرایش</a>
+                        {% if subcategory.status %}
+                            <button class="status غیرفعال btn-action btn-toggle-status" 
+                                    data-category-id="{{ subcategory.id }}" 
+                                    data-current-status="true">
+                                غیرفعال کردن
+                            </button>
+                        {% else %}
+                            <button class="status btn-action btn-toggle-status" 
+                                    data-category-id="{{ subcategory.id }}" 
+                                    data-current-status="false">
+                                فعال کردن
+                            </button>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
 </div>
-{% endblock content %}
+{% endblock %}
+
 {% block scripts %}
-{% load static %}
 <script src="https://cdn.datatables.net/v/bs/dt-2.2.2/datatables.min.js" integrity="sha384-KsmaH+vFCWsWkBqzoXM7HmafapkguLKrj9aRyWzIIaUDqRN99PP25wJUm7ZE+KP3" crossorigin="anonymous"></script>
 <script>
-$('#categories').DataTable({
-    dom: '<"top custom-controls"lpf>rt<"bottom custom-controls"lpf><"info-section"i><"clear">',
-    "language": {
-        "url": "{% static 'test/admin/js/yajra/i18n/Persian.json' %}"
-    },
-    lengthMenu: [[10, 25, 50, 100, 250, 500], [10, 25, 50, 100, 250, 500]],
-    pageLength: 25,
-    columns: [
-        null,
-        null,
-        null,
-        null,
-        { orderSequence: [''] }
-    ]
-});
-</script>
-<script>
-$(document).ready(function () {
-    $(".pagination").addClass("pagination-sm no-margin pull-right");
-    $(".close-callout").click(function () {
-        $(this).parentsUntil(".pad").remove();
-    });
-});
-</script>
-<script>
-$(".sidebar-toggle").click(function () {
-    $(".side-col").toggleClass("col-lg-1 col-md-2");
-    $(".content-col").toggleClass("col-lg-11 col-md-10");
-});
-</script>
-<script>
-$(document).ready(function () {
-    $(".demo").click(function () {
-        $(this).find("i").toggleClass("fa-plus-circle fa-minus-circle");
-        var id = $(this).find(".category_child").attr("data-type");
-        $(".category" + id).toggleClass("hide");
-    });
-});
-</script>
-<script>
-document.querySelectorAll('.toggle-status').forEach(button => {
-    button.addEventListener('click', async (e) => {
-        const categoryId = e.target.dataset.categoryId;
-        const currentStatus = e.target.dataset.currentStatus === 'true';
-        try {
-            const response = await fetch(`/admin/category/${categoryId}/update-status/`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken'),
-                },
-                credentials: 'include'
-            });
-            if (response.ok) {
-                const data = await response.json();
-                const statusSpan = e.target.closest('tr').querySelector('.label');
-                const statusText = data.status ? 'فعال' : 'غیرفعال';
-                statusSpan.textContent = statusText;
-                statusSpan.className = `label label-${data.status ? 'success' : 'warning'}`;
-                e.target.textContent = data.status ? 'غیرفعال کردن' : 'فعال کردن';
-                e.target.dataset.currentStatus = data.status;
-            } else {
-                const errorData = await response.json();
-                alert('خطا: ' + errorData.error);
-            }
-        } catch (error) {
-            console.error('خطا:', error);
-            alert('خطای شبکه رخ داده است');
-        }
-    });
-});
+    // نمایش/مخفی کردن زیردسته‌ها
+    function toggleSubmenu(icon) {
+        const parentRow = icon.closest('tr');
+        let nextRow = parentRow.nextElementSibling;
+        let isHidden = false;
 
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
+        if (nextRow && nextRow.classList.contains('submenu')) {
+            isHidden = nextRow.style.display === 'none';
+        }
+
+        while (nextRow && nextRow.classList.contains('submenu')) {
+            nextRow.style.display = isHidden ? 'table-row' : 'none';
+            nextRow = nextRow.nextElementSibling;
+        }
+
+        icon.textContent = isHidden ? '-' : '+';
+    }
+
+    // تغییر وضعیت دسته‌بندی‌ها
+    document.querySelectorAll('.btn-toggle-status').forEach(button => {
+        button.addEventListener('click', async (e) => {
+            const categoryId = e.target.dataset.categoryId;
+            const currentStatus = e.target.dataset.currentStatus === 'true';
+            try {
+                const response = await fetch(`/admin/category/${categoryId}/update-status/`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken'),
+                    },
+                    credentials: 'include'
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const statusSpan = e.target.closest('tr').querySelector('.status');
+                    const statusText = data.status ? 'فعال' : 'غیرفعال';
+                    statusSpan.textContent = statusText;
+                    statusSpan.className = `status ${statusText}`;
+                    e.target.textContent = data.status ? 'غیرفعال کردن' : 'فعال کردن';
+                    e.target.dataset.currentStatus = data.status;
+                } else {
+                    const errorData = await response.json();
+                    alert('خطا: ' + errorData.error);
+                }
+            } catch (error) {
+                console.error('خطا:', error);
+                alert('خطای شبکه رخ داده است');
+            }
+        });
+    });
+
+    // جستجوی لحظه‌ای
+    const searchInput = document.getElementById('search-input');
+    let timeoutId;
+    searchInput.addEventListener('input', function(e) {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+            const searchValue = encodeURIComponent(this.value);
+            const recordsPerPage = {{ records_per_page }};
+            fetch(`?search=${searchValue}&records_per_page=${recordsPerPage}&page=1`)
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const newTableBody = doc.querySelector('tbody');
+                    const newPagination = doc.querySelector('.pagination');
+                    document.querySelector('tbody').innerHTML = newTableBody.innerHTML;
+                    document.querySelector('.pagination').innerHTML = newPagination.innerHTML;
+                });
+        }, 500); // تأخیر 500 میلی‌ثانیه برای کاهش درخواست‌ها
+    });
+
+    // تابع برای دریافت کوکی CSRF
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
             }
         }
+        return cookieValue;
     }
-    return cookieValue;
-}
 </script>
 {% endblock %}
