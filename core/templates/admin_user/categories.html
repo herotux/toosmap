@@ -64,8 +64,10 @@
                                         {% for category in page_obj %}
                                         <tr>
                                             <td>{{ forloop.counter }}</td>
-                                            <td>
-                                                <span class="icon-toggle" onclick="toggleSubmenu(this)">+</span>
+                                            <td class="demo">
+                                                <span class="category_child" data-type="{{ category.id }}">
+                                                    <i class="plus fa fa-plus-circle"></i>
+                                                </span>
                                                 {{ category.name }}
                                             </td>
                                             <td>{{ category.sort_order|default_if_none:"-" }}</td>
@@ -92,72 +94,39 @@
                                             </td>
                                         </tr>
                                         <!-- زیردسته‌ها -->
-                                        <tbody class="submenu" style="display: none;">
-                                            {% for subcategory in category.subcategories %}
-                                            <tr>
-                                                <td>{{ forloop.parentloop.counter }}.{{ forloop.counter }}</td>
-                                                <td style="padding-right: 20px;">
-                                                    <span class="icon-toggle" onclick="toggleSubmenu(this)">+</span>
-                                                    {{ subcategory.name }}
-                                                </td>
-                                                <td>{{ subcategory.sort_order|default_if_none:"-" }}</td>
-                                                <td>
-                                                    {% if subcategory.status %}
-                                                        <span class="label label-success">فعال</span>
-                                                    {% else %}
-                                                        <span class="label label-warning">غیرفعال</span>
-                                                    {% endif %}
-                                                </td>
-                                                <td>
-                                                    <a href="{% url 'edit_category' subcategory.id %}" class="btn btn-primary btn-xs">
-                                                        <span class="fa fa-pencil"></span> ویرایش
-                                                    </a>
-                                                    {% if subcategory.status %}
-                                                        <button type="submit" class="btn btn-warning btn-xs toggle-status" data-category-id="{{ subcategory.id }}" data-current-status="true">
-                                                            <span class="fa fa-exclamation"></span> غیرفعال کردن
-                                                        </button>
-                                                    {% else %}
-                                                        <button type="submit" class="btn btn-success btn-xs toggle-status" data-category-id="{{ subcategory.id }}" data-current-status="false">
-                                                            <span class="fa fa-exclamation"></span> فعال کردن
-                                                        </button>
-                                                    {% endif %}
-                                                </td>
-                                            </tr>
-                                            <!-- زیردسته‌های زیردسته -->
-                                            <tbody class="submenu" style="display: none;">
-                                                {% for subsubcategory in subcategory.subcategories %}
-                                                <tr>
-                                                    <td>{{ forloop.parentloop.parentloop.counter }}.{{ forloop.parentloop.counter }}.{{ forloop.counter }}</td>
-                                                    <td style="padding-right: 40px;">
-                                                        {{ subsubcategory.name }}
-                                                    </td>
-                                                    <td>{{ subsubcategory.sort_order|default_if_none:"-" }}</td>
-                                                    <td>
-                                                        {% if subsubcategory.status %}
-                                                            <span class="label label-success">فعال</span>
-                                                        {% else %}
-                                                            <span class="label label-warning">غیرفعال</span>
-                                                        {% endif %}
-                                                    </td>
-                                                    <td>
-                                                        <a href="{% url 'edit_category' subsubcategory.id %}" class="btn btn-primary btn-xs">
-                                                            <span class="fa fa-pencil"></span> ویرایش
-                                                        </a>
-                                                        {% if subsubcategory.status %}
-                                                            <button type="submit" class="btn btn-warning btn-xs toggle-status" data-category-id="{{ subsubcategory.id }}" data-current-status="true">
-                                                                <span class="fa fa-exclamation"></span> غیرفعال کردن
-                                                            </button>
-                                                        {% else %}
-                                                            <button type="submit" class="btn btn-success btn-xs toggle-status" data-category-id="{{ subsubcategory.id }}" data-current-status="false">
-                                                                <span class="fa fa-exclamation"></span> فعال کردن
-                                                            </button>
-                                                        {% endif %}
-                                                    </td>
-                                                </tr>
-                                                {% endfor %}
-                                            </tbody>
-                                            {% endfor %}
-                                        </tbody>
+                                        {% for subcategory in category.subcategories %}
+                                        <tr class="hide category{{ category.id }}">
+                                            <td>{{ forloop.parentloop.counter }}.{{ forloop.counter }}</td>
+                                            <td class="demo" style="padding-right: 20px; color:#625f5f">
+                                                <span class="category_child" data-type="{{ subcategory.id }}">
+                                                    <i class="fa fa-plus-circle"></i>
+                                                </span>
+                                                {{ subcategory.name }}
+                                            </td>
+                                            <td>{{ subcategory.sort_order|default_if_none:"-" }}</td>
+                                            <td>
+                                                {% if subcategory.status %}
+                                                    <span class="label label-success">فعال</span>
+                                                {% else %}
+                                                    <span class="label label-warning">غیرفعال</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <a href="{% url 'edit_category' subcategory.id %}" class="btn btn-primary btn-xs">
+                                                    <span class="fa fa-pencil"></span> ویرایش
+                                                </a>
+                                                {% if subcategory.status %}
+                                                    <button type="submit" class="btn btn-warning btn-xs toggle-status" data-category-id="{{ subcategory.id }}" data-current-status="true">
+                                                        <span class="fa fa-exclamation"></span> غیرفعال کردن
+                                                    </button>
+                                                {% else %}
+                                                    <button type="submit" class="btn btn-success btn-xs toggle-status" data-category-id="{{ subcategory.id }}" data-current-status="false">
+                                                        <span class="fa fa-exclamation"></span> فعال کردن
+                                                    </button>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
                                         {% endfor %}
                                     </tbody>
                                 </table>
@@ -262,31 +231,6 @@ document.querySelectorAll('.toggle-status').forEach(button => {
         }
     });
 });
-
-
-function toggleSubmenu(icon) {
-    const parentRow = icon.closest('tr'); // یافتن ردیف والد
-    let nextSubmenu = parentRow.nextElementSibling; // زیردسته‌ها
-
-    // بررسی وجود زیردسته‌ها
-    if (nextSubmenu && nextSubmenu.tagName === 'TBODY') {
-        const isHidden = nextSubmenu.style.display === 'none';
-        toggleNestedSubmenus(nextSubmenu, !isHidden); // تغییر وضعیت نمایش
-        icon.textContent = isHidden ? '-' : '+';
-    }
-}
-
-// تابع بازگشتی برای نمایش/مخفی کردن زیردسته‌ها
-function toggleNestedSubmenus(submenu, show) {
-    submenu.style.display = show ? 'table-row-group' : 'none';
-
-    // بررسی زیردسته‌های داخلی
-    const innerSubmenus = submenu.querySelectorAll('tbody.submenu');
-    innerSubmenus.forEach(innerSubmenu => {
-        toggleNestedSubmenus(innerSubmenu, show); // به‌صورت بازگشتی تغییر وضعیت
-    });
-}
-
 
 function getCookie(name) {
     let cookieValue = null;
