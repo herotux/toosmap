@@ -1,0 +1,217 @@
+{% extends 'mainadmin.html' %}
+
+{% block style %}
+<style>
+    .custom-controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    @media only screen and (max-width: 768px) {
+        .dt-paging {
+            margin-right: 10px!important;
+            margin-left: 10px!important;
+        }
+        .dirltr {
+            direction:ltr;
+        }
+    }
+    div.dt-container div.dt-info {
+        text-align:right!important;
+    }
+    .dt-paging, .dt-search {
+        white-space: nowrap;
+        
+    }
+    .info-section {
+        margin-bottom: 10px;
+    }
+    th {
+        text-align: right!important;
+    }
+    .pagination {
+        margin: 20px 0 !important;
+    }
+</style>
+<link href="https://cdn.datatables.net/v/bs/dt-2.2.2/datatables.min.css" rel="stylesheet" integrity="sha384-xd6yqpSXZRZVl62sBIxyT2i4xVlfaxWVjVQB7qsVte0qEr3iepsBrLi/awgmIoPV" crossorigin="anonymous">
+{% endblock %}
+
+{% block content %}
+          <div class="col-lg-10 col-md-8 col-xs-12 content-col pl-0">
+            <!-- Content Wrapper. Contains page content -->
+            <div class="content-wrapper" style="min-height: 750px">
+              <!-- Content Header (Page header) -->
+
+              <!-- Main content -->
+              <section class="content">
+                <div class="row">
+                  <!-- Left col -->
+                  <section class="col-xs-12">
+                    <div class="box box-primary">
+                      <div class="box-header with-border">
+                        <h3 class="box-title">کاربران</h3>
+
+                        <div class="box-tools">
+                          <div class="input-group input-group-sm dirltr">
+                            <a
+                              href="https://toosshop.com/admin/users/create"
+                              class="btn btn-default btn-sm"
+                            >
+                              <span class="fa fa-plus"></span> افزودن کاربر
+                            </a>
+                            <a
+                              href="https://toosshop.com/admin/users/seller/create"
+                              class="btn btn-success btn-sm"
+                            >
+                              <span class="fa fa-plus"></span> افزودن مکان
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="box-body table-responsive no-padding">
+                        <table
+                          class="table table-hover"
+                          id="users"
+                        >
+                          <thead>
+                            <tr>
+                              <th>#</th>
+                              <th>نام</th>
+                              <th>موبایل</th>
+                              <th>وضعیت موبایل</th>
+                              <th>وضعیت کاربری</th>
+                              <th>تعداد مکان</th>
+                              <th>گروه کاربری</th>
+                              <th>تاریخ ثبت‌نام</th>
+                              <th>عملیات</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td>1</td>
+                              <td></td>
+                              <td>09208597573</td>
+                              <td>
+                                <span class="badge bg-green">تایید شده</span>
+                              </td>
+                              <td><span class="badge bg-green">فعال</span></td>
+                              <td>0</td>
+                              <td>مشتری</td>
+                              <td>۱۴۰۳-۱۲-۱۵ ۱۴:۳۰:۴۶</td>
+                              <td style="width: 215px">
+                                <form
+                                  action="https://toosshop.com/admin/users/271"
+                                  method="post"
+                                >
+                                  <input
+                                    type="hidden"
+                                    name="_token"
+                                    value="ZopUcPw8uSNjwfbSKGl6U0dWCzFkLR97L9tlAHNk"
+                                  />
+                                  <input
+                                    type="hidden"
+                                    name="_method"
+                                    value="delete"
+                                  />
+                                  <a
+                                    class="btn btn-primary btn-xs"
+                                    href="https://toosshop.com/admin/users/271/edit"
+                                  >
+                                    <span class="fa fa-pencil-alt"></span>
+                                    ویرایش
+                                  </a>
+                                  <!---->
+                                  <!--    <button type="submit" class="btn btn-danger btn-xs" name="delete" value="1" onclick="return confirm('آیا از حذف کاربر مطمئن هستید؟');">-->
+                                  <!--        <span class="fa fa-user-times"></span>-->
+                                  <!--        حذف-->
+                                  <!--    </button>-->
+                                  <!---->
+                                  <a
+                                    class="btn btn-success btn-xs"
+                                    href="https://toosshop.com/admin/convert/users/271/seller"
+                                  >
+                                    <span class="fa fa-id-card"></span>
+                                    فروشنده
+                                  </a>
+                                </form>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                        
+                      </div>
+                    </div>
+                  </section>
+                  <!-- /.Left col -->
+                </div>
+              </section>
+              <!-- /.content -->
+            </div>
+            <!-- /.content-wrapper 
+<footer class="main-footer">
+  <div class="pull-right hidden-xs">
+      <span>© کلیه حقوق این وب سایت متعلق به شرکت پارس آویژه ونداد می‌باشد </span>
+  </div>
+
+</footer>-->
+          </div>
+{% endblock content %}
+
+{% block scripts %}
+{% load static %}
+    <script src="https://cdn.datatables.net/v/bs/dt-2.2.2/datatables.min.js" integrity="sha384-KsmaH+vFCWsWkBqzoXM7HmafapkguLKrj9aRyWzIIaUDqRN99PP25wJUm7ZE+KP3" crossorigin="anonymous"></script>
+    
+    <script>
+    $('#users').DataTable({
+        dom: '<"top custom-controls"lpf>rt<"bottom custom-controls"lpf><"info-section"i><"clear">',
+        "language": {
+            "url": "{% static 'test/admin/js/yajra/i18n/Persian.json' %}"
+        },
+        lengthMenu: [[10, 25, 50, 100, 250, 500], [10, 25, 50, 100, 250, 500]],
+        pageLength: 25,
+        columns: [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            { orderSequence: [''] }
+        ]
+    });
+    </script>
+    <script>
+      $(document).ready(function () {
+        $(".pagination").addClass("pagination-sm no-margin pull-right");
+        $(".close-callout").click(function () {
+          $(this).parentsUntil(".pad").remove();
+        });
+      });
+    </script>
+    <script>
+      $(document).ready(function () {
+        $(".close-callout").click(function () {
+          $(this).parentsUntil(".pad").remove();
+        });
+      });
+    </script>
+    <script>
+      $(".sidebar-toggle").click(function () {
+        $(".side-col").toggleClass("col-lg-1 col-md-2");
+        $(".content-col").toggleClass("col-lg-11 col-md-10");
+      });
+    </script>
+
+    <script>
+      $(document).ready(function () {
+        $(".demo").click(function () {
+          $(this).find("i").toggleClass("fa-plus-circle fa-minus-circle");
+          var id = $(this).find(".category_child").attr("data-type");
+          $(".category" + id).toggleClass("hide");
+        });
+      });
+    </script>
+{% endblock %}

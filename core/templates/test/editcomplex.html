@@ -1,0 +1,341 @@
+{% extends 'mainadmin.html' %}
+
+{% block content %}
+          <div class="col-lg-10 col-md-8 col-xs-12 content-col pl-0">
+            <!-- Content Wrapper. Contains page content -->
+            <div class="content-wrapper" style="min-height: 1008px">
+              <!-- Content Header (Page header) -->
+
+              <!-- Main content -->
+              <section class="content">
+                <div class="row">
+                  <div class="col-xs-12">
+                    <div class="box">
+                      <div class="box-header with-border">
+                        <h3 class="box-title">ویرایش مرکز</h3>
+
+                        <div class="box-tools">
+                          <div class="input-group input-group-sm">
+                            <a
+                              href="https://toosshop.com/admin/categories"
+                              class="btn btn-default btn-sm"
+                              >لیست مراکز
+                              <span class="fa fa-arrow-left"></span>
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                      <!-- /.box-header -->
+                      <div class="box-body">
+                          <form
+                            id="form"
+                            method="post"
+                            action="https://toosshop.com/admin/categories"
+                            role="form"
+                            enctype="multipart/form-data"
+                            class="form-horizontal"
+                          >
+                            <input
+                              type="hidden"
+                              name="_token"
+                              value="ZopUcPw8uSNjwfbSKGl6U0dWCzFkLR97L9tlAHNk"
+                            />
+                            <div class="tab-content">
+                              <div id="tab_maininformation" class="tab-pane active">
+                                <div class="form-group">
+                                  <label
+                                    for="name"
+                                    class="col-md-1 control-label"
+                                    >نام مرکز *</label
+                                  >
+                                  <div class="col-md-11">
+                                    <input
+                                      type="text"
+                                      name="name"
+                                      id="name"
+                                      class="form-control"
+                                      value=""
+                                      required
+                                    />
+                                  </div>
+                                </div>
+								<div class="form-group">
+                                  <label
+                                    for="slug"
+                                    class="col-md-1 control-label"
+                                    >اسلاگ *</label
+                                  >
+                                  <div class="col-md-11">
+                                    <input
+                                      type="text"
+                                      name="slug"
+                                      id="slug"
+                                      class="form-control"
+                                      value=""
+                                      required
+                                    />
+                                  </div>
+                                </div>
+                                <div class="form-group">
+                                  <label
+                                    for="latinname"
+                                    class="col-md-1 control-label"
+                                    >توضیحات</label
+                                  >
+                                  <div class="col-md-11">
+                                     <textarea
+                                        name="description"
+                                        id="description"
+                                        class="form-control"
+                                        rows="5"
+                                      ></textarea>
+                                  </div>
+                                </div>
+								<div class="form-group">
+                                  <label for="parent_id" class="col-md-1 control-label">استان *</label>
+                                  <div class="col-md-11">
+                                      <select name="province" id="province" class="form-control" required>
+                                          <option value="">بدون استان</option>
+                                          <option value="1">تهران</option>
+                                          <option value="2">قم</option>
+                                          <option value="3">مشهد</option>
+                                      </select>
+                                  </div>
+                                </div>
+                                <div class="form-group">
+                                  <label for="parent_id" class="col-md-1 control-label">شهرستان *</label>
+                                  <div class="col-md-11">
+                                      <select name="county" id="county" class="form-control" required>
+                                          <option value="">بدون شهرستان</option>
+                                          <option value="1">دماوند</option>
+                                      </select>
+                                  </div>
+                                </div>
+                                <div class="form-group">
+                                  <label for="parent_id" class="col-md-1 control-label">شهر</label>
+                                  <div class="col-md-11">
+                                      <select name="city" id="city" class="form-control">
+                                          <option value="">بدون شهر</option>
+                                          <option value="1">تهران</option>
+                                      </select>
+                                  </div>
+                                </div>
+                                <div class="form-group">
+                                  <label for="parent_id" class="col-md-1 control-label">روستا</label>
+                                  <div class="col-md-11">
+                                      <select name="village" id="village" class="form-control">
+                                          <option value="">بدون روستا</option>
+                                          <option value="1">وردیج واریج</option>
+                                      </select>
+                                  </div>
+                                </div>
+								<div class="form-group">
+                                    <label
+                                      for="meta_keywords"
+                                      class="col-md-1 control-label"
+                                      >آدرس</label
+                                    >
+                                    <div class="col-md-11">
+                                      <textarea
+                                        name="address"
+                                        id="address"
+                                        class="form-control"
+                                        rows="5"
+                                      ></textarea>
+                                    </div>
+                                </div>
+								<div class="form-group">
+                            <label for="location" class="col-md-1 control-label"
+                              >موقعیت جغرافیایی</label
+                            >
+                            <div class="col-md-11">
+                              <input
+                                type="hidden"
+                                id="lat"
+                                name="lat"
+                              />
+                              <input
+                                type="hidden"
+                                id="lng"
+                                name="lng"
+                              />
+                              <div
+                                id="map"
+                                style="height: 300px; width: 100%"
+                              ></div>
+                            </div>
+                          </div>
+                              </div>
+                            </div>
+                            <input
+                              type="submit"
+                              class="btn btn-primary"
+                              value="ویرایش مرکز"
+                            />
+                          </form>
+                      </div>
+                      <!-- /.box-body -->
+                    </div>
+                    <!-- /.box -->
+                  </div>
+                </div>
+                <!-- /.row -->
+              </section>
+              <!-- /.content -->
+            </div>
+            <!-- /.content-wrapper 
+    <footer class="main-footer">
+        <div class="pull-right hidden-xs">
+            <span>© کلیه حقوق این وب سایت متعلق به شرکت پارس آویژه ونداد می‌باشد </span>
+        </div>
+     
+    </footer>-->
+          </div>
+{% endblock content %}
+
+{% block scripts %}
+    <script>
+      var editor_config = {
+        path_absolute: "/",
+        selector: "textarea.tinymce",
+        plugins: [
+          "advlist autolink lists link image charmap print preview hr anchor pagebreak",
+          "searchreplace wordcount visualblocks visualchars code fullscreen",
+          "insertdatetime media nonbreaking save table contextmenu directionality",
+          "emoticons template paste textcolor colorpicker textpattern",
+        ],
+        directionality: "rtl",
+        toolbar:
+          "insertfile undo redo | rtl ltr | styleselect | fontsizeselect | forecolor backcolor | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image media",
+        fontsize_formats: "11px 12px 14px 16px 18px 24px 36px 48px",
+        relative_urls: false,
+        file_browser_callback: function (field_name, url, type, win) {
+          var x =
+            window.innerWidth ||
+            document.documentElement.clientWidth ||
+            document.getElementsByTagName("body")[0].clientWidth;
+          var y =
+            window.innerHeight ||
+            document.documentElement.clientHeight ||
+            document.getElementsByTagName("body")[0].clientHeight;
+
+          var cmsURL =
+            editor_config.path_absolute +
+            "laravel-filemanager?field_name=" +
+            field_name;
+          if (type == "image") {
+            cmsURL = cmsURL + "&type=Images";
+          } else {
+            cmsURL = cmsURL + "&type=Files";
+          }
+
+          tinyMCE.activeEditor.windowManager.open({
+            file: cmsURL,
+            title: "Filemanager",
+            width: x * 0.8,
+            height: y * 0.8,
+            resizable: "yes",
+            close_previous: "no",
+          });
+        },
+        language: "fa_IR",
+      };
+
+      tinymce.init(editor_config);
+    </script>
+    <script>
+      $(document).ready(function () {
+        $(".pagination").addClass("pagination-sm no-margin pull-right");
+        $(".close-callout").click(function () {
+          $(this).parentsUntil(".pad").remove();
+        });
+      });
+    </script>
+    <script>
+      $(document).ready(function () {
+        $(".close-callout").click(function () {
+          $(this).parentsUntil(".pad").remove();
+        });
+      });
+    </script>
+    <script>
+      $(".sidebar-toggle").click(function () {
+        $(".side-col").toggleClass("col-lg-1 col-md-1");
+        $(".content-col").toggleClass("col-lg-11 col-md-11");
+      });
+    </script>
+    
+    <script>
+      $(document).ready(function () {
+        $(".demo").click(function () {
+          $(this).find("i").toggleClass("fa-plus-circle fa-minus-circle");
+          var id = $(this).find(".category_child").attr("data-type");
+          $(".category" + id).toggleClass("hide");
+        });
+      });
+    </script>
+    <script>
+      $(document).ready(function(){
+          $('#city').select2({
+              allowClear: true,
+              placeholder : 'شهر را انتخاب کنید',
+          });
+          $('#county').select2({
+              allowClear: true,
+              placeholder : 'شهرستان را انتخاب کنید',
+          });
+          $('#village').select2({
+              allowClear: true,
+              placeholder : 'روستا را انتخاب کنید',
+          });
+          $('#province').select2({
+              allowClear: true,
+              placeholder : 'استان را انتخاب کنید',
+          });
+      });
+      $(document).ready(function () {
+          var $form           = $("#form");
+          var $name           = $form.find("#name");
+          var $slug           = $form.find("#slug");
+          $name.on("keyup", function(event) {
+              function replaceSpacesWithDash(str) {
+                  return str.replace(/ /g, '-');
+              }
+              $slug.val(replaceSpacesWithDash($name.val()));
+          });
+      });
+    </script>
+	<script>
+        var mymap = L.map('map').setView([35.69968630125204, 51.39747619628907],13);
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '',
+            maxZoom: 18,
+            id: 'mapbox/streets-v11',
+            tileSize: 512,
+            zoomOffset: -1
+        }).addTo(mymap);
+
+        var icon = new L.Icon.Default();
+        icon.options.shadowSize = [0,0];
+
+        var marker = L.marker([35.69968630125204, 51.39747619628907],{
+            draggable: true,
+            icon : icon
+        });
+
+        mymap.on('click', function(e){
+            updatePoints(e.latlng.lat,e.latlng.lng)
+        });
+
+        marker.on('moveend', function(e){
+            updatePoints(e.target._latlng.lat,e.target._latlng.lng)
+        });
+        function updatePoints(lat, lng) {
+            $('#lat').val(lat);
+            $('#lng').val(lng);
+            marker.setLatLng([lat,lng]).addTo(mymap);
+        }
+
+        updatePoints(35.69968630125204, 51.39747619628907);
+    </script>
+{% endblock %}

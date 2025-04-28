@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.urls import path, include
 from .views import edit_category,ProvinceListView, AddCategoryAPIView, EditUserAPIView, AddUserAPIView, load_counties, list_users, register, otp_login, login_view, verify_otp, verify_password, map_view, admin_dashboard, seller_dashboard, user_dashboard, list_categories, add_category, edit_category, delete_category, ProvinceCityAPIView, add_user  # Import the add_user view
 from .views import LocationView, VersionSettingView, PlaceDetailAPIView, JobDetailAPIView, get_independent_jobs_and_commercial_places, ProvinceView, CategoryJobView, IndependentJobViewSet, PlaceViewSet, edit_setting_ajax, update_category_status, home, settings_view, create_job_hours, create_job_links, create_job, logout_view, AddJobAPIView, make_seller, add_job, edit_user_view, provinces_cities_api, main_view
+from .views import test1, test2, test3, test4, test5, test6, test7, test8, test9, test10, test11, test12, test13, test14, test15, test16, test17
 
 urlpatterns = [
     path('register/', register, name='register'),
@@ -57,5 +58,23 @@ urlpatterns = [
     path('api/jobs/<int:id>/', JobDetailAPIView.as_view(), name='job-detail'),
     path('api/places/<int:id>/', PlaceDetailAPIView.as_view(), name='place-detail'),
     path('api/version/', VersionSettingView.as_view(), name='version-setting'),
+    
+    path('test1/', test1, name='test1'),
+    path('test2/', test2, name='test2'),
+    path('test3/', test3, name='test3'),
+    path('test4/', test4, name='test4'),
+    path('test5/', test5, name='test5'),
+    path('test6/', test6, name='test6'),
+    path('test7/', test7, name='test7'),
+    path('test8/', test8, name='test8'),
+
+    path('test10/', test10, name='test10'),
+    path('test11/', test11, name='test11'),
+    path('test12/', test12, name='test12'),
+    path('test13/', test13, name='test13'),
+    path('test14/', test14, name='test14'),
+    path('test15/', test15, name='test15'),
+    path('test16/', test16, name='test16'),
+    path('test17/', test17, name='test17'),
     
 ]

@@ -1,0 +1,875 @@
+{% extends 'mainadmin.html' %}
+
+{% block style %}
+<style>
+@media only screen and (max-width: 768px) {
+  .mobile-label {
+    display:inline-block!important;
+    width:100%;
+    text-align:left;
+    padding-left:20px;
+  }
+  .desktop-label {
+    display:none!important;
+  }
+}
+.mobile-label {
+  display:none;
+}
+.desktop-label {
+  display:inline-block;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+          <div class="col-lg-10 col-md-8 col-xs-12 content-col pl-0">
+            <!-- Content Wrapper. Contains page content -->
+            <div class="content-wrapper" style="min-height: 1008px">
+              <!-- Content Header (Page header) -->
+
+              <!-- Main content -->
+              <section class="content">
+                <div class="row">
+                  <div class="col-xs-12">
+                    <div class="box">
+                      <div class="box-header with-border">
+                        <h3 class="box-title">افزودن مکان</h3>
+
+                        <div class="box-tools">
+                          <div class="input-group input-group-sm">
+                            <a
+                              href="https://toosshop.com/admin/categories"
+                              class="btn btn-default btn-sm"
+                              >لیست مکان‌ها
+                              <span class="fa fa-arrow-left"></span>
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                      <!-- /.box-header -->
+                      <div class="box-body">
+                        <div class="nav-tabs-custom no-shadow">
+                          <ul class="nav nav-tabs">
+                            <li class="active">
+                              <a
+                                href="#tab_maininformation"
+                                data-toggle="tab"
+                                aria-expanded="true"
+                                >اطلاعات اصلی</a
+                              >
+                            </li>
+                            <li>
+                              <a
+                                href="#tab_worktime"
+                                data-toggle="tab"
+                                aria-expanded="false"
+                                >ساعات کاری</a
+                              >
+                            </li>
+                            <li>
+                              <a
+                                href="#tab_links"
+                                data-toggle="tab"
+                                aria-expanded="false"
+                                >لینک ها</a
+                              >
+                            </li>
+                            
+                          </ul>
+                          <form
+                            id="form"
+                            method="post"
+                            action="https://toosshop.com/admin/categories"
+                            role="form"
+                            enctype="multipart/form-data"
+                            class="form-horizontal"
+                          >
+                            <input
+                              type="hidden"
+                              name="_token"
+                              value="ZopUcPw8uSNjwfbSKGl6U0dWCzFkLR97L9tlAHNk"
+                            />
+                            <div class="tab-content">
+                              <div id="tab_maininformation" class="tab-pane active">
+                                <div class="form-group">
+                                  <label
+                                    for="latinname"
+                                    class="col-md-1 control-label"
+                                    >موبایل مدیر مکان *</label
+                                  >
+                                  <div class="col-md-11">
+                                    <select name="phoneforplace" id="phoneforplace" class="form-control" required>
+                                          <option value="">بدون شماره</option>
+                                          <option value="1">09111111111</option>
+                                          <option value="2">09111111111</option>
+                                          <option value="3">09111111111</option>
+                                      </select>
+                                  </div>
+                                </div>
+                                <div class="form-group">
+                                  <label
+                                    for="name"
+                                    class="col-md-1 control-label"
+                                    >نام مکان *</label
+                                  >
+                                  <div class="col-md-11">
+                                    <input
+                                      type="text"
+                                      name="name"
+                                      id="name"
+                                      class="form-control"
+                                      value=""
+                                      required
+                                    />
+                                  </div>
+                                </div>
+                                <div class="form-group">
+                                    <label
+                                      for="slug"
+                                      class="col-md-1 control-label"
+                                      >اسلاگ *</label
+                                    >
+                                    <div class="col-md-11">
+                                      <input
+                                        type="text"
+                                        name="slug"
+                                        id="slug"
+                                        class="form-control"
+                                        value=""
+                                        required
+                                      />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label
+                                      for="meta_keywords"
+                                      class="col-md-1 control-label"
+                                      >توضیحات</label
+                                    >
+                                    <div class="col-md-11">
+                                      <textarea
+                                        name="description"
+                                        id="description"
+                                        class="form-control"
+                                        rows="5"
+                                      ></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                  <label
+                                    for="latinname"
+                                    class="col-md-1 control-label"
+                                    >موبایل</label
+                                  >
+                                  <div class="col-md-11">
+                                    <input
+                                      type="text"
+                                      name="latinname"
+                                      id="latinname"
+                                      class="form-control"
+                                      value=""
+                                    />
+                                  </div>
+                                </div>
+                                <div class="form-group">
+                                  <label
+                                    for="latinname"
+                                    class="col-md-1 control-label"
+                                    >تلفن ثابت</label
+                                  >
+                                  <div class="col-md-11">
+                                    <input
+                                      type="text"
+                                      name="latinname"
+                                      id="latinname"
+                                      class="form-control"
+                                      value=""
+                                    />
+                                  </div>
+                                </div>
+                                <div class="form-group">
+                                  <label for="parent_id" class="col-md-1 control-label">استان *</label>
+                                  <div class="col-md-11">
+                                      <select name="province" id="province" class="form-control" required>
+                                          <option value="">بدون استان</option>
+                                          <option value="1">تهران</option>
+                                          <option value="2">قم</option>
+                                          <option value="3">مشهد</option>
+                                      </select>
+                                  </div>
+                                </div>
+                                <div class="form-group">
+                                  <label for="parent_id" class="col-md-1 control-label">شهرستان *</label>
+                                  <div class="col-md-11">
+                                      <select name="county" id="county" class="form-control" required>
+                                          <option value="">بدون شهرستان</option>
+                                          <option value="1">دماوند</option>
+                                      </select>
+                                  </div>
+                                </div>
+                                <div class="form-group">
+                                  <label for="parent_id" class="col-md-1 control-label">شهر</label>
+                                  <div class="col-md-11">
+                                      <select name="city" id="city" class="form-control">
+                                          <option value="">بدون شهر</option>
+                                          <option value="1">تهران</option>
+                                      </select>
+                                  </div>
+                                </div>
+                                <div class="form-group">
+                                  <label for="parent_id" class="col-md-1 control-label">روستا</label>
+                                  <div class="col-md-11">
+                                      <select name="village" id="village" class="form-control">
+                                          <option value="">بدون روستا</option>
+                                          <option value="1">وردیج واریج</option>
+                                      </select>
+                                  </div>
+                                </div>
+                                <div class="form-group">
+                                    <label
+                                      for="meta_keywords"
+                                      class="col-md-1 control-label"
+                                      >آدرس *</label
+                                    >
+                                    <div class="col-md-11">
+                                      <textarea
+                                        name="address"
+                                        id="address"
+                                        class="form-control"
+                                        rows="5"
+                                        required
+                                      ></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                  <label
+                                    for="latinname"
+                                    class="col-md-1 control-label"
+                                    >کد پستی</label
+                                  >
+                                  <div class="col-md-11">
+                                    <input
+                                      type="text"
+                                      name="postcode"
+                                      id="postcode"
+                                      class="form-control"
+                                      value=""
+                                    />
+                                  </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="has_slider" class="col-md-1 control-label">فروض حضوری</label>
+                                    <div class="col-md-11">
+                                        <input type="checkbox" name="" id="" value="1" data-toggle="toggle" data-onstyle="success" data-on="<i class='fa fa-check'></i> دارد" data-off="<i class='fa fa-close text-red'></i> ندارد" data-width="100">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="has_slider" class="col-md-1 control-label">فروش اینترنتی</label>
+                                    <div class="col-md-11">
+                                        <input type="checkbox" name="" id="" value="1" data-toggle="toggle" data-onstyle="success" data-on="<i class='fa fa-check'></i> دارد" data-off="<i class='fa fa-close text-red'></i> ندارد" data-width="100">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="has_slider" class="col-md-1 control-label">فروش تکی</label>
+                                    <div class="col-md-11">
+                                        <input type="checkbox" name="" id="" value="1" data-toggle="toggle" data-onstyle="success" data-on="<i class='fa fa-check'></i> دارد" data-off="<i class='fa fa-close text-red'></i> ندارد" data-width="100">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="has_slider" class="col-md-1 control-label">فروش عمده</label>
+                                    <div class="col-md-11">
+                                        <input type="checkbox" name="" id="" value="1" data-toggle="toggle" data-onstyle="success" data-on="<i class='fa fa-check'></i> دارد" data-off="<i class='fa fa-close text-red'></i> ندارد" data-width="100">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="has_slider" class="col-md-1 control-label">تولیدکننده</label>
+                                    <div class="col-md-11">
+                                        <input type="checkbox" name="" id="" value="1" data-toggle="toggle" data-onstyle="success" data-on="<i class='fa fa-check'></i> هست" data-off="<i class='fa fa-close text-red'></i> نیست" data-width="100">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="has_slider" class="col-md-1 control-label">کالای نو</label>
+                                    <div class="col-md-11">
+                                        <input type="checkbox" name="" id="" value="1" data-toggle="toggle" data-onstyle="success" data-on="<i class='fa fa-check'></i> دارد" data-off="<i class='fa fa-close text-red'></i> ندارد" data-width="100">
+                                    </div>
+                                </div>
+								<div class="form-group">
+                                    <label for="has_slider" class="col-md-1 control-label">کالای دست دوم</label>
+                                    <div class="col-md-11">
+                                        <input type="checkbox" name="" id="" value="1" data-toggle="toggle" data-onstyle="success" data-on="<i class='fa fa-check'></i> دارد" data-off="<i class='fa fa-close text-red'></i> ندارد" data-width="100">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="has_slider" class="col-md-1 control-label">خرید</label>
+                                    <div class="col-md-11">
+                                        <input type="checkbox" name="" id="" value="1" data-toggle="toggle" data-onstyle="success" data-on="<i class='fa fa-check'></i> دارد" data-off="<i class='fa fa-close text-red'></i> ندارد" data-width="100">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="has_slider" class="col-md-1 control-label">خرید در فروشگاه</label>
+                                    <div class="col-md-11">
+                                        <input type="checkbox" name="" id="" value="1" data-toggle="toggle" data-onstyle="success" data-on="<i class='fa fa-check'></i> دارد" data-off="<i class='fa fa-close text-red'></i> ندارد" data-width="100">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="has_slider" class="col-md-1 control-label">خرید در محل مشتری</label>
+                                    <div class="col-md-11">
+                                        <input type="checkbox" name="" id="" value="1" data-toggle="toggle" data-onstyle="success" data-on="<i class='fa fa-check'></i> دارد" data-off="<i class='fa fa-close text-red'></i> ندارد" data-width="100">
+                                    </div>
+                                </div>
+                              </div>
+                              <div id="tab_worktime" class="tab-pane">
+                                <div class="form-group">
+                                    <label
+                                      for="days"
+                                      id="label_saturday"
+                                      class="col-md-1 control-label"
+                                      >شنبه</label
+                                    >
+                                    <input
+                                      type="checkbox"
+                                      class="form-check col-md-1 myCheck"
+                                      name="saturday"
+                                      checked
+                                    />
+                                </div>
+                                <div class="form-group">
+                                    <label
+                                      for="days"
+                                      id="label_sunday"
+                                      class="col-md-1 control-label"
+                                      >یکشنبه</label
+                                    >
+                                    <input
+                                      type="checkbox"
+                                      class="form-check col-md-1 myCheck"
+                                      name="sunday"
+                                    />
+                                </div>
+                                <div class="form-group">
+                                    <label
+                                      for="days"
+                                      id="label_monday"
+                                      class="col-md-1 control-label"
+                                      >دوشنبه</label
+                                    >
+                                    <input
+                                      type="checkbox"
+                                      class="form-check col-md-1 myCheck"
+                                      name="monday"
+                                    />
+                                </div>
+                                <div class="form-group">
+                                    <label
+                                      for="days"
+                                      id="label_thuesday"
+                                      class="col-md-1 control-label"
+                                      >سه شنبه</label
+                                    >
+                                    <input
+                                      type="checkbox"
+                                      class="form-check col-md-1 myCheck"
+                                      name="thuesday"
+                                    />
+                                </div>
+                                <div class="form-group">
+                                    <label
+                                      for="days"
+                                      id="label_wednesday"
+                                      class="col-md-1 control-label"
+                                      >چهارشنبه</label
+                                    >
+                                    <input
+                                      type="checkbox"
+                                      class="form-check col-md-1 myCheck"
+                                      name="wednesday"
+                                    />
+                                </div>
+                                <div class="form-group">
+                                    <label
+                                      for="days"
+                                      id="label_thursday"
+                                      class="col-md-1 control-label"
+                                      >پنجشنبه</label
+                                    >
+                                    <input
+                                      type="checkbox"
+                                      class="form-check col-md-1 myCheck"
+                                      name="thursday"
+                                    />
+                                </div>
+                                <div class="form-group">
+                                    <label
+                                      for="days"
+                                      id="label_friday"
+                                      class="col-md-1 control-label"
+                                      >جمعه</label
+                                    >
+                                    <input
+                                      type="checkbox"
+                                      class="form-check col-md-1 myCheck"
+                                      name="friday"
+                                    />
+                                </div>
+                                <div class="form-group">
+                                    <label
+                                      for="work_time"
+                                      id="worktime"
+                                      class="control-label"
+                                      style="font-size:20px; margin-right:17px"
+                                      >ساعات کاری روز شنبه</label
+                                    >
+                                </div>
+                                <div class="form-group">
+                                    <label
+                                      for="all_categories"
+                                      class="col-md-1 control-label"
+                                      >شیفت 1</label
+                                    >
+                                </div>
+                                <div class="form-group">
+                                  <div style="display:flex; flex-direction:row;"> 
+                                    <label
+                                      for="all_categories"
+                                      class="col-md-1 control-label"
+                                      style="width:12.5%"
+                                      >از</label
+                                    >
+                                    <input
+                                      type="text"
+                                      name="postcode"
+                                      id="postcode"
+                                      class="form-control"
+                                      value=""
+                                      placeholder="12:00"
+                                      style="width:35%"
+                                    />
+                                    <label
+                                      for="all_categories"
+                                      class="col-md-1 control-label"
+                                      style="width:12.5%"
+                                      >تا</label
+                                    >
+                                    <input
+                                      type="text"
+                                      name="postcode"
+                                      id="postcode"
+                                      class="form-control"
+                                      value=""
+                                      placeholder="12:00"
+                                      style="width:35%"
+                                    />
+                                  </div>
+                                </div>
+                                <div class="form-group">
+                                    <label
+                                      for="all_categories"
+                                      class="col-md-1 control-label"
+                                      >شیفت 2</label
+                                    >
+                                </div>
+                                <div class="form-group">
+                                  <div style="display:flex; flex-direction:row;"> 
+                                    <label
+                                      for="all_categories"
+                                      class="col-md-1 control-label"
+                                      style="width:12.5%"
+                                      >از</label
+                                    >
+                                    <input
+                                      type="text"
+                                      name="postcode"
+                                      id="postcode"
+                                      class="form-control"
+                                      value=""
+                                      placeholder="12:00"
+                                      style="width:35%"
+                                    />
+                                    <label
+                                      for="all_categories"
+                                      class="col-md-1 control-label"
+                                      style="width:12.5%"
+                                      >تا</label
+                                    >
+                                    <input
+                                      type="text"
+                                      name="postcode"
+                                      id="postcode"
+                                      class="form-control"
+                                      value=""
+                                      placeholder="12:00"
+                                      style="width:35%"
+                                    />
+                                  </div>
+                                </div>
+                                <div class="form-group">
+                                    <label
+                                      for="all_categories"
+                                      class="col-md-1 control-label"
+                                      >شیفت 3</label
+                                    >
+                                </div>
+                                <div class="form-group">
+                                  <div style="display:flex; flex-direction:row;"> 
+                                    <label
+                                      for="all_categories"
+                                      class="col-md-1 control-label"
+                                      style="width:12.5%"
+                                      >از</label
+                                    >
+                                    <input
+                                      type="text"
+                                      name="postcode"
+                                      id="postcode"
+                                      class="form-control"
+                                      value=""
+                                      placeholder="12:00"
+                                      style="width:35%"
+                                    />
+                                    <label
+                                      for="all_categories"
+                                      class="col-md-1 control-label"
+                                      style="width:12.5%"
+                                      >تا</label
+                                    >
+                                    <input
+                                      type="text"
+                                      name="postcode"
+                                      id="postcode"
+                                      class="form-control"
+                                      value=""
+                                      placeholder="12:00"
+                                      style="width:35%"
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                              <div id="tab_links" class="tab-pane">
+                                <div class="form-group">
+                                  <label
+                                    for="sort_order"
+                                    class="col-md-1 control-label desktop-label"
+                                    >سایت</label
+                                  >
+                                  <label
+                                    for="back_label"
+                                    class="control-label mobile-label"
+                                    >.https://www</label
+                                  >
+                                  <div class="col-md-3"></div>
+                                  <div class="col-md-5">
+                                    <input
+                                      type="text"
+                                      name="sort_order"
+                                      id="sort_order"
+                                      class="form-control"
+                                      value=""
+                                    />
+                                  </div>
+                                  <label
+                                    for="back_label"
+                                    class="control-label desktop-label"
+                                    >.https://www</label
+                                  >
+                                </div>
+                                <div class="form-group">
+                                  <label
+                                    for="sort_order"
+                                    class="col-md-1 control-label desktop-label"
+                                    >تلگرام</label
+                                  >
+                                  <label
+                                    for="back_label"
+                                    class="control-label mobile-label"
+                                    >https://telegram.com</label
+                                  >
+                                  <div class="col-md-3"></div>
+                                  <div class="col-md-5">
+                                    <input
+                                      type="text"
+                                      name="sort_order"
+                                      id="sort_order"
+                                      class="form-control"
+                                      value=""
+                                    />
+                                  </div>
+                                  <label
+                                    for="back_label"
+                                    class="control-label desktop-label"
+                                    >https://telegram.com</label
+                                  >
+                                </div>
+                                <div class="form-group">
+                                  <label
+                                    for="sort_order"
+                                    class="col-md-1 control-label desktop-label"
+                                    >اینیستاگرام</label
+                                  >
+                                  <label
+                                    for="back_label"
+                                    class="control-label mobile-label"
+                                    >/https://instagram.com</label
+                                  >
+                                  <div class="col-md-3"></div>
+                                  <div class="col-md-5">
+                                    <input
+                                      type="text"
+                                      name="instagram"
+                                      id="instagram"
+                                      class="form-control"
+                                      value=""
+                                    />
+                                  </div>
+                                  <label
+                                    for="back_label"
+                                    class="control-label desktop-label"
+                                    >/https://instagram.com</label
+                                  >
+                                </div>
+                                <div class="form-group">
+                                  <label
+                                    for="sort_order"
+                                    class="col-md-1 control-label desktop-label"
+                                    >روبیکا</label
+                                  >
+                                  <label
+                                    for="back_label"
+                                    class="control-label mobile-label"
+                                    >/https://rubika.ir</label
+                                  >
+                                  <div class="col-md-3"></div>
+                                  <div class="col-md-5">
+                                    <input
+                                      type="text"
+                                      name="rubika"
+                                      id="rubika"
+                                      class="form-control"
+                                      value=""
+                                    />
+                                  </div>
+                                  <label
+                                    for="back_label"
+                                    class="control-label desktop-label"
+                                    >/https://rubika.ir</label
+                                  >
+                                </div>
+                                <div class="form-group">
+                                  <label
+                                    for="sort_order"
+                                    class="col-md-1 control-label desktop-label"
+                                    >ایتا</label
+                                  >
+                                  <label
+                                    for="back_label"
+                                    class="control-label mobile-label"
+                                    >/https://eitaa.ir</label
+                                  >
+                                  <div class="col-md-3"></div>
+                                  <div class="col-md-5">
+                                    <input
+                                      type="text"
+                                      name="eita"
+                                      id="eita"
+                                      class="form-control"
+                                      value=""
+                                    />
+                                  </div>
+                                  <label
+                                    for="back_label"
+                                    class="control-label desktop-label"
+                                    >/https://eitaa.ir</label
+                                  >
+                                </div>
+                                <div class="form-group">
+                                  <label
+                                    for="sort_order"
+                                    class="col-md-1 control-label desktop-label"
+                                    >بله</label
+                                  >
+                                  <label
+                                    for="back_label"
+                                    class="control-label mobile-label"
+                                    >https://bale.ai</label
+                                  >
+                                  <div class="col-md-3"></div>
+                                  <div class="col-md-5">
+                                    <input
+                                      type="text"
+                                      name="bale"
+                                      id="bale"
+                                      class="form-control"
+                                      value=""
+                                    />
+                                  </div>
+                                  <label
+                                    for="back_label"
+                                    class="control-label desktop-label"
+                                    >https://bale.ai</label
+                                  >
+                                </div>
+                                
+                              </div>
+                            </div>
+                            <input
+                              type="submit"
+                              class="btn btn-primary"
+                              value="افزودن مکان"
+                            />
+                          </form>
+                        </div>
+                      </div>
+                      <!-- /.box-body -->
+                    </div>
+                    <!-- /.box -->
+                  </div>
+                </div>
+                <!-- /.row -->
+              </section>
+              <!-- /.content -->
+            </div>
+            <!-- /.content-wrapper 
+    <footer class="main-footer">
+        <div class="pull-right hidden-xs">
+            <span>© کلیه حقوق این وب سایت متعلق به شرکت پارس آویژه ونداد می‌باشد </span>
+        </div>
+     
+    </footer>-->
+          </div>
+{% endblock content %}
+
+{% block scripts %}
+    <script>
+      const checkboxes = document.querySelectorAll('.myCheck');
+      const label = document.getElementById('worktime');
+
+      checkboxes.forEach((checkbox) => {
+        checkbox.addEventListener('change', () => {
+          if (checkbox.checked) {
+            const selectedText = document.getElementById(`label_${checkbox.name}`).textContent.trim();
+            label.textContent = `ساعات کاری روز ${selectedText}`;
+            checkboxes.forEach((other) => {
+              if (other !== checkbox) {
+                other.checked = false;
+              }
+            });
+          }
+        });
+      });
+    </script>
+    <script>
+      var editor_config = {
+        path_absolute: "/",
+        selector: "textarea.tinymce",
+        plugins: [
+          "advlist autolink lists link image charmap print preview hr anchor pagebreak",
+          "searchreplace wordcount visualblocks visualchars code fullscreen",
+          "insertdatetime media nonbreaking save table contextmenu directionality",
+          "emoticons template paste textcolor colorpicker textpattern",
+        ],
+        directionality: "rtl",
+        toolbar:
+          "insertfile undo redo | rtl ltr | styleselect | fontsizeselect | forecolor backcolor | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image media",
+        fontsize_formats: "11px 12px 14px 16px 18px 24px 36px 48px",
+        relative_urls: false,
+        file_browser_callback: function (field_name, url, type, win) {
+          var x =
+            window.innerWidth ||
+            document.documentElement.clientWidth ||
+            document.getElementsByTagName("body")[0].clientWidth;
+          var y =
+            window.innerHeight ||
+            document.documentElement.clientHeight ||
+            document.getElementsByTagName("body")[0].clientHeight;
+
+          var cmsURL =
+            editor_config.path_absolute +
+            "laravel-filemanager?field_name=" +
+            field_name;
+          if (type == "image") {
+            cmsURL = cmsURL + "&type=Images";
+          } else {
+            cmsURL = cmsURL + "&type=Files";
+          }
+
+          tinyMCE.activeEditor.windowManager.open({
+            file: cmsURL,
+            title: "Filemanager",
+            width: x * 0.8,
+            height: y * 0.8,
+            resizable: "yes",
+            close_previous: "no",
+          });
+        },
+        language: "fa_IR",
+      };
+
+      tinymce.init(editor_config);
+    </script>
+    <script>
+      $(document).ready(function () {
+        $(".pagination").addClass("pagination-sm no-margin pull-right");
+        $(".close-callout").click(function () {
+          $(this).parentsUntil(".pad").remove();
+        });
+      });
+    </script>
+    <script>
+      $(document).ready(function () {
+        $(".close-callout").click(function () {
+          $(this).parentsUntil(".pad").remove();
+        });
+      });
+    </script>
+    <script>
+      $(".sidebar-toggle").click(function () {
+        $(".side-col").toggleClass("col-lg-1 col-md-1");
+        $(".content-col").toggleClass("col-lg-11 col-md-11");
+      });
+    </script>
+    
+    <script>
+      $(document).ready(function () {
+        $(".demo").click(function () {
+          $(this).find("i").toggleClass("fa-plus-circle fa-minus-circle");
+          var id = $(this).find(".category_child").attr("data-type");
+          $(".category" + id).toggleClass("hide");
+        });
+      });
+    </script>
+    <script>
+      $(document).ready(function(){
+          $('#city').select2({
+              allowClear: true,
+              placeholder : 'شهر را انتخاب کنید',
+          });
+          $('#county').select2({
+              allowClear: true,
+              placeholder : 'شهرستان را انتخاب کنید',
+          });
+          $('#village').select2({
+              allowClear: true,
+              placeholder : 'روستا را انتخاب کنید',
+          });
+          $('#province').select2({
+              allowClear: true,
+              placeholder : 'استان را انتخاب کنید',
+          });
+          $('#phoneforplace').select2({
+              allowClear: true,
+              placeholder : 'موبایل مدیر مکان را انتخاب کنید',
+          });
+      });
+      $(document).ready(function () {
+          var $form           = $("#form");
+          var $name           = $form.find("#name");
+          var $slug           = $form.find("#slug");
+          $name.on("keyup", function(event) {
+              function replaceSpacesWithDash(str) {
+                  return str.replace(/ /g, '-');
+              }
+              $slug.val(replaceSpacesWithDash($name.val()));
+          });
+      });
+    </script>
+{% endblock %}

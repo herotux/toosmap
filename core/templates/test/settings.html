@@ -1,0 +1,275 @@
+{% extends 'mainadmin.html' %}
+
+{% block style %}
+<style>
+    .custom-controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    @media only screen and (max-width: 768px) {
+        .dt-paging {
+            margin-right: 10px!important;
+            margin-left: 10px!important;
+        }
+    }
+    div.dt-container div.dt-info {
+        text-align:right!important;
+    }
+    .dt-paging, .dt-search {
+        white-space: nowrap;
+        
+    }
+    .info-section {
+        margin-bottom: 10px;
+    }
+    th {
+        text-align: right!important;
+    }
+    .pagination {
+        margin: 20px 0 !important;
+    }
+</style>
+<link href="https://cdn.datatables.net/v/bs/dt-2.2.2/datatables.min.css" rel="stylesheet" integrity="sha384-xd6yqpSXZRZVl62sBIxyT2i4xVlfaxWVjVQB7qsVte0qEr3iepsBrLi/awgmIoPV" crossorigin="anonymous">
+{% endblock %}
+
+{% block content %}
+          <div class="col-lg-10 col-md-8 col-xs-12 content-col pl-0">
+            <!-- Content Wrapper. Contains page content -->
+            <div class="content-wrapper" style="min-height: 678px">
+              <!-- Content Header (Page header) -->
+
+              <!-- Main content -->
+              <section class="content">
+                <div class="row">
+                  <div class="col-xs-12">
+                    <div class="box">
+                      <div class="box-header with-border">
+                        <h3 class="box-title">تنظیمات سایت</h3>
+                      </div>
+                      <!-- /.box-header -->
+                      <div class="box-body table-responsive no-padding">
+					    
+                        <table class="table table-hover" id="settings">
+                          <thead>
+                            <tr>
+                              <th>#</th>
+                              <th>عنوان سایت</th>
+                              <th>محتوا</th>
+                              <th>عملیات</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td>1</td>
+                              <td>عنوان تنظیمات</td>
+                              <td>-</td>
+                              
+                              <td>
+                                <a
+                                  href="https://toosshop.com/admin/settings/36/edit"
+                                  class="btn btn-primary btn-xs"
+                                >
+                                  <span class="fa fa-pencil"></span> ویرایش
+                                  مقدار
+                                </a>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>2</td>
+                              <td>تلفن</td>
+                              <td>-</td>
+                              
+                              <td>
+                                <a
+                                  href="https://toosshop.com/admin/settings/34/edit"
+                                  class="btn btn-primary btn-xs"
+                                >
+                                  <span class="fa fa-pencil"></span> ویرایش
+                                  مقدار
+                                </a>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>3</td>
+                              <td>ایمیل</td>
+                              <td>-</td>
+                              
+                              <td>
+                                <a
+                                  href="https://toosshop.com/admin/settings/35/edit"
+                                  class="btn btn-primary btn-xs"
+                                >
+                                  <span class="fa fa-pencil"></span> ویرایش
+                                  مقدار
+                                </a>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>4</td>
+                              <td>آدرس</td>
+                              <td>-</td>
+                              
+                              <td>
+                                <a
+                                  href="https://toosshop.com/admin/settings/31/edit"
+                                  class="btn btn-primary btn-xs"
+                                >
+                                  <span class="fa fa-pencil"></span> ویرایش
+                                  مقدار
+                                </a>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>5</td>
+                              <td>شعار سایت</td>
+                              <td>-</td>
+                              
+                              <td>
+                                <a
+                                  href="https://toosshop.com/admin/settings/30/edit"
+                                  class="btn btn-primary btn-xs"
+                                >
+                                  <span class="fa fa-pencil"></span> ویرایش
+                                  مقدار
+                                </a>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>6</td>
+                              <td>متن کپی رایت</td>
+                              <td>-</td>
+                              
+                              <td>
+                                <a
+                                  href="https://toosshop.com/admin/settings/16/edit"
+                                  class="btn btn-primary btn-xs"
+                                >
+                                  <span class="fa fa-pencil"></span> ویرایش
+                                  مقدار
+                                </a>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>7</td>
+                              <td>اینماد</td>
+                              <td>-</td>
+                              
+                              <td>
+                                <a
+                                  href="https://toosshop.com/admin/settings/25/edit"
+                                  class="btn btn-primary btn-xs"
+                                >
+                                  <span class="fa fa-pencil"></span> ویرایش
+                                  مقدار
+                                </a>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>8</td>
+                              <td>نماد ساماندهی</td>
+                              <td>-</td>
+                              
+                              <td>
+                                <a
+                                  href="https://toosshop.com/admin/settings/33/edit"
+                                  class="btn btn-primary btn-xs"
+                                >
+                                  <span class="fa fa-pencil"></span> ویرایش
+                                  مقدار
+                                </a>
+                              </td>
+                            </tr>
+							<tr>
+                              <td>9</td>
+                              <td>نسخه برنامه</td>
+                              <td>-</td>
+                              
+                              <td>
+                                <a
+                                  href="https://toosshop.com/admin/settings/33/edit"
+                                  class="btn btn-primary btn-xs"
+                                >
+                                  <span class="fa fa-pencil"></span> ویرایش
+                                  مقدار
+                                </a>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                        
+                      </div>
+                      <!-- /.box-body -->
+                      
+                      <!-- /.box-footer -->
+                    </div>
+                    <!-- /.box -->
+                  </div>
+                </div>
+                <!-- /.row -->
+              </section>
+              <!-- /.content -->
+            </div>
+            <!-- /.content-wrapper 
+<footer class="main-footer">
+  <div class="pull-right hidden-xs">
+      <span>© کلیه حقوق این وب سایت متعلق به شرکت پارس آویژه ونداد می‌باشد </span>
+  </div>
+
+</footer>-->
+          </div>
+{% endblock content %}
+
+{% block scripts %}
+{% load static %}
+    <script src="https://cdn.datatables.net/v/bs/dt-2.2.2/datatables.min.js" integrity="sha384-KsmaH+vFCWsWkBqzoXM7HmafapkguLKrj9aRyWzIIaUDqRN99PP25wJUm7ZE+KP3" crossorigin="anonymous"></script>
+    
+    <script>
+    $('#settings').DataTable({
+        dom: '<"top custom-controls"lpf>rt<"bottom custom-controls"lpf><"info-section"i><"clear">',
+        "language": {
+            "url": "{% static 'test/admin/js/yajra/i18n/Persian.json' %}"
+        },
+        lengthMenu: [[10, 25, 50, 100, 250, 500], [10, 25, 50, 100, 250, 500]],
+        pageLength: 25,
+        columns: [
+            null,
+            null,
+            null,
+            { orderSequence: [''] }
+        ]
+    });
+    </script>
+    <script>
+      $(document).ready(function () {
+        $(".pagination").addClass("pagination-sm no-margin pull-right");
+        $(".close-callout").click(function () {
+          $(this).parentsUntil(".pad").remove();
+        });
+      });
+    </script>
+    <script>
+      $(document).ready(function () {
+        $(".close-callout").click(function () {
+          $(this).parentsUntil(".pad").remove();
+        });
+      });
+    </script>
+    <script>
+      $(".sidebar-toggle").click(function () {
+        $(".side-col").toggleClass("col-lg-1 col-md-2");
+        $(".content-col").toggleClass("col-lg-11 col-md-10");
+      });
+    </script>
+
+    <script>
+      $(document).ready(function () {
+        $(".demo").click(function () {
+          $(this).find("i").toggleClass("fa-plus-circle fa-minus-circle");
+          var id = $(this).find(".category_child").attr("data-type");
+          $(".category" + id).toggleClass("hide");
+        });
+      });
+    </script>
+{% endblock %}
