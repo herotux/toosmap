@@ -246,17 +246,18 @@ def generate_job_code():
 class Place(models.Model):
     name = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
+    description = models.CharField(max_length=2000)
+    province = models.ForeignKey(Province, on_delete=models.SET_NULL, null=True, blank=True, related_name='places')
+    county = models.ForeignKey(County, on_delete=models.SET_NULL, null=True, blank=True, related_name='places')
+    city = models.ForeignKey(City, on_delete=models.SET_NULL, null=True, blank=True, related_name='places')
+    district = models.ForeignKey(District, on_delete=models.SET_NULL, null=True, blank=True, related_name='places')
+    address = models.TextField()
     coordinates = gis_models.PointField(
         srid=4326,
         null=True,
         blank=True,
         verbose_name='مختصات'
     )
-    address = models.TextField()
-    province = models.ForeignKey(Province, on_delete=models.SET_NULL, null=True, blank=True, related_name='places')
-    county = models.ForeignKey(County, on_delete=models.SET_NULL, null=True, blank=True, related_name='places')
-    city = models.ForeignKey(City, on_delete=models.SET_NULL, null=True, blank=True, related_name='places')
-    district = models.ForeignKey(District, on_delete=models.SET_NULL, null=True, blank=True, related_name='places')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
