@@ -227,12 +227,12 @@
 
             const formData = new FormData(this);
 
-            fetch("https://toosshop.com/admin/categories", {
+            fetch('/api/add-category/', {
                 method: 'POST',
                 headers: {
-                    'X-CSRF-TOKEN': $('input[name="_token"]').val()
+                    'X-CSRFToken': '{{ csrf_token }}',
                 },
-                body: formData
+                body: formData,
             })
             .then(response => {
                 if (!response.ok) throw new Error("خطا در ارسال درخواست");
