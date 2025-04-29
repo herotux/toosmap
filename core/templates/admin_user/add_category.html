@@ -1,329 +1,261 @@
-{% extends 'admin_user/base.html' %}
-{% load static %}
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/add-user.css' %}">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<style>
-    .container_header {
-        display: block;
-    }
-
-    .form-header {
-        background-color: #bfdefd;
-        color: #333;
-        padding: 15px 25px;
-        border-radius: 8px 8px 0 0;
-        margin-bottom: 20px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .form-header h2 {
-        margin: 0;
-        font-size: 18px;
-    }
-
-    .form-header a {
-        text-decoration: none;
-        color: #333;
-    }
-
-    .error-message {
-        background-color: #ffebee;
-        color: #c62828;
-        padding: 15px;
-        border-radius: 4px;
-        margin-bottom: 15px;
-        display: none;
-    }
-
-    .success-message {
-        background-color: #4CAF50;
-        color: white;
-        padding: 15px;
-        border-radius: 4px;
-        margin-bottom: 15px;
-        display: none;
-        text-align: center;
-    }
-
-    .container {
-        width: 100%;
-        margin: 20px auto;
-        background: #fff;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        display: flex;
-        justify-content: center;
-    }
-
-    #category-form {
-        max-width: 600px;
-        width: 100%;
-    }
-
-    .form-group {
-        margin-bottom: 15px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .form-group label {
-        flex: 1;
-        font-weight: bold;
-    }
-
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-        flex: 2;
-        padding: 8px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        direction: rtl;
-        background-color: #fff;
-        color: gray;
-    }
-
-    .image-preview {
-        position: relative;
-        display: inline-block;
-        margin: 10px 0;
-    }
-
-    .image-preview img {
-        max-width: 150px;
-        max-height: 150px;
-        border: 2px solid #eee;
-        border-radius: 4px;
-    }
-
-    .delete-image-btn {
-        position: absolute;
-        top: -10px;
-        right: -10px;
-        background: #ff4444;
-        color: white;
-        border: none;
-        border-radius: 50%;
-        width: 25px;
-        height: 25px;
-        cursor: pointer;
-        font-weight: bold;
-    }
-
-    .btn-submit {
-        width: 100%;
-        padding: 10px;
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        margin-top: 10px;
-        font-size: 16px;
-    }
-
-    .btn-submit:hover {
-        background-color: #45a049;
-    }
-
-    @media (max-width: 768px) {
-        .form-group {
-            flex-direction: column;
-            align-items: flex-start;
+{% extends 'mainadmin.html' %}
+{% block style %}
+    <style>
+        .select2-container {
+            width: 100%!important;
         }
 
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
+        .callout {
+            padding: 15px;
+            margin: 15px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
         }
-    }
 
-    /* استایل پایه برای هماهنگی با سایر فیلدها */
-    .select2-container--default .select2-selection--single {
-        height: 38px !important;
-        border: 1px solid #ccc !important;
-        border-radius: 4px !important;
-        padding: 6px 12px !important;
-    }
+        .callout-success {
+            background-color: #dff0d8;
+            border-color: #d6e9c6;
+            color: #3c763d;
+        }
 
-    /* تنظیمات متن */
-    .select2-container--default .select2-selection--single .select2-selection__rendered {
-        line-height: 24px !important;
-        color: gray !important;
-        font-size: 14px !important;
-    }
-
-    /* آیکون dropdown */
-    .select2-container--default .select2-selection--single .select2-selection__arrow {
-        height: 36px !important;
-    }
-
-    /* تنظیمات RTL برای Select2 */
-    .select2-container--default .select2-selection--single {
-        direction: rtl !important;
-        text-align: right !important;
-    }
-
-    .select2-results__option {
-        direction: rtl !important;
-        text-align: right !important;
-    }
-</style>
+        .callout-danger {
+            background-color: #f2dede;
+            border-color: #ebccd1;
+            color: #a94442;
+        }
+    </style>
 {% endblock %}
 
 {% block content %}
-<div class="container_header">
-    <div id="error-message" class="error-message" style="display: none;"></div>
-    <div id="success-message" class="success-message" style="display: none;"></div>
-    <div class="form-header">
-        <h2>افزودن دسته‌بندی جدید</h2>
-        <a href="{% url 'list_categories' %}">لیست دسته‌بندی‌ها</a>
+<div class="col-lg-10 col-md-8 col-xs-12 content-col pl-0">
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper" style="min-height: 1008px">
+        <!-- Main content -->
+        <section class="content">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="box">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">افزودن دسته‌بندی</h3>
+                            <div class="box-tools">
+                                <div class="input-group input-group-sm">
+                                    <a href="https://toosshop.com/admin/categories" class="btn btn-default btn-sm">
+                                        لیست دسته‌بندی‌ها
+                                        <span class="fa fa-arrow-left"></span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- /.box-header -->
+                        <div class="box-body">
+                            <div class="nav-tabs-custom no-shadow">
+                                <ul class="nav nav-tabs">
+                                    <li class="active"><a href="#tab_general" data-toggle="tab">عمومی</a></li>
+                                    <li><a href="#tab_seo" data-toggle="tab">سئو</a></li>
+                                    <li><a href="#tab_information" data-toggle="tab">اطلاعات</a></li>
+                                </ul>
+
+                                <form id="form" method="post" enctype="multipart/form-data" class="form-horizontal">
+                                    <input type="hidden" name="_token" value="ZopUcPw8uSNjwfbSKGl6U0dWCzFkLR97L9tlAHNk" />
+
+                                    <div class="tab-content">
+                                        <div id="error-message" class="callout callout-danger" style="display:none;"></div>
+                                        <div id="success-message" class="callout callout-success" style="display:none;"></div>
+
+                                        <!-- Tab General -->
+                                        <div id="tab_general" class="tab-pane active">
+                                            <div class="form-group">
+                                                <label for="name" class="col-md-1 control-label">نام *</label>
+                                                <div class="col-md-11">
+                                                    <input type="text" name="name" id="name" class="form-control" required />
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="latinname" class="col-md-1 control-label">نام لاتین</label>
+                                                <div class="col-md-11">
+                                                    <input type="text" name="latinname" id="latinname" class="form-control" />
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="label" class="col-md-1 control-label">لیبل</label>
+                                                <div class="col-md-11">
+                                                    <input type="text" name="label" id="label" class="form-control" />
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="slug" class="col-md-1 control-label">اسلاگ *</label>
+                                                <div class="col-md-11">
+                                                    <input type="text" name="slug" id="slug" class="form-control" dir="ltr" required />
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="content" class="col-md-1 control-label">توضیحات</label>
+                                                <div class="col-md-11">
+                                                    <textarea name="content" id="content" class="form-control tinymce"></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Tab SEO -->
+                                        <div id="tab_seo" class="tab-pane">
+                                            <div class="form-group">
+                                                <label for="meta_keywords" class="col-md-1 control-label">کلمات کلیدی</label>
+                                                <div class="col-md-11">
+                                                    <textarea name="meta_keywords" id="meta_keywords" class="form-control" rows="3" placeholder="کلمات کلیدی را با خط تیره (-) از هم جدا کنید"></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="meta_description" class="col-md-1 control-label">توضیحات متا</label>
+                                                <div class="col-md-11">
+                                                    <textarea name="meta_description" id="meta_description" class="form-control" rows="5"></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Tab Information -->
+                                        <div id="tab_information" class="tab-pane">
+                                            <div class="form-group">
+                                                <label for="parent_id" class="col-md-1 control-label">دسته والد</label>
+                                                <div class="col-md-11">
+                                                    <select name="parent_id" id="parent_id" class="form-control">
+                                                        <option value="">بدون والد</option>
+                                                        <option value="1">test</option>
+                                                        <option value="2">test2</option>
+                                                        <option value="3">test3</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="sort_order" class="col-md-1 control-label">ترتیب</label>
+                                                <div class="col-md-11">
+                                                    <input type="number" name="sort_order" id="sort_order" class="form-control" min="0" max="999" />
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="icon" class="col-md-1 control-label">آیکون</label>
+                                                <div class="col-md-11">
+                                                    <input type="file" name="icon" id="icon" class="form-control" />
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="image" class="col-md-1 control-label">تصویر</label>
+                                                <div class="col-md-11">
+                                                    <input type="file" name="image" id="image" class="form-control" />
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="banner" class="col-md-1 control-label">بنر</label>
+                                                <div class="col-md-11">
+                                                    <input type="file" name="banner" id="banner" class="form-control" />
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="has_slider" class="col-md-1 control-label">دارای اسلایدر</label>
+                                                <div class="col-md-11">
+                                                    <input type="checkbox" name="has_slider" id="has_slider" value="1">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="status" class="col-md-1 control-label">وضعیت</label>
+                                                <div class="col-md-11">
+                                                    <select name="status" id="status" class="form-control">
+                                                        <option value="0">پیش‌نویس</option>
+                                                        <option value="1">انتشار</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="box-footer text-center">
+                                        <button type="submit" class="btn btn-primary">افزودن دسته‌بندی</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
 </div>
+{% endblock %}
 
-<div class="container">
-    <form id="category-form" method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <div class="form-group">
-            <label for="name">نام</label>
-            <input type="text" id="name" name="name" placeholder="نام را وارد کنید" required>
-        </div>
-        <div class="form-group">
-            <label for="slug">Slug</label>
-            <input type="text" id="slug" name="slug" placeholder="Slug را وارد کنید" required>
-        </div>
-        <div class="form-group">
-            <label for="label">برچسب</label>
-            <input type="text" id="label" name="label" placeholder="برچسب را وارد کنید">
-        </div>
-
-        <!-- بخش مدیریت آیکون -->
-        <div class="form-group">
-            <label>آیکون دسته</label>
-            <input type="file" id="icon" name="icon">
-        </div>
-
-        <!-- بخش مدیریت تصویر -->
-        <div class="form-group">
-            <label>تصویر دسته</label>
-            <input type="file" id="image" name="image">
-        </div>
-
-        <!-- بخش مدیریت بنر -->
-        <div class="form-group">
-            <label>بنر دسته</label>
-            <input type="file" id="banner" name="banner">
-        </div>
-
-        <div class="form-group">
-            <label for="meta_keywords">کلمات کلیدی متا</label>
-            <textarea id="meta_keywords" name="meta_keywords" placeholder="کلمات کلیدی متا را وارد کنید"></textarea>
-        </div>
-
-        <div class="form-group">
-            <label for="meta_description">توضیحات متا</label>
-            <textarea id="meta_description" name="meta_description" placeholder="توضیحات متا را وارد کنید"></textarea>
-        </div>
-
-        <div class="form-group">
-            <label for="parent">دسته‌بندی والد</label>
-            <select id="parent" name="parent">
-                <option value="">بدون والد</option>
-                
-                {% for cat_id, cat_name in categories %}
-                    
-                    <option value="{{ cat_id }}">{{ cat_name }}</option>
-                {% endfor %}
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label for="has_slider">اسلایدر دارد</label>
-            <input type="checkbox" id="has_slider" name="has_slider">
-        </div>
-
-        <div class="form-group">
-            <label for="sort_order">ترتیب نمایش</label>
-            <input type="number" id="sort_order" name="sort_order" placeholder="ترتیب نمایش را وارد کنید">
-        </div>
-
-        <div class="form-group">
-            <label for="status">وضعیت</label>
-            <select id="status" name="status">
-                <option value="true">فعال</option>
-                <option value="false">غیرفعال</option>
-            </select>
-        </div>
-
-        <button type="submit" class="btn-submit">افزودن دسته‌بندی</button>
-    </form>
-</div>
-
+{% block scripts %}
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/5/tinymce.min.js"></script>
+
+<!-- TinyMCE -->
 <script>
-    $(document).ready(function() {
-        $('#parent').select2({
-            placeholder: "دسته‌بندی والد را انتخاب کنید",
-            allowClear: true
-        });
+    tinymce.init({
+        selector: "textarea.tinymce",
+        height: 300,
+        directionality: "rtl",
+        menubar: false,
+        plugins: [
+            "advlist autolink lists link image charmap print preview anchor",
+            "searchreplace visualblocks code fullscreen",
+            "insertdatetime media table paste code help wordcount"
+        ],
+        toolbar:
+            "undo redo | formatselect | bold italic backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | help"
     });
+</script>
 
-    document.getElementById('category-form').addEventListener('submit', function (e) {
-        e.preventDefault();
+<!-- Form Submission via AJAX -->
+<script>
+    $(document).ready(function () {
+        $('#parent_id').select2({ placeholder: 'دسته‌بندی والد را انتخاب کنید' });
 
-        const formData = new FormData(this);
-        fetch('/api/add-category/', {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': '{{ csrf_token }}',
-            },
-            body: formData,
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.id) {  // بررسی وجود شناسه دسته
-                const successMessage = document.getElementById('success-message');
-                successMessage.innerHTML = 'دسته‌بندی با موفقیت ثبت شد!';
-                successMessage.style.display = 'block';
-                document.getElementById('category-form').reset();
-                setTimeout(() => {
-                    successMessage.style.display = 'none';
-                }, 5000);
-            } else {
-                const errorMessage = document.getElementById('error-message');
-                if (data.errors) {
-                    errorMessage.innerHTML = `
-                        <strong>خطا!</strong>
-                        <ul>
-                            ${Object.entries(data.errors).map(([field, errors]) => `
-                                <li>${field}: ${errors.join(', ')}</li>
-                            `).join('')}
-                        </ul>
-                    `;
+        $("#name").on("keyup", function() {
+            var slug = this.value.trim()
+                .replace(/\s+/g, "-")
+                .toLowerCase();
+            $("#slug").val(slug);
+        });
+
+        // Submit form using AJAX
+        $('#form').on('submit', function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+
+            fetch("https://toosshop.com/admin/categories", {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': $('input[name="_token"]').val()
+                },
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) throw new Error("خطا در ارسال درخواست");
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    $('#success-message')
+                        .html(data.message || "دسته‌بندی با موفقیت ثبت شد.")
+                        .show()
+                        .delay(5000)
+                        .fadeOut();
+                    $('#form')[0].reset();
                 } else {
-                    errorMessage.innerHTML = `<strong>خطا:</strong> ${data.message || 'خطا در ثبت دسته‌بندی!'}`;
+                    let errorHtml = '<ul>';
+                    for (let field in data.errors) {
+                        data.errors[field].forEach(error => {
+                            errorHtml += `<li><strong>${field}:</strong> ${error}</li>`;
+                        });
+                    }
+                    errorHtml += '</ul>';
+
+                    $('#error-message').html('<strong>خطا!</strong>' + errorHtml).show();
                 }
-                errorMessage.style.display = 'block';
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            const errorMessage = document.getElementById('error-message');
-            errorMessage.innerHTML = `<strong>خطا:</strong> ${error.message || 'خطا در ارتباط با سرور!'}`;
-            errorMessage.style.display = 'block';
+            })
+            .catch(error => {
+                $('#error-message').html(`<strong>خطا:</strong> ${error.message}`).show();
+            });
         });
     });
 </script>
